@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'core/di/injector.dart';
+import 'core/localization/app_localizations.dart';
+import 'core/localization/locale_cubit.dart';
+import 'core/localization/locale_keys.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+import 'modules/auth/presentation/bloc/auth_bloc.dart';
+import 'modules/onboarding/presentation/cubit/onboarding_cubit.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
+  runApp(const KlikApp());
+}
+
+class KlikApp extends StatefulWidget {
+  const KlikApp({super.key});
+
+  @override
+  State<KlikApp> createState() => _KlikAppState();
+}
+
+class _KlikAppState extends State<KlikApp> {
+  // App-level blocs that drive the router's redirect guard. Their states start
+  // as `unknown`, so the guard holds on splash until they resolve.
+  final AuthBloc _authBloc = sl<AuthBloc>();
+  final OnboardingCubit _onboardingCubit = sl<OnboardingCubit>();
+  final LocaleCubit _localeCubit = sl<LocaleCubit>();
+  late final _router = AppRouter.create(_authBloc, _onboardingCubit);
+
+  /// Minimum time the branded splash stays on screen before resolving where to
+  /// go next. The startup reads (token / prefs) are local and instant, so
+  /// deferring them by this delay gives a predictable splash duration.
+  static const _splashMinDuration = Duration(seconds: 2);
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(_splashMinDuration, () {
+      if (!mounted) return;
+      _onboardingCubit.check();
+      _authBloc.add(const AuthCheckRequested());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _authBloc),
+        BlocProvider.value(value: _onboardingCubit),
+        BlocProvider.value(value: _localeCubit),
+      ],
+      // Rebuild MaterialApp when the locale changes; Flutter handles RTL for ar.
+      child: BlocBuilder<LocaleCubit, Locale>(
+        builder: (context, locale) {
+          return MaterialApp.router(
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context).translate(LocaleKeys.appName),
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(context),
+            locale: locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: _router,
+          );
+        },
+      ),
+    );
+  }
+}

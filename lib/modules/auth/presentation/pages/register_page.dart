@@ -1,0 +1,205 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/countries.dart';
+import '../../../../core/di/injector.dart';
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../bloc/auth_bloc.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/auth_scaffold.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _email = TextEditingController();
+  final _phone = TextEditingController();
+  final _password = TextEditingController();
+  Country _country = Countries.defaultCountry;
+  bool _agreed = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    _phone.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!_agreed) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(context.tr(LocaleKeys.mustAgreeTerms))),
+        );
+      return;
+    }
+    sl<AuthBloc>().add(
+      AuthRegisterRequested(
+        name: _name.text,
+        email: _email.text,
+        password: _password.text,
+        phone: _phone.text,
+        country: _country.nameEn,
+        countryIso: _country.isoCode,
+        countryCode: _country.dialCode,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      bloc: sl<AuthBloc>(),
+      listenWhen: (p, c) => p.errorMessage != c.errorMessage,
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        }
+      },
+      child: AuthScaffold(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              context.gapH(48),
+              AuthHeader(
+                title: context.tr(LocaleKeys.createAccount),
+                subtitle: context.tr(LocaleKeys.registerSubtitle),
+              ),
+              context.gapH(32),
+              AppTextField.name(
+                controller: _name,
+                hint: context.tr(LocaleKeys.fullName),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? context.tr(LocaleKeys.fieldRequired)
+                    : null,
+              ),
+              context.gapH(16),
+              AppTextField.email(
+                controller: _email,
+                hint: context.tr(LocaleKeys.emailAddress),
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? context.tr(LocaleKeys.invalidEmail)
+                    : null,
+              ),
+              context.gapH(16),
+              AppTextField.phone(
+                controller: _phone,
+                hint: context.tr(LocaleKeys.phoneNumber),
+                country: _country,
+                onCountryChanged: (c) => setState(() => _country = c),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? context.tr(LocaleKeys.fieldRequired)
+                    : null,
+              ),
+              context.gapH(16),
+              AppTextField.password(
+                controller: _password,
+                hint: context.tr(LocaleKeys.password),
+                validator: (v) => (v == null || v.length < 6)
+                    ? context.tr(LocaleKeys.passwordMin)
+                    : null,
+              ),
+              context.gapH(12),
+              _AgreeTerms(
+                value: _agreed,
+                onChanged: (v) => setState(() => _agreed = v),
+              ),
+              context.gapH(16),
+              BlocBuilder<AuthBloc, AuthState>(
+                bloc: sl<AuthBloc>(),
+                buildWhen: (p, c) => p.isSubmitting != c.isSubmitting,
+                builder: (context, state) => AppButton.filled(
+                  label: context.tr(LocaleKeys.signUp),
+                  isLoading: state.isSubmitting,
+                  onPressed: _submit,
+                ),
+              ),
+              context.gapH(16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(context.tr(LocaleKeys.haveAccount),
+                      style: const TextStyle(color: AppColors.textSecondary)),
+                  AppButton.text(
+                    label: context.tr(LocaleKeys.logIn),
+                    foregroundColor: AppColors.primary,
+                    onPressed: () => context.pop(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AgreeTerms extends StatelessWidget {
+  const _AgreeTerms({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: context.r(24),
+          height: context.r(24),
+          child: Checkbox(
+            value: value,
+            onChanged: (v) => onChanged(v ?? false),
+            activeColor: AppColors.primary,
+            visualDensity: VisualDensity.compact,
+          ),
+        ),
+        context.gapW(8),
+        Expanded(
+          child: Padding(
+            padding: context.edge(top: 2),
+            child: Text.rich(
+              TextSpan(
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: context.sp(13),
+                ),
+                children: [
+                  TextSpan(text: '${context.tr(LocaleKeys.agreePrefix)} '),
+                  TextSpan(
+                    text: context.tr(LocaleKeys.termsPrivacy),
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

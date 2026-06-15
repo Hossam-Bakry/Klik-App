@@ -1,0 +1,50 @@
+{
+  "app_name": "Klik",
+
+  "onboarding_welcome_title": "Welcome to Klik",
+  "onboarding_welcome_subtitle": "Discover the best electronics for better life..\nEverything you need in one place",
+  "onboarding_delivery_title": "Fast & Secure\nDelivery",
+  "onboarding_delivery_subtitle": "Quick Delivery to your doorstep with save\nand secure packaging",
+
+  "skip": "Skip",
+  "next": "Next",
+  "get_started": "Get Started",
+  "retry": "Retry",
+
+  "store_title": "Klik Store",
+  "sign_out": "Sign out",
+  "something_went_wrong": "Something went wrong.",
+
+  "welcome_back": "Welcome Back",
+  "login_subtitle": "Sign in to continue shopping smarter",
+  "phone_number": "Phone Number",
+  "password": "Password",
+  "full_name": "Full name",
+  "email_address": "Email Adress",
+  "forget_password_q": "Forget Password ?",
+  "log_in": "Log In",
+  "no_account": "Don't have an account?",
+  "sign_up": "Sign Up",
+  "or": "OR",
+
+  "create_account": "Create Account",
+  "register_subtitle": "Join us and experience smart Shopping",
+  "agree_prefix": "I agree with",
+  "terms_privacy": "Terms & Condition and Privacy Policy",
+  "have_account": "Already have an account?",
+
+  "forget_password_title": "Forget Password",
+  "forget_password_subtitle": "Enter your number and We Will send you OTP",
+  "send_otp": "Send OTP",
+
+  "enter_otp": "Enter OTP",
+  "otp_sent_to": "we have sent a 4-digit OTP to",
+  "resend_otp_in": "Resend OTP in",
+  "verify_otp": "verify OTP",
+
+  "field_required": "Required",
+  "invalid_phone": "Enter a valid phone number",
+  "invalid_email": "Invalid email",
+  "password_min": "Min 6 characters",
+  "must_agree_terms": "Please accept the terms to continue."
+}

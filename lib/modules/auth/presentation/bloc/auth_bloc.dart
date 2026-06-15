@@ -1,0 +1,140 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/network/api_result.dart';
+import '../../domain/entities/auth_session.dart';
+import '../../domain/entities/social_account.dart';
+import '../../domain/usecases/get_current_session_usecase.dart';
+import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
+import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/social_sign_in_usecase.dart';
+
+part 'auth_event.dart';
+part 'auth_state.dart';
+
+/// App-level BLoC: its lifecycle spans the whole app and the router's
+/// `redirect` guard reacts to its state. Because of that it's the one BLoC we
+/// register as a singleton in get_it (unlike page-scoped BLoCs like Catalog).
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  AuthBloc({
+    required LoginUseCase login,
+    required RegisterUseCase register,
+    required LogoutUseCase logout,
+    required GetCurrentSessionUseCase getCurrentSession,
+    required SocialSignInUseCase socialSignIn,
+  })  : _login = login,
+        _register = register,
+        _logout = logout,
+        _getCurrentSession = getCurrentSession,
+        _socialSignIn = socialSignIn,
+        super(const AuthState()) {
+    on<AuthCheckRequested>(_onCheckRequested);
+    on<AuthLoginRequested>(_onLoginRequested);
+    on<AuthRegisterRequested>(_onRegisterRequested);
+    on<AuthSocialSignInRequested>(_onSocialSignInRequested);
+    on<AuthLogoutRequested>(_onLogoutRequested);
+  }
+
+  final LoginUseCase _login;
+  final RegisterUseCase _register;
+  final LogoutUseCase _logout;
+  final GetCurrentSessionUseCase _getCurrentSession;
+  final SocialSignInUseCase _socialSignIn;
+
+  Future<void> _onCheckRequested(
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Must always resolve so the splash guard can advance — a failed secure
+    // storage read (e.g. iOS Keychain error) falls back to unauthenticated
+    // rather than leaving the app stuck on the splash screen.
+    AuthSession? session;
+    try {
+      session = await _getCurrentSession();
+    } catch (_) {
+      session = null;
+    }
+    emit(state.copyWith(
+      status: session != null
+          ? AuthStatus.authenticated
+          : AuthStatus.unauthenticated,
+      session: session,
+    ));
+  }
+
+  Future<void> _onLoginRequested(
+    AuthLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isSubmitting: true));
+    final result = await _login(
+      phone: event.phone,
+      password: event.password,
+      countryIso: event.countryIso,
+      countryCode: event.countryCode,
+    );
+    _emitAuthResult(result, emit);
+  }
+
+  Future<void> _onRegisterRequested(
+    AuthRegisterRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isSubmitting: true));
+    // Auto-login: a successful registration yields an authenticated session.
+    final result = await _register(
+      name: event.name,
+      email: event.email,
+      password: event.password,
+      phone: event.phone,
+      country: event.country,
+      countryIso: event.countryIso,
+      countryCode: event.countryCode,
+      gender: event.gender,
+    );
+    _emitAuthResult(result, emit);
+  }
+
+  Future<void> _onSocialSignInRequested(
+    AuthSocialSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isSubmitting: true));
+    final result = await _socialSignIn(event.type);
+    if (result == null) {
+      // User cancelled the native dialog — no error, just stop the spinner.
+      emit(state.copyWith(isSubmitting: false));
+      return;
+    }
+    _emitAuthResult(result, emit);
+  }
+
+  /// Shared success/failure handling for login, register & social sign-in.
+  void _emitAuthResult(
+    ApiResult<AuthSession> result,
+    Emitter<AuthState> emit,
+  ) {
+    switch (result) {
+      case ApiSuccess(:final data):
+        emit(state.copyWith(
+          status: AuthStatus.authenticated,
+          session: data,
+          isSubmitting: false,
+        ));
+      case ApiFailure(:final failure):
+        emit(state.copyWith(
+          isSubmitting: false,
+          errorMessage: failure.message,
+        ));
+    }
+  }
+
+  Future<void> _onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _logout();
+    emit(const AuthState(status: AuthStatus.unauthenticated));
+  }
+}

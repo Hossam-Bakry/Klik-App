@@ -1,0 +1,50 @@
+{
+  "app_name": "كليك",
+
+  "onboarding_welcome_title": "مرحبًا بك في كليك",
+  "onboarding_welcome_subtitle": "اكتشف أفضل الإلكترونيات لحياة أفضل..\nكل ما تحتاجه في مكان واحد",
+  "onboarding_delivery_title": "توصيل سريع\nوآمن",
+  "onboarding_delivery_subtitle": "توصيل سريع إلى باب منزلك مع تغليف\nآمن ومحفوظ",
+
+  "skip": "تخطّي",
+  "next": "التالي",
+  "get_started": "ابدأ الآن",
+  "retry": "إعادة المحاولة",
+
+  "store_title": "متجر كليك",
+  "sign_out": "تسجيل الخروج",
+  "something_went_wrong": "حدث خطأ ما.",
+
+  "welcome_back": "مرحبًا بعودتك",
+  "login_subtitle": "سجّل الدخول لمواصلة التسوّق بذكاء",
+  "phone_number": "رقم الهاتف",
+  "password": "كلمة المرور",
+  "full_name": "الاسم الكامل",
+  "email_address": "البريد الإلكتروني",
+  "forget_password_q": "نسيت كلمة المرور؟",
+  "log_in": "تسجيل الدخول",
+  "no_account": "ليس لديك حساب؟",
+  "sign_up": "إنشاء حساب",
+  "or": "أو",
+
+  "create_account": "إنشاء حساب",
+  "register_subtitle": "انضم إلينا واختبر التسوّق الذكي",
+  "agree_prefix": "أوافق على",
+  "terms_privacy": "الشروط والأحكام وسياسة الخصوصية",
+  "have_account": "لديك حساب بالفعل؟",
+
+  "forget_password_title": "نسيت كلمة المرور",
+  "forget_password_subtitle": "أدخل رقمك وسنرسل لك رمز التحقق",
+  "send_otp": "إرسال الرمز",
+
+  "enter_otp": "أدخل الرمز",
+  "otp_sent_to": "لقد أرسلنا رمزًا من ٤ أرقام إلى",
+  "resend_otp_in": "إعادة الإرسال خلال",
+  "verify_otp": "تأكيد الرمز",
+
+  "field_required": "مطلوب",
+  "invalid_phone": "أدخل رقم هاتف صحيح",
+  "invalid_email": "بريد إلكتروني غير صالح",
+  "password_min": "٦ أحرف على الأقل",
+  "must_agree_terms": "يرجى الموافقة على الشروط للمتابعة."
+}
