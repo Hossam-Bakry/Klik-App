@@ -38,7 +38,9 @@ class AppButton extends StatelessWidget {
     this.fontSize = 16,
     this.cornerRadius,
     _AppButtonShape shape = _AppButtonShape.stadium,
-  }) : _shape = shape;
+    bool inkEffect = true,
+  }) : _shape = shape,
+       _inkEffect = inkEffect;
 
   /// Solid filled button with a custom [color] and rounded-rectangle corners
   /// (not a full pill) — the bronze auth CTAs (Log In, Sign up, Send OTP, …).
@@ -142,6 +144,8 @@ class AppButton extends StatelessWidget {
          foregroundColor: foregroundColor,
          expanded: false,
          height: 40,
+         horizontalPadding: 0,
+         inkEffect: false,
        );
 
   /// Compact light pill that reads over imagery, e.g. onboarding "Skip".
@@ -183,6 +187,9 @@ class AppButton extends StatelessWidget {
   final double? cornerRadius;
   final _AppButtonShape _shape;
 
+  /// Whether tapping shows the Material ripple/hover overlay. Off for [text].
+  final bool _inkEffect;
+
   bool get _isCircle => _shape == _AppButtonShape.circle;
 
   @override
@@ -207,22 +214,27 @@ class AppButton extends StatelessWidget {
         child: InkWell(
           onTap: (disabled || isLoading) ? null : onPressed,
           borderRadius: radius,
+          splashColor: _inkEffect ? null : Colors.transparent,
+          highlightColor: _inkEffect ? null : Colors.transparent,
+          hoverColor: _inkEffect ? null : Colors.transparent,
+          focusColor: _inkEffect ? null : Colors.transparent,
           child: Container(
             height: h,
             width: _isCircle ? h : null,
             padding: _isCircle ? null : EdgeInsets.symmetric(horizontal: context.r(horizontalPadding ?? 24)),
             decoration: decoration,
-            // Center the child only when the button fills its width (or is a
-            // circle). When not expanded, leave alignment null so the button
-            // hugs its content instead of stretching to the parent's width.
-            alignment: (expanded || _isCircle) ? Alignment.center : null,
+            // Always center the child vertically (and horizontally). When not
+            // expanded the surrounding IntrinsicWidth keeps the button hugging
+            // its content width instead of stretching to the parent's width.
+            alignment: Alignment.center,
             child: _buildChild(context),
           ),
         ),
       ),
     );
 
-    if (_isCircle || !expanded) return button;
+    if (_isCircle) return button;
+    if (!expanded) return IntrinsicWidth(child: button);
     return SizedBox(width: double.infinity, child: button);
   }
 

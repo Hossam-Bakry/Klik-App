@@ -111,7 +111,7 @@ class _Slide extends StatelessWidget {
               clipper: _CurvedBottomClipper(context.r(32)),
               child: data.image.image(
                 width: context.wf(1),
-                height: context.hf(0.6),
+                height: context.hf(0.66),
                 fit: BoxFit.fitWidth,
                 filterQuality: FilterQuality.high,
               ),

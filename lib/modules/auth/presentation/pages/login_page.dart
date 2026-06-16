@@ -25,10 +25,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _phone = TextEditingController(text: '530695737');
-  final _password = TextEditingController(text: 'Ahmed@1234');
+  final _phone = TextEditingController();
+  final _password = TextEditingController();
   // Saudi Arabia matches the pre-filled Postman sample account (9-digit number).
-  Country _country = Countries.saudiArabia;
+  Country _country = Countries.kuwait;
 
   @override
   void dispose() {
@@ -146,6 +146,7 @@ class _AccountSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      spacing: context.w(8),
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

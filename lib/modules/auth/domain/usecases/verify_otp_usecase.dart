@@ -15,7 +15,7 @@ class VerifyOtpUseCase {
     required String countryIso,
     required String countryCode,
   }) {
-    if (otp.trim().length < 4) {
+    if (otp.trim().length < 6) {
       return Future.value(
         const ApiFailure<String>(
           ValidationFailure('Enter the full verification code.'),

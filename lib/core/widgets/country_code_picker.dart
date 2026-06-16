@@ -22,7 +22,7 @@ class CountryCodePicker extends StatelessWidget {
     return PopupMenuButton<Country>(
       onSelected: onChanged,
       initialValue: selected,
-      color: AppColors.surface,
+      color: Color(0xFFFDF9F1),
       offset: Offset(0, context.r(44)),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(context.r(12)),

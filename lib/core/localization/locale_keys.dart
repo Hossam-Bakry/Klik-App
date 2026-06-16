@@ -51,10 +51,19 @@ abstract class LocaleKeys {
   static const resendOtpIn = 'resend_otp_in';
   static const verifyOtp = 'verify_otp';
 
+  // Change password
+  static const changePasswordTitle = 'change_password_title';
+  static const changePasswordSubtitle = 'change_password_subtitle';
+  static const newPassword = 'new_password';
+  static const confirmPassword = 'confirm_password';
+  static const changePassword = 'change_password';
+  static const passwordChanged = 'password_changed';
+
   // Validation
   static const fieldRequired = 'field_required';
   static const invalidPhone = 'invalid_phone';
   static const invalidEmail = 'invalid_email';
   static const passwordMin = 'password_min';
+  static const passwordsDoNotMatch = 'passwords_do_not_match';
   static const mustAgreeTerms = 'must_agree_terms';
 }

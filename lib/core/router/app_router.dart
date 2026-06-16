@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../modules/auth/presentation/bloc/auth_bloc.dart';
 import '../../modules/auth/presentation/cubit/password_reset_cubit.dart';
+import '../../modules/auth/presentation/pages/change_password_page.dart';
 import '../../modules/auth/presentation/pages/forgot_password_page.dart';
 import '../../modules/auth/presentation/pages/login_page.dart';
 import '../../modules/auth/presentation/pages/otp_verification_page.dart';
@@ -83,6 +84,13 @@ class AppRouter {
           // If reached without it (e.g. deep link), bounce to forgot-password.
           redirect: (context, state) => state.extra is PasswordResetCubit ? null : AppRoutes.forgotPassword,
           builder: (context, state) => OtpVerificationPage(cubit: state.extra as PasswordResetCubit),
+        ),
+        GoRoute(
+          path: AppRoutes.changePassword,
+          // Same in-flight cubit handed over via `extra` (now holding the reset
+          // token from verify-otp). Bounce to forgot-password if missing.
+          redirect: (context, state) => state.extra is PasswordResetCubit ? null : AppRoutes.forgotPassword,
+          builder: (context, state) => ChangePasswordPage(cubit: state.extra as PasswordResetCubit),
         ),
         GoRoute(
           path: AppRoutes.catalog,

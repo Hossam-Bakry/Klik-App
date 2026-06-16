@@ -38,13 +38,21 @@
   "send_otp": "إرسال الرمز",
 
   "enter_otp": "أدخل الرمز",
-  "otp_sent_to": "لقد أرسلنا رمزًا من ٤ أرقام إلى",
+  "otp_sent_to": "لقد أرسلنا رمزًا من ٦ أرقام إلى",
   "resend_otp_in": "إعادة الإرسال خلال",
   "verify_otp": "تأكيد الرمز",
+
+  "change_password_title": "تغيير كلمة المرور",
+  "change_password_subtitle": "أدخل كلمة المرور الجديدة أدناه",
+  "new_password": "كلمة المرور الجديدة",
+  "confirm_password": "تأكيد كلمة المرور",
+  "change_password": "تغيير كلمة المرور",
+  "password_changed": "تم تغيير كلمة المرور بنجاح.",
 
   "field_required": "مطلوب",
   "invalid_phone": "أدخل رقم هاتف صحيح",
   "invalid_email": "بريد إلكتروني غير صالح",
   "password_min": "٦ أحرف على الأقل",
+  "passwords_do_not_match": "كلمتا المرور غير متطابقتين",
   "must_agree_terms": "يرجى الموافقة على الشروط للمتابعة."
 }

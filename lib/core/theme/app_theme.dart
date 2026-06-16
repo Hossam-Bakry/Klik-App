@@ -69,13 +69,7 @@ class AppTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          padding: EdgeInsets.zero,
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          overlayColor: Colors.transparent,
-        ),
+        style: TextButton.styleFrom(foregroundColor: AppColors.primary),
       ),
       // Inputs: filled with the light label tone, subtle border that turns to
       // the brand color on focus.

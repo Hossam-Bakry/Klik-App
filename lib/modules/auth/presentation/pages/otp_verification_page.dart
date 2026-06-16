@@ -16,7 +16,7 @@ import '../widgets/auth_header.dart';
 import '../widgets/auth_illustration.dart';
 import '../widgets/auth_scaffold.dart';
 
-const int _otpLength = 4;
+const int _otpLength = 6;
 const int _resendSeconds = 40;
 
 /// Receives the in-flight [PasswordResetCubit] from the forgot-password screen
@@ -98,9 +98,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         listenWhen: (p, c) => p.status != c.status,
         listener: (context, state) {
           if (state.status == ResetStatus.verified) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code verified.')));
-            // TODO: navigate to a reset-password screen when designed.
-            context.go(AppRoutes.login);
+            // Hand the same cubit (now holding the reset token) to the
+            // change-password screen via `extra`.
+            context.pushReplacement(AppRoutes.changePassword, extra: widget.cubit);
           } else if (state.status == ResetStatus.failure && state.error != null) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -149,9 +149,9 @@ class _OtpBoxes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (var i = 0; i < _otpLength; i++) ...[
+        for (var i = 0; i < _otpLength; i++)
           SizedBox(
             width: context.r(50),
             height: context.r(70),
@@ -174,8 +174,6 @@ class _OtpBoxes extends StatelessWidget {
               onChanged: (v) => onChanged(i, v),
             ),
           ),
-          if (i < _otpLength - 1) context.gapW(12),
-        ],
       ],
     );
   }

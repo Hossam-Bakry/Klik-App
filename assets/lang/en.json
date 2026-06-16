@@ -38,13 +38,21 @@
   "send_otp": "Send OTP",
 
   "enter_otp": "Enter OTP",
-  "otp_sent_to": "we have sent a 4-digit OTP to",
+  "otp_sent_to": "we have sent a 6-digit OTP to",
   "resend_otp_in": "Resend OTP in",
   "verify_otp": "verify OTP",
+
+  "change_password_title": "Reset new password",
+  "change_password_subtitle": "Create a strong password to secure your account",
+  "new_password": "New Password",
+  "confirm_password": "Confirm Password",
+  "change_password": "Change Password",
+  "password_changed": "Your password has been changed.",
 
   "field_required": "Required",
   "invalid_phone": "Enter a valid phone number",
   "invalid_email": "Invalid email",
   "password_min": "Min 6 characters",
+  "passwords_do_not_match": "Passwords do not match",
   "must_agree_terms": "Please accept the terms to continue."
 }

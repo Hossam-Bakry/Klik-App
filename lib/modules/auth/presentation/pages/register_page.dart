@@ -135,6 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               context.gapH(16),
               Row(
+                spacing: context.w(8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(context.tr(LocaleKeys.haveAccount),

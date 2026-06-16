@@ -9,6 +9,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String otp = '/otp';
+  static const String changePassword = '/change-password';
   static const String catalog = '/catalog';
 
   /// Routes reachable while unauthenticated (the full auth flow). The guard
@@ -18,5 +19,6 @@ class AppRoutes {
     register,
     forgotPassword,
     otp,
+    changePassword,
   };
 }
