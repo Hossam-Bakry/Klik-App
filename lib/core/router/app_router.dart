@@ -9,8 +9,7 @@ import '../../modules/auth/presentation/pages/forgot_password_page.dart';
 import '../../modules/auth/presentation/pages/login_page.dart';
 import '../../modules/auth/presentation/pages/otp_verification_page.dart';
 import '../../modules/auth/presentation/pages/register_page.dart';
-import '../../modules/catalog/presentation/bloc/catalog_bloc.dart';
-import '../../modules/catalog/presentation/pages/catalog_page.dart';
+import '../../modules/main/presentation/pages/main_layout_page.dart';
 import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
@@ -50,7 +49,7 @@ class AppRouter {
           if (location == AppRoutes.splash ||
               location == AppRoutes.onboarding ||
               AppRoutes.authFlow.contains(location)) {
-            return AppRoutes.catalog;
+            return AppRoutes.home;
           }
           return null;
         }
@@ -93,11 +92,10 @@ class AppRouter {
           builder: (context, state) => ChangePasswordPage(cubit: state.extra as PasswordResetCubit),
         ),
         GoRoute(
-          path: AppRoutes.catalog,
-          // Page-scoped bloc provided at the route; CatalogPage is a pure
-          // consumer. The provider disposes the bloc when the route is popped.
-          builder: (context, state) =>
-              BlocProvider(create: (_) => sl<CatalogBloc>()..add(const CatalogStarted()), child: const CatalogPage()),
+          // Post-login shell hosting the bottom-nav destinations (Home tab
+          // provides its own CatalogBloc internally).
+          path: AppRoutes.home,
+          builder: (context, state) => const MainLayoutPage(),
         ),
       ],
     );

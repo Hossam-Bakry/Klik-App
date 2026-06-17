@@ -19,6 +19,17 @@ abstract class LocaleKeys {
   static const storeTitle = 'store_title';
   static const signOut = 'sign_out';
   static const somethingWentWrong = 'something_went_wrong';
+  static const comingSoon = 'coming_soon';
+
+  // Home
+  static const homeGreeting = 'home_greeting';
+  static const homeWelcome = 'home_welcome';
+  static const searchHint = 'search_hint';
+  static const promoTitle = 'promo_title';
+  static const promoSubtitle = 'promo_subtitle';
+  static const categories = 'categories';
+  static const popularProducts = 'popular_products';
+  static const seeAll = 'see_all';
 
   // Login
   static const welcomeBack = 'welcome_back';

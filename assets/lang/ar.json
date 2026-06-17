@@ -14,6 +14,16 @@
   "store_title": "متجر كليك",
   "sign_out": "تسجيل الخروج",
   "something_went_wrong": "حدث خطأ ما.",
+  "coming_soon": "قريبًا",
+
+  "home_greeting": "مرحبًا بعودتك 👋",
+  "home_welcome": "اعثر على صفقتك التالية",
+  "search_hint": "ابحث عن المنتجات",
+  "promo_title": "خصم حتى ٥٠٪",
+  "promo_subtitle": "على إلكترونيات مختارة هذا الأسبوع",
+  "categories": "الفئات",
+  "popular_products": "المنتجات الرائجة",
+  "see_all": "عرض الكل",
 
   "welcome_back": "مرحبًا بعودتك",
   "login_subtitle": "سجّل الدخول لمواصلة التسوّق بذكاء",

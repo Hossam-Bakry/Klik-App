@@ -14,6 +14,16 @@
   "store_title": "Klik Store",
   "sign_out": "Sign out",
   "something_went_wrong": "Something went wrong.",
+  "coming_soon": "Coming soon",
+
+  "home_greeting": "Welcome back 👋",
+  "home_welcome": "Find your next deal",
+  "search_hint": "Search products",
+  "promo_title": "Up to 50% Off",
+  "promo_subtitle": "On selected electronics this week",
+  "categories": "Categories",
+  "popular_products": "Popular Products",
+  "see_all": "See all",
 
   "welcome_back": "Welcome Back",
   "login_subtitle": "Sign in to continue shopping smarter",

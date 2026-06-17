@@ -23,6 +23,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/cart_icn.svg
   SvgGenImage get cartIcn => const SvgGenImage('assets/icons/cart_icn.svg');
 
+  /// File path: assets/icons/category_icn.svg
+  SvgGenImage get categoryIcn =>
+      const SvgGenImage('assets/icons/category_icn.svg');
+
   /// File path: assets/icons/delivery_icn.svg
   SvgGenImage get deliveryIcn =>
       const SvgGenImage('assets/icons/delivery_icn.svg');
@@ -30,8 +34,28 @@ class $AssetsIconsGen {
   /// File path: assets/icons/google_icn.svg
   SvgGenImage get googleIcn => const SvgGenImage('assets/icons/google_icn.svg');
 
+  /// File path: assets/icons/home_icn.svg
+  SvgGenImage get homeIcn => const SvgGenImage('assets/icons/home_icn.svg');
+
+  /// File path: assets/icons/negotiation_icn.svg
+  SvgGenImage get negotiationIcn =>
+      const SvgGenImage('assets/icons/negotiation_icn.svg');
+
+  /// File path: assets/icons/profile_icn.svg
+  SvgGenImage get profileIcn =>
+      const SvgGenImage('assets/icons/profile_icn.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [appleIcn, cartIcn, deliveryIcn, googleIcn];
+  List<SvgGenImage> get values => [
+    appleIcn,
+    cartIcn,
+    categoryIcn,
+    deliveryIcn,
+    googleIcn,
+    homeIcn,
+    negotiationIcn,
+    profileIcn,
+  ];
 }
 
 class $AssetsImagesGen {
