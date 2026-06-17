@@ -4,13 +4,14 @@ import 'package:klik_app/gen/assets.gen.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// A bottom navigation bar with a smooth concave valley in the centre that
-/// cradles a floating bronze circle (the primary "Negotiation" action).
+/// A bottom navigation bar with a smooth concave valley that cradles a floating
+/// bronze circle (the active destination).
 ///
-/// Two tabs sit on each side of the centre circle:
-///   [Home, Category] · (Negotiation) · [Cart, Profile]
-/// The five destinations map to indices 0..4 (centre = 2) so they line up with
-/// the host layout's [IndexedStack].
+/// The five destinations map to indices 0..4 and sit in equal slots:
+///   [Home, Category, Negotiation, Cart, Profile]
+/// The valley and the floating circle slide to whichever tab is selected, with
+/// the selected icon riding inside the circle. Switching tabs animates the
+/// circle (and valley) across to the new slot.
 class CurvedBottomNav extends StatelessWidget {
   const CurvedBottomNav({super.key, required this.currentIndex, required this.onTap});
 
@@ -23,6 +24,15 @@ class CurvedBottomNav extends StatelessWidget {
   static const double _valleyHalfWidth = 64;
   static const double _valleyDepth = 34;
 
+  // Order matches indices 0..4.
+  static final List<SvgGenImage> _icons = [
+    Assets.icons.homeIcn,
+    Assets.icons.categoryIcn,
+    Assets.icons.negotiationIcn,
+    Assets.icons.cartIcn,
+    Assets.icons.profileIcn,
+  ];
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
@@ -33,93 +43,97 @@ class CurvedBottomNav extends StatelessWidget {
     return SizedBox(
       height: overhang + barHeight + bottomInset,
       width: double.infinity,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // The white bar with the painted central valley + soft shadow.
-          Positioned(
-            top: overhang,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: CustomPaint(
-              painter: _NavBarPainter(
-                color: AppColors.surface,
-                valleyHalfWidth: context.r(_valleyHalfWidth),
-                valleyDepth: context.r(_valleyDepth),
-              ),
-            ),
-          ),
-          // Tab icons: two on each side, with a gap reserved for the circle.
-          Positioned(
-            top: overhang,
-            left: 0,
-            right: 0,
-            height: barHeight,
-            child: Row(
-              children: [
-                _NavIcon(
-                  icon: Assets.icons.homeIcn,
-                  selected: currentIndex == 0,
-                  onTap: () => onTap(0),
-                ),
-                _NavIcon(
-                  icon: Assets.icons.categoryIcn,
-                  selected: currentIndex == 1,
-                  onTap: () => onTap(1),
-                ),
-                SizedBox(width: context.r(_valleyHalfWidth * 2)),
-                _NavIcon(
-                  icon: Assets.icons.cartIcn,
-                  selected: currentIndex == 3,
-                  onTap: () => onTap(3),
-                ),
-                _NavIcon(
-                  icon: Assets.icons.profileIcn,
-                  selected: currentIndex == 4,
-                  onTap: () => onTap(4),
-                ),
-              ],
-            ),
-          ),
-          // Floating centre circle (Negotiation), nestled in the valley.
-          Positioned(
-            top: overhang - circleR,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: _CenterButton(
-                radius: circleR,
-                selected: currentIndex == 2,
-                onTap: () => onTap(2),
-              ),
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final slotWidth = constraints.maxWidth / _icons.length;
+
+          // `position` interpolates between slot indices so the valley + circle
+          // glide across when [currentIndex] changes.
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: currentIndex.toDouble()),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            builder: (context, position, _) {
+              final centerX = (position + 0.5) * slotWidth;
+
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // The white bar with the painted valley (follows the circle).
+                  Positioned(
+                    top: overhang,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: CustomPaint(
+                      painter: _NavBarPainter(
+                        color: AppColors.surface,
+                        centerX: centerX,
+                        valleyHalfWidth: context.r(_valleyHalfWidth),
+                        valleyDepth: context.r(_valleyDepth),
+                      ),
+                    ),
+                  ),
+                  // Five equal tab slots. The icon under the moving circle fades
+                  // out, and reappears once the circle leaves it.
+                  Positioned(
+                    top: overhang,
+                    left: 0,
+                    right: 0,
+                    height: barHeight,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < _icons.length; i++)
+                          _NavIcon(
+                            icon: _icons[i],
+                            opacity: (position - i).abs().clamp(0.0, 1.0),
+                            onTap: () => onTap(i),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Floating circle, nestled in the valley, carrying the
+                  // selected destination's icon.
+                  Positioned(
+                    top: overhang - circleR,
+                    left: centerX - circleR,
+                    child: _CenterButton(
+                      radius: circleR,
+                      icon: _icons[currentIndex],
+                      onTap: () => onTap(currentIndex),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }
 }
 
 class _NavIcon extends StatelessWidget {
-  const _NavIcon({required this.icon, required this.selected, required this.onTap});
+  const _NavIcon({required this.icon, required this.opacity, required this.onTap});
 
   final SvgGenImage icon;
-  final bool selected;
+  final double opacity;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.primary : AppColors.textSecondary;
     return Expanded(
       child: InkResponse(
         onTap: onTap,
         radius: context.r(28),
         child: Center(
-          child: icon.svg(
-            width: context.r(30),
-            height: context.r(30),
-            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          child: Opacity(
+            opacity: opacity,
+            child: icon.svg(
+              width: context.r(30),
+              height: context.r(30),
+              colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+            ),
           ),
         ),
       ),
@@ -128,10 +142,10 @@ class _NavIcon extends StatelessWidget {
 }
 
 class _CenterButton extends StatelessWidget {
-  const _CenterButton({required this.radius, required this.selected, required this.onTap});
+  const _CenterButton({required this.radius, required this.icon, required this.onTap});
 
   final double radius;
-  final bool selected;
+  final SvgGenImage icon;
   final VoidCallback onTap;
 
   @override
@@ -153,7 +167,7 @@ class _CenterButton extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Assets.icons.negotiationIcn.svg(
+          child: icon.svg(
             width: context.r(30),
             height: context.r(30),
             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -165,17 +179,23 @@ class _CenterButton extends StatelessWidget {
 }
 
 /// Paints the white bar: a flat top that dips into a smooth symmetric valley
-/// in the centre, plus a soft drop shadow along the top edge.
+/// centred on [centerX], plus a soft drop shadow along the top edge.
 class _NavBarPainter extends CustomPainter {
-  const _NavBarPainter({required this.color, required this.valleyHalfWidth, required this.valleyDepth});
+  const _NavBarPainter({
+    required this.color,
+    required this.centerX,
+    required this.valleyHalfWidth,
+    required this.valleyDepth,
+  });
 
   final Color color;
+  final double centerX;
   final double valleyHalfWidth;
   final double valleyDepth;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
+    final cx = centerX;
     final path = Path()
       ..moveTo(0, 0)
       ..lineTo(cx - valleyHalfWidth, 0)
@@ -210,5 +230,8 @@ class _NavBarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_NavBarPainter old) =>
-      old.color != color || old.valleyHalfWidth != valleyHalfWidth || old.valleyDepth != valleyDepth;
+      old.color != color ||
+      old.centerX != centerX ||
+      old.valleyHalfWidth != valleyHalfWidth ||
+      old.valleyDepth != valleyDepth;
 }
