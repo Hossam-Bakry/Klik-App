@@ -17,6 +17,9 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/app_icon.png
+  AssetGenImage get appIcon => const AssetGenImage('assets/icons/app_icon.png');
+
   /// File path: assets/icons/apple_icn.svg
   SvgGenImage get appleIcn => const SvgGenImage('assets/icons/apple_icn.svg');
 
@@ -36,6 +39,10 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/home_icn.svg
   SvgGenImage get homeIcn => const SvgGenImage('assets/icons/home_icn.svg');
+
+  /// File path: assets/icons/money_dollar_icn.svg
+  SvgGenImage get moneyDollarIcn =>
+      const SvgGenImage('assets/icons/money_dollar_icn.svg');
 
   /// File path: assets/icons/negotiation_icn.svg
   SvgGenImage get negotiationIcn =>
@@ -64,13 +71,15 @@ class $AssetsIconsGen {
       const SvgGenImage('assets/icons/un_selected_favorite_icn.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [
+  List<dynamic> get values => [
+    appIcon,
     appleIcn,
     cartIcn,
     categoryIcn,
     deliveryIcn,
     googleIcn,
     homeIcn,
+    moneyDollarIcn,
     negotiationIcn,
     notificationIcn,
     profileIcn,

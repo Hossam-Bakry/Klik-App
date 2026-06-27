@@ -11,7 +11,13 @@ import 'product_price.dart';
 /// Wide "Open to offers" row: image + details + quantity stepper, with a
 /// negotiate call-to-action footer. Matches the home "Open to offers" list.
 class OfferProductCard extends StatelessWidget {
-  const OfferProductCard({super.key, required this.product, this.onTap, this.onIncrement, this.onDecrement});
+  const OfferProductCard({
+    super.key,
+    required this.product,
+    this.onTap,
+    this.onIncrement,
+    this.onDecrement,
+  });
 
   final HomeProduct product;
   final VoidCallback? onTap;
@@ -53,7 +59,11 @@ class OfferProductCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(context.r(0)),
                     ),
                     if (product.isBidable)
-                      Positioned(top: context.r(0), left: context.r(0), child: const NegotiateBadge()),
+                      Positioned(
+                        top: context.r(0),
+                        left: context.r(0),
+                        child: const NegotiateBadge(),
+                      ),
                   ],
                 ),
                 context.gapW(10),
@@ -92,12 +102,14 @@ class OfferProductCard extends StatelessWidget {
                 padding: EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryBronze
+                  color: AppColors.primaryBronze,
                 ),
                 child: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border,
                   size: context.r(20),
-                  color: product.isFavorite ? AppColors.surface : AppColors.surface,
+                  color: product.isFavorite
+                      ? AppColors.surface
+                      : AppColors.surface,
                 ),
               ),
             ],
@@ -105,16 +117,26 @@ class OfferProductCard extends StatelessWidget {
           context.gapH(4),
           Row(
             children: [
-              Icon(Icons.star_rounded, size: context.r(13), color: AppColors.primaryBronze),
+              Icon(
+                Icons.star_rounded,
+                size: context.r(15),
+                color: AppColors.primaryBronze,
+              ),
               context.gapW(1),
               Text(
                 product.rating.toStringAsFixed(1),
-                style: TextStyle(fontSize: context.sp(8), color: AppColors.textPrimary.withValues(alpha: 0.5)),
+                style: TextStyle(
+                  fontSize: context.sp(8),
+                  color: AppColors.textPrimary.withValues(alpha: 0.5),
+                ),
               ),
               context.gapW(8),
               Text(
                 '${context.tr(LocaleKeys.sold)} (${product.totalSold})',
-                style: TextStyle(fontSize: context.sp(8), color: AppColors.textPrimary.withValues(alpha: 0.5)),
+                style: TextStyle(
+                  fontSize: context.sp(8),
+                  color: AppColors.textPrimary.withValues(alpha: 0.5),
+                ),
               ),
             ],
           ),
@@ -122,9 +144,14 @@ class OfferProductCard extends StatelessWidget {
           Row(
             children: [
               ProductPrice(product: product),
-              if (product.estimatedDeliveryTime.isNotEmpty) _deliveryBadge(context),
+              if (product.estimatedDeliveryTime.isNotEmpty)
+                _deliveryBadge(context),
               const Spacer(),
-              _QuantityStepper(quantity: product.quantity, onIncrement: onIncrement, onDecrement: onDecrement),
+              _QuantityStepper(
+                quantity: product.quantity,
+                onIncrement: onIncrement,
+                onDecrement: onDecrement,
+              ),
             ],
           ),
         ],
@@ -142,11 +169,17 @@ class OfferProductCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Assets.icons.truckIcn.svg(),
+          Assets.icons.truckIcn.svg(
+            width: context.r(15),
+            height: context.r(15),
+          ),
           context.gapW(4),
           Text(
-            '${product.estimatedDeliveryTime} days',
-            style: TextStyle(fontSize: context.sp(11), color: AppColors.primary),
+            product.estimatedDeliveryTime,
+            style: TextStyle(
+              fontSize: context.sp(11),
+              color: AppColors.primary,
+            ),
           ),
         ],
       ),
@@ -161,11 +194,19 @@ class OfferProductCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.handshake_outlined, size: context.r(15), color: AppColors.primary),
+          Icon(
+            Icons.handshake_outlined,
+            size: context.r(15),
+            color: AppColors.primary,
+          ),
           context.gapW(6),
           Text(
             context.tr(LocaleKeys.sellerAcceptsOffers),
-            style: TextStyle(fontSize: context.sp(11), color: AppColors.primary, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: context.sp(11),
+              color: AppColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -174,7 +215,11 @@ class OfferProductCard extends StatelessWidget {
 }
 
 class _QuantityStepper extends StatelessWidget {
-  const _QuantityStepper({required this.quantity, this.onIncrement, this.onDecrement});
+  const _QuantityStepper({
+    required this.quantity,
+    this.onIncrement,
+    this.onDecrement,
+  });
 
   final int quantity;
   final VoidCallback? onIncrement;
@@ -190,7 +235,10 @@ class _QuantityStepper extends StatelessWidget {
           padding: context.edgeSymmetric(horizontal: 10),
           child: Text(
             '$quantity',
-            style: TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: context.sp(14),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         _StepButton(icon: Icons.add, filled: true, onTap: onIncrement),
@@ -216,9 +264,17 @@ class _StepButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: filled ? AppColors.primaryBronze : Colors.transparent,
           shape: BoxShape.circle,
-          border: filled ? null : Border.all(color: AppColors.primaryBronze.withValues(alpha: 0.4)),
+          border: filled
+              ? null
+              : Border.all(
+                  color: AppColors.primaryBronze.withValues(alpha: 0.4),
+                ),
         ),
-        child: Icon(icon, size: context.r(12), color: filled ? Colors.white : AppColors.primaryBronze),
+        child: Icon(
+          icon,
+          size: context.r(12),
+          color: filled ? Colors.white : AppColors.primaryBronze,
+        ),
       ),
     );
   }

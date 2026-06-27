@@ -21,7 +21,6 @@ class AppColors {
   static const Color primary = Color(0xFF905D1B);
   static const Color primaryBronze = Color(0xFFA9762E);
 
-
   /// Secondary brand color (gold) — splash accent / highlights.
   static const Color secondary = Color(0xFFD2A04E);
 

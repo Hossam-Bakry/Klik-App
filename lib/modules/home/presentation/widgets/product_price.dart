@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -20,7 +21,11 @@ class ProductPrice extends StatelessWidget {
       children: [
         Text(
           '${product.effectivePrice.toStringAsFixed(2)} $currency',
-          style: TextStyle(fontSize: context.sp(10), fontWeight: FontWeight.w500, color: AppColors.textPrimaryGold),
+          style: TextStyle(
+            fontSize: context.sp(10),
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimaryGold,
+          ),
         ),
         context.gapW(6),
         if (product.hasDiscount) ...[
@@ -39,7 +44,11 @@ class ProductPrice extends StatelessWidget {
               context.gapW(4),
               Text(
                 '${product.discountPercentage.toStringAsFixed(0)}%',
-                style: TextStyle(fontSize: context.sp(8), fontWeight: FontWeight.w700, color: AppColors.success),
+                style: TextStyle(
+                  fontSize: context.sp(8),
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.success,
+                ),
               ),
             ],
           ),
@@ -64,9 +73,22 @@ class NegotiateBadge extends StatelessWidget {
           bottomRight: Radius.circular(context.r(5)),
         ),
       ),
-      child: Text(
-        context.tr(LocaleKeys.negotiate),
-        style: TextStyle(fontSize: context.sp(9), fontWeight: FontWeight.w600, color: Colors.white),
+      child: Row(
+        spacing: context.w(2),
+        children: [
+          Assets.icons.moneyDollarIcn.svg(
+            width: context.r(15),
+            height: context.r(15),
+          ),
+          Text(
+            context.tr(LocaleKeys.negotiate),
+            style: TextStyle(
+              fontSize: context.sp(10),
+              fontWeight: FontWeight.w600,
+              color: AppColors.surface,
+            ),
+          ),
+        ],
       ),
     );
   }
