@@ -29,7 +29,7 @@ class SectionHeader extends StatelessWidget {
         if (onSeeAll != null)
           AppButton.text(
             label: context.tr(LocaleKeys.seeAll),
-            foregroundColor: AppColors.primary,
+            foregroundColor: AppColors.textSecondary,
             onPressed: onSeeAll!,
           ),
       ],

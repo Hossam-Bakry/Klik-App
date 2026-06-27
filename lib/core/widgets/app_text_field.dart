@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/countries.dart';
+import '../constants/validators.dart';
 import '../extensions/context_extensions.dart';
-import '../localization/locale_keys.dart';
 import '../theme/app_colors.dart';
 import 'country_code_picker.dart';
 
@@ -137,23 +137,27 @@ class _AppTextFieldState extends State<AppTextField> {
     }
   }
 
-  /// For phone fields: required + exact national length for the country.
+  /// For phone fields: required + no leading zero + exact national length for
+  /// the country (see [Validators.phone]). Other fields use their own validator.
   String? _validate(BuildContext context, String? value) {
     if (!_isPhone) return widget.validator?.call(value);
-    final digits = value?.trim() ?? '';
-    if (digits.isEmpty) return context.tr(LocaleKeys.fieldRequired);
-    if (!widget.country!.isValidPhone(digits)) {
-      return context.tr(LocaleKeys.invalidPhone);
+    return Validators.phone(context, widget.country!)(value);
+  }
+
+  List<TextInputFormatter>? get _formatters {
+    if (_isPhone) {
+      return [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(widget.country!.phoneLength),
+      ];
+    }
+    // Cap password length at the source so an oversized payload can never be
+    // typed or pasted in (see [Validators.passwordMaxLength]).
+    if (widget.isPassword) {
+      return [LengthLimitingTextInputFormatter(Validators.passwordMaxLength)];
     }
     return null;
   }
-
-  List<TextInputFormatter>? get _formatters => _isPhone
-      ? [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(widget.country!.phoneLength),
-        ]
-      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +174,7 @@ class _AppTextFieldState extends State<AppTextField> {
       keyboardType: widget.keyboardType,
       inputFormatters: _formatters,
       obscureText: widget.isPassword && _obscured,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: widget.hint,

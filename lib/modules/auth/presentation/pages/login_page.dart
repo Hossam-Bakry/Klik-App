@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/countries.dart';
+import '../../../../core/constants/validators.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -76,13 +77,12 @@ class _LoginPageState extends State<LoginPage> {
                 hint: context.tr(LocaleKeys.phoneNumber),
                 country: _country,
                 onCountryChanged: (c) => setState(() => _country = c),
-                validator: (v) => (v == null || v.trim().isEmpty) ? context.tr(LocaleKeys.fieldRequired) : null,
               ),
               context.gapH(16),
               AppTextField.password(
                 controller: _password,
                 hint: context.tr(LocaleKeys.password),
-                validator: (v) => (v == null || v.isEmpty) ? context.tr(LocaleKeys.fieldRequired) : null,
+                validator: Validators.required(context),
               ),
               context.gapH(8),
               Align(

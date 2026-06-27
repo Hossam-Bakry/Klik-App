@@ -6,8 +6,9 @@ import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../catalog/presentation/bloc/catalog_bloc.dart';
+import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 import '../widgets/curved_bottom_nav.dart';
 
 /// Post-login shell: keeps all five destinations alive in an [IndexedStack] and
@@ -25,15 +26,15 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      // Home — its sections consume this page-scoped CatalogBloc.
+      // Home — its sections consume this page-scoped HomeBloc.
       BlocProvider(
-        create: (_) => sl<CatalogBloc>()..add(const CatalogStarted()),
+        create: (_) => sl<HomeBloc>()..add(const HomeStarted()),
         child: const HomePage(),
       ),
       _PlaceholderTab(icon: Assets.icons.categoryIcn),
       _PlaceholderTab(icon: Assets.icons.negotiationIcn),
       _PlaceholderTab(icon: Assets.icons.cartIcn),
-      _PlaceholderTab(icon: Assets.icons.profileIcn),
+      const ProfilePage(),
     ];
 
     return Scaffold(

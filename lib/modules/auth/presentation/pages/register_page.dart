@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/countries.dart';
+import '../../../../core/constants/validators.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -88,17 +89,13 @@ class _RegisterPageState extends State<RegisterPage> {
               AppTextField.name(
                 controller: _name,
                 hint: context.tr(LocaleKeys.fullName),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? context.tr(LocaleKeys.fieldRequired)
-                    : null,
+                validator: Validators.name(context),
               ),
               context.gapH(16),
               AppTextField.email(
                 controller: _email,
                 hint: context.tr(LocaleKeys.emailAddress),
-                validator: (v) => (v == null || !v.contains('@'))
-                    ? context.tr(LocaleKeys.invalidEmail)
-                    : null,
+                validator: Validators.email(context),
               ),
               context.gapH(16),
               AppTextField.phone(
@@ -106,17 +103,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 hint: context.tr(LocaleKeys.phoneNumber),
                 country: _country,
                 onCountryChanged: (c) => setState(() => _country = c),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? context.tr(LocaleKeys.fieldRequired)
-                    : null,
               ),
               context.gapH(16),
               AppTextField.password(
                 controller: _password,
                 hint: context.tr(LocaleKeys.password),
-                validator: (v) => (v == null || v.length < 6)
-                    ? context.tr(LocaleKeys.passwordMin)
-                    : null,
+                validator: Validators.strongPassword(context),
               ),
               context.gapH(12),
               _AgreeTerms(

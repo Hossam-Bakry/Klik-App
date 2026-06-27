@@ -79,10 +79,10 @@ class Countries {
       nameAr: 'الإمارات');
 
   static const List<Country> all = [
-    egypt,
     kuwait,
-    oman,
     saudiArabia,
+    egypt,
+    oman,
     bahrain,
     qatar,
     uae,

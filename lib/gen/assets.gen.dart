@@ -41,9 +41,27 @@ class $AssetsIconsGen {
   SvgGenImage get negotiationIcn =>
       const SvgGenImage('assets/icons/negotiation_icn.svg');
 
+  /// File path: assets/icons/notification_icn.svg
+  SvgGenImage get notificationIcn =>
+      const SvgGenImage('assets/icons/notification_icn.svg');
+
   /// File path: assets/icons/profile_icn.svg
   SvgGenImage get profileIcn =>
       const SvgGenImage('assets/icons/profile_icn.svg');
+
+  /// File path: assets/icons/search_icn.svg
+  SvgGenImage get searchIcn => const SvgGenImage('assets/icons/search_icn.svg');
+
+  /// File path: assets/icons/selected_favorite_icn.svg
+  SvgGenImage get selectedFavoriteIcn =>
+      const SvgGenImage('assets/icons/selected_favorite_icn.svg');
+
+  /// File path: assets/icons/truck_icn.svg
+  SvgGenImage get truckIcn => const SvgGenImage('assets/icons/truck_icn.svg');
+
+  /// File path: assets/icons/un_selected_favorite_icn.svg
+  SvgGenImage get unSelectedFavoriteIcn =>
+      const SvgGenImage('assets/icons/un_selected_favorite_icn.svg');
 
   /// List of all assets
   List<SvgGenImage> get values => [
@@ -54,7 +72,12 @@ class $AssetsIconsGen {
     googleIcn,
     homeIcn,
     negotiationIcn,
+    notificationIcn,
     profileIcn,
+    searchIcn,
+    selectedFavoriteIcn,
+    truckIcn,
+    unSelectedFavoriteIcn,
   ];
 }
 

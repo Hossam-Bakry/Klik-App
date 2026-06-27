@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../gen/fonts.gen.dart';
-import 'app_colors.dart';
 import '../extensions/context_extensions.dart';
+import 'app_colors.dart';
 
 /// Centralized [ThemeData]. Build screens against `Theme.of(context)` so the
 /// whole app restyles from this one file.
@@ -15,6 +16,16 @@ import '../extensions/context_extensions.dart';
 /// `TextStyle(fontFamily: FontFamily.roboto)` where the design calls for it.
 class AppTheme {
   const AppTheme._();
+
+  /// Status bar styled for a light background: black text and icons on both
+  /// platforms. Applied app-wide via the [AppBarTheme] (screens with an
+  /// AppBar) and a global `SystemChrome` call in `main` (screens without one).
+  static const SystemUiOverlayStyle statusBarStyle = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    // Android: dark icons. iOS: light status-bar background ⇒ dark content.
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
+  );
 
   static ThemeData light(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
@@ -39,10 +50,12 @@ class AppTheme {
       fontFamily: FontFamily.inter,
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        shadowColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: statusBarStyle,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,

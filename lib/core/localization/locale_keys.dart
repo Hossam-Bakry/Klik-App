@@ -18,10 +18,12 @@ abstract class LocaleKeys {
 
   static const storeTitle = 'store_title';
   static const signOut = 'sign_out';
+  static const profileTitle = 'profile_title';
   static const somethingWentWrong = 'something_went_wrong';
   static const comingSoon = 'coming_soon';
 
   // Home
+  static const deliverTo = 'deliver_to';
   static const homeGreeting = 'home_greeting';
   static const homeWelcome = 'home_welcome';
   static const searchHint = 'search_hint';
@@ -30,6 +32,14 @@ abstract class LocaleKeys {
   static const categories = 'categories';
   static const popularProducts = 'popular_products';
   static const seeAll = 'see_all';
+  static const bestDealsForYou = 'best_deals_for_you';
+  static const shops = 'shops';
+  static const openToOffers = 'open_to_offers';
+  static const sold = 'sold';
+  static const negotiate = 'negotiate';
+  static const sellerAcceptsOffers = 'seller_accepts_offers';
+  static const currencyKwd = 'currency_kwd';
+  static const noItemsYet = 'no_items_yet';
 
   // Login
   static const welcomeBack = 'welcome_back';
@@ -73,8 +83,14 @@ abstract class LocaleKeys {
   // Validation
   static const fieldRequired = 'field_required';
   static const invalidPhone = 'invalid_phone';
+  static const phoneNoLeadingZero = 'phone_no_leading_zero';
   static const invalidEmail = 'invalid_email';
+  static const nameMin = 'name_min';
+  static const nameMax = 'name_max';
+  static const nameInvalid = 'name_invalid';
   static const passwordMin = 'password_min';
+  static const passwordStrong = 'password_strong';
+  static const passwordMax = 'password_max';
   static const passwordsDoNotMatch = 'passwords_do_not_match';
   static const mustAgreeTerms = 'must_agree_terms';
 }

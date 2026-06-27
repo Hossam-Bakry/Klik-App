@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
+import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../localization/locale_cubit.dart';
 import '../network/api_interface.dart';
@@ -28,6 +29,7 @@ Future<void> configureDependencies() async {
   registerAuthModule(sl);
   registerOnboardingModule(sl);
   registerCatalogModule(sl);
+  registerHomeModule(sl);
 }
 
 /// Shared, cross-module dependencies.
