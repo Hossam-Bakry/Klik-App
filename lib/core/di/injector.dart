@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../modules/address/di/address_injector.dart';
 import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
 import '../../modules/home/di/home_injector.dart';
@@ -11,6 +12,7 @@ import '../network/api_interface.dart';
 import '../network/dio_api_client.dart';
 import '../network/dio_client.dart';
 import '../network/token_provider.dart';
+import '../services/location_service.dart';
 
 /// Global service locator. Kept manual (no injectable/codegen) so the project
 /// builds without `build_runner`.
@@ -30,6 +32,7 @@ Future<void> configureDependencies() async {
   registerOnboardingModule(sl);
   registerCatalogModule(sl);
   registerHomeModule(sl);
+  registerAddressModule(sl);
 }
 
 /// Shared, cross-module dependencies.
@@ -50,7 +53,9 @@ Future<void> _registerCore() async {
     )
     ..registerLazySingleton<FlutterSecureStorage>(
       () => const FlutterSecureStorage(),
-    );
+    )
+    // Current-location + reverse-geocoding, shared by the address module.
+    ..registerLazySingleton<LocationService>(() => const LocationService());
 
   // SharedPreferences must be awaited once, then registered as a ready instance.
   final prefs = await SharedPreferences.getInstance();

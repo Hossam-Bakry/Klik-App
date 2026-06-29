@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:klik_app/core/widgets/app_text_field.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
@@ -11,7 +12,6 @@ import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_banners_section.dart';
 import '../widgets/home_categories_section.dart';
-import '../widgets/home_search_field.dart';
 import '../widgets/just_for_you_section.dart';
 import '../widgets/open_to_offers_section.dart';
 import '../widgets/shops_section.dart';
@@ -36,7 +36,8 @@ class HomePage extends StatelessWidget {
             if (state.status == HomeStatus.failure && state.feed == null) {
               return _ErrorView(
                 message: state.errorMessage,
-                onRetry: () => context.read<HomeBloc>().add(const HomeStarted()),
+                onRetry: () =>
+                    context.read<HomeBloc>().add(const HomeStarted()),
               );
             }
 
@@ -44,11 +45,15 @@ class HomePage extends StatelessWidget {
             final feed = loading ? HomeFeed.placeholder() : state.feed!;
 
             return RefreshIndicator(
-              onRefresh: () async => context.read<HomeBloc>().add(const HomeRefreshed()),
+              onRefresh: () async =>
+                  context.read<HomeBloc>().add(const HomeRefreshed()),
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 // Bottom padding clears the floating curved nav bar.
-                padding: EdgeInsets.only(top: context.r(8), bottom: context.r(120)),
+                padding: EdgeInsets.only(
+                  top: context.r(8),
+                  bottom: context.r(120),
+                ),
                 children: [
                   Padding(
                     padding: context.edgeHorizontal(16),
@@ -57,7 +62,22 @@ class HomePage extends StatelessWidget {
                   context.gapH(16),
                   Padding(
                     padding: context.edgeHorizontal(16),
-                    child: const HomeSearchField(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 20,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: AppTextField.search(
+                        controller: TextEditingController(),
+                        hint: context.tr(LocaleKeys.searchHint),
+                      ),
+                    ),
                   ),
                   context.gapH(20),
                   Skeletonizer(
@@ -72,7 +92,10 @@ class HomePage extends StatelessWidget {
                           products: feed.justForYou,
                           onSeeAll: loading
                               ? null
-                              : () => _open(context, JustForYouPage(products: feed.justForYou)),
+                              : () => _open(
+                                  context,
+                                  JustForYouPage(products: feed.justForYou),
+                                ),
                         ),
                         context.gapH(24),
                         ShopsSection(shops: feed.shops),
@@ -81,7 +104,12 @@ class HomePage extends StatelessWidget {
                           products: feed.bidableProducts,
                           onSeeAll: loading
                               ? null
-                              : () => _open(context, OpenToOffersPage(products: feed.bidableProducts)),
+                              : () => _open(
+                                  context,
+                                  OpenToOffersPage(
+                                    products: feed.bidableProducts,
+                                  ),
+                                ),
                         ),
                       ],
                     ),
@@ -114,12 +142,19 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: context.r(48), color: AppColors.textSecondary),
+            Icon(
+              Icons.cloud_off_rounded,
+              size: context.r(48),
+              color: AppColors.textSecondary,
+            ),
             context.gapH(12),
             Text(
               message ?? context.tr(LocaleKeys.somethingWentWrong),
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(14)),
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: context.sp(14),
+              ),
             ),
             context.gapH(16),
             AppButton.text(

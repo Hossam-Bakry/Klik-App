@@ -64,7 +64,7 @@ class _CategoryChip extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: context.sp(11), color: AppColors.textSecondary),
+            style: context.bodySmall
           ),
         ],
       ),

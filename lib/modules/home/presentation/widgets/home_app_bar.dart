@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../address/presentation/bloc/address_bloc.dart';
+import '../../../address/presentation/widgets/choose_address_sheet.dart';
 
 /// Top greeting row: a two-line welcome on the leading side and a notification
 /// bell on the trailing side.
@@ -15,29 +18,40 @@ class HomeAppBar extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                spacing: 10,
-                children: [
-                  Text(
-                    context.tr(LocaleKeys.deliverTo),
-                    style: TextStyle(fontSize: context.sp(18), color: AppColors.textPrimary.withValues(alpha: 0.7)),
-                  ),
-                  Icon(Icons.arrow_forward_ios_outlined, size: 14, color: AppColors.textPrimary.withValues(alpha: 0.7)),
-                ],
-              ),
-              context.gapH(2),
-              Text(
-                "87 kings road ",
-                style: TextStyle(
-                  fontSize: context.sp(13),
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary.withValues(alpha: 0.5),
+          child: InkWell(
+            onTap: () => showChooseAddressSheet(context),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  spacing: 10,
+                  children: [
+                    Text(
+                      context.tr(LocaleKeys.deliverTo),
+                      style: context.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w400
+                      ),
+                    ),
+                    Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: AppColors.textPrimary.withValues(alpha: 0.7)),
+                  ],
                 ),
-              ),
-            ],
+                context.gapH(2),
+                BlocBuilder<AddressBloc, AddressState>(
+                  builder: (context, state) {
+                    final label = state.deliveryLabel ??
+                        (state.locating
+                            ? context.tr(LocaleKeys.locating)
+                            : context.tr(LocaleKeys.selectAddress));
+                    return Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodyMedium
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         _NotificationButton(hasNew: true, onTap: () {}),

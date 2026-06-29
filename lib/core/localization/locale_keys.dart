@@ -93,4 +93,36 @@ abstract class LocaleKeys {
   static const passwordMax = 'password_max';
   static const passwordsDoNotMatch = 'passwords_do_not_match';
   static const mustAgreeTerms = 'must_agree_terms';
+
+  // Addresses
+  static const addNewAddress = 'add_new_address';
+  static const editAddress = 'edit_address';
+  static const chooseAddressLocation = 'choose_address_location';
+  static const savedAddresses = 'saved_addresses';
+  static const searchAnAddress = 'search_an_address';
+  static const noAddressesFound = 'no_addresses_found';
+  static const selectAddress = 'select_address';
+  static const city = 'city';
+  static const area = 'area';
+  static const flatNumber = 'flat_number';
+  static const postCode = 'post_code';
+  static const addressLine1 = 'address_line_1';
+  static const addressLine2 = 'address_line_2';
+  static const setAsDefaultAddress = 'set_as_default_address';
+  static const saveAddress = 'save_address';
+  static const saveChanges = 'save_changes';
+  static const useCurrentLocation = 'use_current_location';
+  static const change = 'change';
+  static const selectLocation = 'select_location';
+  static const confirmLocation = 'confirm_location';
+  static const moveMapToSelect = 'move_map_to_select';
+  static const typeHome = 'type_home';
+  static const typeWork = 'type_work';
+  static const typeOther = 'type_other';
+
+  // Location
+  static const locating = 'locating';
+  static const locationServiceDisabled = 'location_service_disabled';
+  static const locationPermissionDenied = 'location_permission_denied';
+  static const locationPermissionDeniedForever = 'location_permission_denied_forever';
 }

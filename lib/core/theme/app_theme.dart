@@ -99,6 +99,44 @@ class AppTheme {
         errorBorder: border(AppColors.error),
         focusedErrorBorder: border(AppColors.error, 1.5),
       ),
+      textTheme: TextTheme(
+        titleLarge: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(20),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(18),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        titleSmall: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(16),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(16),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(14),
+          fontWeight: FontWeight.w400,
+          color: AppColors.textSecondary,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(12),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
@@ -23,6 +24,10 @@ class MainLayoutPage extends StatefulWidget {
 class _MainLayoutPageState extends State<MainLayoutPage> {
   int _index = 0;
 
+  // Singleton: shared with the home header, bottom sheet, and add/edit routes.
+  // Loaded once here so the "Deliver to" label is ready when home shows.
+  final AddressBloc _addressBloc = sl<AddressBloc>()..add(const AddressStarted());
+
   @override
   Widget build(BuildContext context) {
     final pages = [
@@ -37,12 +42,17 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
       const ProfilePage(),
     ];
 
-    return Scaffold(
-      extendBody: true,
-      body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: CurvedBottomNav(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
+    // Provide the shared AddressBloc to the whole shell so the home header can
+    // read the selected delivery address and open the chooser sheet.
+    return BlocProvider.value(
+      value: _addressBloc,
+      child: Scaffold(
+        extendBody: true,
+        body: IndexedStack(index: _index, children: pages),
+        bottomNavigationBar: CurvedBottomNav(
+          currentIndex: _index,
+          onTap: (i) => setState(() => _index = i),
+        ),
       ),
     );
   }
