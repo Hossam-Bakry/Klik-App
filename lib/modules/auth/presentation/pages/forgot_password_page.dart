@@ -79,7 +79,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   hint: context.tr(LocaleKeys.phoneNumber),
                   country: _country,
                   onCountryChanged: (c) => setState(() => _country = c),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? context.tr(LocaleKeys.fieldRequired) : null,
                 ),
                 context.gapH(24),
                 AppButton.filled(label: context.tr(LocaleKeys.sendOtp), isLoading: loading, onPressed: _submit),

@@ -19,3 +19,4 @@ export 'edge_insets_extension.dart';
 export 'gap_extension.dart';
 export 'localization_extension.dart';
 export 'size_extension.dart';
+export 'text_theme_extension.dart';

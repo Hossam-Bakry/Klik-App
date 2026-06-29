@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/validators.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
@@ -77,13 +78,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   AppTextField.password(
                     controller: _password,
                     hint: context.tr(LocaleKeys.newPassword),
-                    validator: (v) => (v == null || v.length < 6) ? context.tr(LocaleKeys.passwordMin) : null,
+                    validator: Validators.strongPassword(context),
                   ),
                   context.gapH(16),
                   AppTextField.password(
                     controller: _confirm,
                     hint: context.tr(LocaleKeys.confirmPassword),
-                    validator: (v) => (v != _password.text) ? context.tr(LocaleKeys.passwordsDoNotMatch) : null,
+                    validator: Validators.confirmPassword(context, _password),
                   ),
                   context.gapH(24),
                   AppButton.filled(

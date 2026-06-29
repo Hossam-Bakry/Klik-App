@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -13,6 +14,9 @@ import 'modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Black status-bar text/icons app-wide (screens without an AppBar fall back
+  // to this; AppBar screens get the same value from AppBarTheme).
+  SystemChrome.setSystemUIOverlayStyle(AppTheme.statusBarStyle);
   await configureDependencies();
   runApp(const KlikApp());
 }

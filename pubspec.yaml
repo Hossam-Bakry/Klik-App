@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.2+9
+version: 1.0.2+11
 
 environment:
   sdk: ^3.10.4
@@ -48,6 +48,11 @@ dependencies:
   country_flags: ^4.1.2
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^7.0.1
+  skeletonizer: ^2.1.3
+  pinput: ^5.0.0
+  google_maps_flutter: ^2.17.1
+  geolocator: ^14.0.3
+  geocoding: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +64,23 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  # Generates platform launcher icons from a single source image.
+  # Regenerate with:  dart run flutter_launcher_icons
+  flutter_launcher_icons: ^0.14.4
+
+# Launcher-icon generation config (consumed by flutter_launcher_icons).
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  # iOS
+  ios: true
+  remove_alpha_ios: true # App Store rejects icons with transparency; flatten to white.
+  background_color_ios: "#FFFFFF"
+  # Android
+  android: "ic_launcher"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -86,9 +108,18 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/lang/
-    - assets/icons/
 
   fonts:
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/OpenSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/OpenSans-Bold.ttf
+          weight: 700
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Regular.ttf

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
+import 'package:pinput/pinput.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -31,12 +32,12 @@ class OtpVerificationPage extends StatefulWidget {
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
-  final _controllers = List.generate(_otpLength, (_) => TextEditingController());
-  final _focusNodes = List.generate(_otpLength, (_) => FocusNode());
+  final _otpController = TextEditingController();
+  final _otpFocusNode = FocusNode();
   Timer? _timer;
   int _remaining = _resendSeconds;
 
-  String get _code => _controllers.map((c) => c.text).join();
+  String get _code => _otpController.text;
 
   @override
   void initState() {
@@ -47,12 +48,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final n in _focusNodes) {
-      n.dispose();
-    }
+    _otpController.dispose();
+    _otpFocusNode.dispose();
     super.dispose();
   }
 
@@ -67,15 +64,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         setState(() => _remaining--);
       }
     });
-  }
-
-  void _onDigitChanged(int index, String value) {
-    if (value.isNotEmpty && index < _otpLength - 1) {
-      _focusNodes[index + 1].requestFocus();
-    } else if (value.isEmpty && index > 0) {
-      _focusNodes[index - 1].requestFocus();
-    }
-    setState(() {});
   }
 
   void _resend() {
@@ -121,7 +109,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   subtitle: '${context.tr(LocaleKeys.otpSentTo)}\n+${state.countryCode}${state.phone}',
                 ),
                 context.gapH(32),
-                _OtpBoxes(controllers: _controllers, focusNodes: _focusNodes, onChanged: _onDigitChanged),
+                _OtpInput(
+                  controller: _otpController,
+                  focusNode: _otpFocusNode,
+                  onChanged: (_) => setState(() {}),
+                  onCompleted: widget.cubit.verify,
+                ),
                 context.gapH(20),
                 _ResendRow(remaining: _remaining, label: _timerLabel, onResend: _resend),
                 context.gapH(24),
@@ -139,49 +132,51 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   }
 }
 
-class _OtpBoxes extends StatelessWidget {
-  const _OtpBoxes({required this.controllers, required this.focusNodes, required this.onChanged});
+class _OtpInput extends StatelessWidget {
+  const _OtpInput({
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+    required this.onCompleted,
+  });
 
-  final List<TextEditingController> controllers;
-  final List<FocusNode> focusNodes;
-  final void Function(int index, String value) onChanged;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onCompleted;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final defaultTheme = PinTheme(
+      width: context.r(50),
+      height: context.r(70),
+      textStyle: TextStyle(fontSize: context.sp(24), fontWeight: FontWeight.w600),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(color: const Color(0xFFE6E0D4)),
+      ),
+    );
+
+    return Pinput(
+      length: _otpLength,
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: true,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      defaultPinTheme: defaultTheme,
+      focusedPinTheme: defaultTheme.copyDecorationWith(
+        border: Border.all(color: AppColors.primary, width: 1.4),
+      ),
+      submittedPinTheme: defaultTheme.copyDecorationWith(
+        border: Border.all(color: AppColors.primary),
+      ),
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        for (var i = 0; i < _otpLength; i++)
-          SizedBox(
-            width: context.r(50),
-            height: context.r(70),
-            child: TextField(
-              controller: controllers[i],
-              focusNode: focusNodes[i],
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              maxLength: 1,
-              style: TextStyle(fontSize: context.sp(24), fontWeight: FontWeight.w600),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                counterText: '',
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: EdgeInsets.zero,
-                enabledBorder: _border(context, const Color(0xFFE6E0D4)),
-                focusedBorder: _border(context, AppColors.primary, 1.4),
-              ),
-              onChanged: (v) => onChanged(i, v),
-            ),
-          ),
-      ],
+      onChanged: onChanged,
+      onCompleted: onCompleted,
     );
   }
-
-  OutlineInputBorder _border(BuildContext context, Color color, [double width = 1]) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(context.r(12)),
-    borderSide: BorderSide(color: color, width: width),
-  );
 }
 
 class _ResendRow extends StatelessWidget {

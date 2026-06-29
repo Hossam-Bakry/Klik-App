@@ -10,7 +10,9 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String otp = '/otp';
   static const String changePassword = '/change-password';
-  static const String catalog = '/catalog';
+  static const String home = '/home';
+  static const String addressAdd = '/address/add';
+  static const String addressEdit = '/address/edit';
 
   /// Routes reachable while unauthenticated (the full auth flow). The guard
   /// allows free navigation among these and blocks everything else.

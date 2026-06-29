@@ -19,6 +19,7 @@ class AppColors {
   // ---- Brand accents (bronze → gold) ----
   /// Primary brand color (bronze) — notification icon, links, accents.
   static const Color primary = Color(0xFF905D1B);
+  static const Color primaryBronze = Color(0xFFA9762E);
 
   /// Secondary brand color (gold) — splash accent / highlights.
   static const Color secondary = Color(0xFFD2A04E);
@@ -31,9 +32,11 @@ class AppColors {
 
   // ---- Text ----
   static const Color textPrimary = Color(0xFF080808);
+  static const Color textPrimaryGold = Color(0xFF816142);
   static const Color textSecondary = Color(0xFF6B7280);
 
   static const Color error = Color(0xFFD32F2F);
+  static const Color success = Color(0xFF22C55E);
 
   // ---- Splash ----
   /// Warm cream behind the splash artwork (matches the exported PNG edges so

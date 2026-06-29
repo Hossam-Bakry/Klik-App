@@ -17,11 +17,18 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/app_icon.png
+  AssetGenImage get appIcon => const AssetGenImage('assets/icons/app_icon.png');
+
   /// File path: assets/icons/apple_icn.svg
   SvgGenImage get appleIcn => const SvgGenImage('assets/icons/apple_icn.svg');
 
   /// File path: assets/icons/cart_icn.svg
   SvgGenImage get cartIcn => const SvgGenImage('assets/icons/cart_icn.svg');
+
+  /// File path: assets/icons/category_icn.svg
+  SvgGenImage get categoryIcn =>
+      const SvgGenImage('assets/icons/category_icn.svg');
 
   /// File path: assets/icons/delivery_icn.svg
   SvgGenImage get deliveryIcn =>
@@ -30,8 +37,57 @@ class $AssetsIconsGen {
   /// File path: assets/icons/google_icn.svg
   SvgGenImage get googleIcn => const SvgGenImage('assets/icons/google_icn.svg');
 
+  /// File path: assets/icons/home_icn.svg
+  SvgGenImage get homeIcn => const SvgGenImage('assets/icons/home_icn.svg');
+
+  /// File path: assets/icons/money_dollar_icn.svg
+  SvgGenImage get moneyDollarIcn =>
+      const SvgGenImage('assets/icons/money_dollar_icn.svg');
+
+  /// File path: assets/icons/negotiation_icn.svg
+  SvgGenImage get negotiationIcn =>
+      const SvgGenImage('assets/icons/negotiation_icn.svg');
+
+  /// File path: assets/icons/notification_icn.svg
+  SvgGenImage get notificationIcn =>
+      const SvgGenImage('assets/icons/notification_icn.svg');
+
+  /// File path: assets/icons/profile_icn.svg
+  SvgGenImage get profileIcn =>
+      const SvgGenImage('assets/icons/profile_icn.svg');
+
+  /// File path: assets/icons/search_icn.svg
+  SvgGenImage get searchIcn => const SvgGenImage('assets/icons/search_icn.svg');
+
+  /// File path: assets/icons/selected_favorite_icn.svg
+  SvgGenImage get selectedFavoriteIcn =>
+      const SvgGenImage('assets/icons/selected_favorite_icn.svg');
+
+  /// File path: assets/icons/truck_icn.svg
+  SvgGenImage get truckIcn => const SvgGenImage('assets/icons/truck_icn.svg');
+
+  /// File path: assets/icons/un_selected_favorite_icn.svg
+  SvgGenImage get unSelectedFavoriteIcn =>
+      const SvgGenImage('assets/icons/un_selected_favorite_icn.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [appleIcn, cartIcn, deliveryIcn, googleIcn];
+  List<dynamic> get values => [
+    appIcon,
+    appleIcn,
+    cartIcn,
+    categoryIcn,
+    deliveryIcn,
+    googleIcn,
+    homeIcn,
+    moneyDollarIcn,
+    negotiationIcn,
+    notificationIcn,
+    profileIcn,
+    searchIcn,
+    selectedFavoriteIcn,
+    truckIcn,
+    unSelectedFavoriteIcn,
+  ];
 }
 
 class $AssetsImagesGen {
