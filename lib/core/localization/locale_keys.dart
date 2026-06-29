@@ -22,6 +22,22 @@ abstract class LocaleKeys {
   static const somethingWentWrong = 'something_went_wrong';
   static const comingSoon = 'coming_soon';
 
+  // Profile
+  static const orders = 'orders';
+  static const myNegotiation = 'my_negotiation';
+  static const wishlist = 'wishlist';
+  static const notification = 'notification';
+  static const manageAddress = 'manage_address';
+  static const language = 'language';
+  static const country = 'country';
+  static const security = 'security';
+  static const termsServices = 'terms_services';
+  static const privacyPolicy = 'privacy_policy';
+  static const logout = 'logout';
+  static const sellWithUs = 'sell_with_us';
+  static const appVersion = 'app_version';
+  static const allRightsReserved = 'all_rights_reserved';
+
   // Home
   static const deliverTo = 'deliver_to';
   static const homeGreeting = 'home_greeting';
@@ -95,6 +111,12 @@ abstract class LocaleKeys {
   static const mustAgreeTerms = 'must_agree_terms';
 
   // Addresses
+  static const addressTitle = 'address_title';
+  static const add = 'add';
+  static const noAddressesAdded = 'no_addresses_added';
+  static const deleteAddressConfirm = 'delete_address_confirm';
+  static const yes = 'yes';
+  static const no = 'no';
   static const addNewAddress = 'add_new_address';
   static const editAddress = 'edit_address';
   static const chooseAddressLocation = 'choose_address_location';

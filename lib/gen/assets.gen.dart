@@ -30,15 +30,42 @@ class $AssetsIconsGen {
   SvgGenImage get categoryIcn =>
       const SvgGenImage('assets/icons/category_icn.svg');
 
+  /// File path: assets/icons/change_password_icn.svg
+  SvgGenImage get changePasswordIcn =>
+      const SvgGenImage('assets/icons/change_password_icn.svg');
+
+  /// File path: assets/icons/country_icn.svg
+  SvgGenImage get countryIcn =>
+      const SvgGenImage('assets/icons/country_icn.svg');
+
   /// File path: assets/icons/delivery_icn.svg
   SvgGenImage get deliveryIcn =>
       const SvgGenImage('assets/icons/delivery_icn.svg');
+
+  /// File path: assets/icons/facebook_icn.svg
+  SvgGenImage get facebookIcn =>
+      const SvgGenImage('assets/icons/facebook_icn.svg');
 
   /// File path: assets/icons/google_icn.svg
   SvgGenImage get googleIcn => const SvgGenImage('assets/icons/google_icn.svg');
 
   /// File path: assets/icons/home_icn.svg
   SvgGenImage get homeIcn => const SvgGenImage('assets/icons/home_icn.svg');
+
+  /// File path: assets/icons/instagram_icn.svg
+  SvgGenImage get instagramIcn =>
+      const SvgGenImage('assets/icons/instagram_icn.svg');
+
+  /// File path: assets/icons/language_icn.svg
+  SvgGenImage get languageIcn =>
+      const SvgGenImage('assets/icons/language_icn.svg');
+
+  /// File path: assets/icons/location_icn.svg
+  SvgGenImage get locationIcn =>
+      const SvgGenImage('assets/icons/location_icn.svg');
+
+  /// File path: assets/icons/logout_icn.svg
+  SvgGenImage get logoutIcn => const SvgGenImage('assets/icons/logout_icn.svg');
 
   /// File path: assets/icons/money_dollar_icn.svg
   SvgGenImage get moneyDollarIcn =>
@@ -52,6 +79,12 @@ class $AssetsIconsGen {
   SvgGenImage get notificationIcn =>
       const SvgGenImage('assets/icons/notification_icn.svg');
 
+  /// File path: assets/icons/order_icn.svg
+  SvgGenImage get orderIcn => const SvgGenImage('assets/icons/order_icn.svg');
+
+  /// File path: assets/icons/policy_icn.svg
+  SvgGenImage get policyIcn => const SvgGenImage('assets/icons/policy_icn.svg');
+
   /// File path: assets/icons/profile_icn.svg
   SvgGenImage get profileIcn =>
       const SvgGenImage('assets/icons/profile_icn.svg');
@@ -59,9 +92,19 @@ class $AssetsIconsGen {
   /// File path: assets/icons/search_icn.svg
   SvgGenImage get searchIcn => const SvgGenImage('assets/icons/search_icn.svg');
 
+  /// File path: assets/icons/security_icn.svg
+  SvgGenImage get securityIcn =>
+      const SvgGenImage('assets/icons/security_icn.svg');
+
   /// File path: assets/icons/selected_favorite_icn.svg
   SvgGenImage get selectedFavoriteIcn =>
       const SvgGenImage('assets/icons/selected_favorite_icn.svg');
+
+  /// File path: assets/icons/terms_icn.svg
+  SvgGenImage get termsIcn => const SvgGenImage('assets/icons/terms_icn.svg');
+
+  /// File path: assets/icons/tiktok_icn.svg
+  SvgGenImage get tiktokIcn => const SvgGenImage('assets/icons/tiktok_icn.svg');
 
   /// File path: assets/icons/truck_icn.svg
   SvgGenImage get truckIcn => const SvgGenImage('assets/icons/truck_icn.svg');
@@ -70,23 +113,40 @@ class $AssetsIconsGen {
   SvgGenImage get unSelectedFavoriteIcn =>
       const SvgGenImage('assets/icons/un_selected_favorite_icn.svg');
 
+  /// File path: assets/icons/wishlist_icn.svg
+  SvgGenImage get wishlistIcn =>
+      const SvgGenImage('assets/icons/wishlist_icn.svg');
+
   /// List of all assets
   List<dynamic> get values => [
     appIcon,
     appleIcn,
     cartIcn,
     categoryIcn,
+    changePasswordIcn,
+    countryIcn,
     deliveryIcn,
+    facebookIcn,
     googleIcn,
     homeIcn,
+    instagramIcn,
+    languageIcn,
+    locationIcn,
+    logoutIcn,
     moneyDollarIcn,
     negotiationIcn,
     notificationIcn,
+    orderIcn,
+    policyIcn,
     profileIcn,
     searchIcn,
+    securityIcn,
     selectedFavoriteIcn,
+    termsIcn,
+    tiktokIcn,
     truckIcn,
     unSelectedFavoriteIcn,
+    wishlistIcn,
   ];
 }
 
@@ -100,6 +160,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/forget_password_img.png
   AssetGenImage get forgetPasswordImg =>
       const AssetGenImage('assets/images/forget_password_img.png');
+
+  /// File path: assets/images/no_address_found_img.png
+  AssetGenImage get noAddressFoundImg =>
+      const AssetGenImage('assets/images/no_address_found_img.png');
 
   /// File path: assets/images/on_boarding_one_img.png
   AssetGenImage get onBoardingOneImg =>
@@ -120,6 +184,7 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [
     authBackgroundImag,
     forgetPasswordImg,
+    noAddressFoundImg,
     onBoardingOneImg,
     onBoardingTwoImg,
     otpImg,

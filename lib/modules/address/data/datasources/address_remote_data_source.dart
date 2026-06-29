@@ -45,7 +45,7 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
       );
 
   @override
-  Future<ApiResult<Unit>> deleteAddress(int id) => _api.post(
+  Future<ApiResult<Unit>> deleteAddress(int id) => _api.delete(
         ApiEndpoints.addressDelete(id),
         decoder: (_) => unit,
       );

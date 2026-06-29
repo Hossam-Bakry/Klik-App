@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../modules/address/domain/entities/address.dart';
 import '../../modules/address/presentation/bloc/address_bloc.dart';
 import '../../modules/address/presentation/pages/add_edit_address_page.dart';
+import '../../modules/address/presentation/pages/address_list_page.dart';
 import '../../modules/auth/presentation/bloc/auth_bloc.dart';
 import '../../modules/auth/presentation/cubit/password_reset_cubit.dart';
 import '../../modules/auth/presentation/pages/change_password_page.dart';
@@ -100,9 +101,16 @@ class AppRouter {
           path: AppRoutes.home,
           builder: (context, state) => const MainLayoutPage(),
         ),
-        // Address add/edit share the singleton AddressBloc so saving updates the
-        // list/selection that the home header and bottom sheet read. Edit
-        // receives the Address via `extra`.
+        // Address list/add/edit share the singleton AddressBloc so mutations
+        // update the list/selection that the home header and bottom sheet read.
+        // Edit receives the Address via `extra`.
+        GoRoute(
+          path: AppRoutes.addressList,
+          builder: (context, state) => BlocProvider.value(
+            value: sl<AddressBloc>(),
+            child: const AddressListPage(),
+          ),
+        ),
         GoRoute(
           path: AppRoutes.addressAdd,
           builder: (context, state) => BlocProvider.value(
