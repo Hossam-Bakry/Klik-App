@@ -12,6 +12,7 @@ import '../../modules/auth/presentation/pages/change_password_page.dart';
 import '../../modules/auth/presentation/pages/forgot_password_page.dart';
 import '../../modules/auth/presentation/pages/login_page.dart';
 import '../../modules/auth/presentation/pages/otp_verification_page.dart';
+import '../../modules/auth/presentation/pages/phone_verification_page.dart';
 import '../../modules/auth/presentation/pages/register_page.dart';
 import '../../modules/main/presentation/pages/main_layout_page.dart';
 import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
@@ -21,12 +22,13 @@ import '../di/injector.dart';
 import 'app_routes.dart';
 import 'go_router_refresh_stream.dart';
 
-/// App-wide navigation with a two-stage guard driven by [OnboardingCubit] and
-/// [AuthBloc]. Precedence on each navigation:
+/// App-wide navigation with a guard driven by [OnboardingCubit] and [AuthBloc].
+/// Precedence on each navigation:
 ///   1. still bootstrapping (either state unknown) → splash
-///   2. authenticated → straight into the app (skip onboarding/auth)
-///   3. onboarding required → onboarding
-///   4. unauthenticated → confined to the auth flow (login/register/forgot/otp)
+///   2. onboarding required → onboarding
+///   3. authenticated → bounced out of splash/onboarding/auth screens into app
+///   4. guest (unauthenticated) → may browse the app and visit the auth flow,
+///      but auth-required routes ([AppRoutes.authRequired]) redirect to login
 class AppRouter {
   const AppRouter._();
 
@@ -44,11 +46,17 @@ class AppRouter {
         final location = state.matchedLocation;
 
         // 1. Bootstrapping — wait on splash until both states resolve.
-        if (auth == AuthStatus.unknown || onboarding == OnboardingStatus.unknown) {
+        if (auth == AuthStatus.unknown ||
+            onboarding == OnboardingStatus.unknown) {
           return location == AppRoutes.splash ? null : AppRoutes.splash;
         }
 
-        // 2. Authenticated — push past any pre-app screen.
+        // 2. First launch — show onboarding before anything else.
+        if (onboarding == OnboardingStatus.required) {
+          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+        }
+
+        // 3. Authenticated — push past any pre-app/auth screen into the app.
         if (auth == AuthStatus.authenticated) {
           if (location == AppRoutes.splash ||
               location == AppRoutes.onboarding ||
@@ -58,42 +66,74 @@ class AppRouter {
           return null;
         }
 
-        // 3. First launch — show onboarding before the auth flow.
-        if (onboarding == OnboardingStatus.required) {
-          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+        // 4. Guest (unauthenticated) — free to browse the app and to enter the
+        // auth flow. Leaving a pre-app screen lands on home; account-only
+        // routes bounce to login.
+        if (location == AppRoutes.splash || location == AppRoutes.onboarding) {
+          return AppRoutes.home;
         }
-
-        // 4. Onboarded but unauthenticated — confine to the auth flow.
-        if (!AppRoutes.authFlow.contains(location)) {
+        if (AppRoutes.authRequired.contains(location)) {
           return AppRoutes.login;
         }
         return null;
       },
       routes: [
-        GoRoute(path: AppRoutes.splash, builder: (context, state) => const SplashView()),
-        GoRoute(path: AppRoutes.onboarding, builder: (context, state) => const OnboardingPage()),
-        GoRoute(path: AppRoutes.login, builder: (context, state) => const LoginPage()),
-        GoRoute(path: AppRoutes.register, builder: (context, state) => const RegisterPage()),
+        GoRoute(
+          path: AppRoutes.splash,
+          builder: (context, state) => const SplashView(),
+        ),
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (context, state) => const OnboardingPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.register,
+          builder: (context, state) => const RegisterPage(),
+        ),
         GoRoute(
           path: AppRoutes.forgotPassword,
           // Page-scoped cubit provided at the route; handed to the OTP route
           // via `extra` so the same instance carries the flow's state.
-          builder: (context, state) =>
-              BlocProvider(create: (_) => sl<PasswordResetCubit>(), child: const ForgotPasswordPage()),
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<PasswordResetCubit>(),
+            child: const ForgotPasswordPage(),
+          ),
         ),
         GoRoute(
           path: AppRoutes.otp,
           // The OTP screen needs the in-flight cubit handed over via `extra`.
           // If reached without it (e.g. deep link), bounce to forgot-password.
-          redirect: (context, state) => state.extra is PasswordResetCubit ? null : AppRoutes.forgotPassword,
-          builder: (context, state) => OtpVerificationPage(cubit: state.extra as PasswordResetCubit),
+          redirect: (context, state) => state.extra is PasswordResetCubit
+              ? null
+              : AppRoutes.forgotPassword,
+          builder: (context, state) =>
+              OtpVerificationPage(cubit: state.extra as PasswordResetCubit),
+        ),
+        GoRoute(
+          path: AppRoutes.verifyPhone,
+          // Post-registration phone activation. Reads the pending phone from the
+          // app-level AuthBloc; if reached without one (e.g. deep link), bounce
+          // to register.
+          redirect: (context, state) =>
+              sl<AuthBloc>().state.pendingVerification == null &&
+                  !sl<AuthBloc>().state.isAuthenticated
+              ? AppRoutes.register
+              : null,
+          builder: (context, state) => const PhoneVerificationPage(),
         ),
         GoRoute(
           path: AppRoutes.changePassword,
           // Same in-flight cubit handed over via `extra` (now holding the reset
           // token from verify-otp). Bounce to forgot-password if missing.
-          redirect: (context, state) => state.extra is PasswordResetCubit ? null : AppRoutes.forgotPassword,
-          builder: (context, state) => ChangePasswordPage(cubit: state.extra as PasswordResetCubit),
+          redirect: (context, state) => state.extra is PasswordResetCubit
+              ? null
+              : AppRoutes.forgotPassword,
+          builder: (context, state) =>
+              ChangePasswordPage(cubit: state.extra as PasswordResetCubit),
         ),
         GoRoute(
           // Post-login shell hosting the bottom-nav destinations (Home tab

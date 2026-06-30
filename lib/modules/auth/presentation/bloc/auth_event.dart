@@ -64,6 +64,22 @@ class AuthSocialSignInRequested extends AuthEvent {
   List<Object?> get props => [type];
 }
 
+/// Submits the registration OTP to verify the phone and activate the account.
+/// Uses the phone captured in [AuthState.pendingVerification].
+class AuthPhoneOtpSubmitted extends AuthEvent {
+  const AuthPhoneOtpSubmitted(this.otp);
+
+  final String otp;
+
+  @override
+  List<Object?> get props => [otp];
+}
+
+/// Re-sends the activation OTP to the pending phone.
+class AuthPhoneOtpResendRequested extends AuthEvent {
+  const AuthPhoneOtpResendRequested();
+}
+
 class AuthLogoutRequested extends AuthEvent {
   const AuthLogoutRequested();
 }

@@ -26,7 +26,12 @@ class OfferProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(context.r(5));
+    final radius = BorderRadius.only(
+      topLeft: Radius.circular(context.r(5)),
+      topRight: Radius.circular(context.r(5)),
+      bottomLeft: Radius.circular(context.r(15)),
+      bottomRight: Radius.circular(context.r(15)),
+    );
     return InkWell(
       onTap: onTap,
       borderRadius: radius,
@@ -91,26 +96,19 @@ class OfferProductCard extends StatelessWidget {
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: context.sp(10),
+                  style: context.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimaryGold,
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primaryBronze,
-                ),
-                child: Icon(
-                  product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  size: context.r(20),
-                  color: product.isFavorite
-                      ? AppColors.surface
-                      : AppColors.surface,
-                ),
+              _CircleIcon(
+                icon: !product.isFavorite
+                    ? Assets.icons.selectedFavoriteIcn
+                    : Assets.icons.unSelectedFavoriteIcn,
+                color: product.isFavorite
+                    ? AppColors.primaryBronze
+                    : AppColors.primaryBronze,
               ),
             ],
           ),
@@ -125,17 +123,17 @@ class OfferProductCard extends StatelessWidget {
               context.gapW(1),
               Text(
                 product.rating.toStringAsFixed(1),
-                style: TextStyle(
-                  fontSize: context.sp(8),
-                  color: AppColors.textPrimary.withValues(alpha: 0.5),
+                style: context.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary.withValues(alpha: 0.8),
                 ),
               ),
-              context.gapW(8),
+              context.gapW(6),
               Text(
                 '${context.tr(LocaleKeys.sold)} (${product.totalSold})',
-                style: TextStyle(
-                  fontSize: context.sp(8),
-                  color: AppColors.textPrimary.withValues(alpha: 0.5),
+                style: context.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -190,26 +188,52 @@ class OfferProductCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: context.edgeSymmetric(horizontal: 12, vertical: 8),
-      color: AppColors.primaryBronze.withValues(alpha: 0.08),
+      decoration: BoxDecoration(
+        color: AppColors.primaryBronze.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(context.r(15)),
+          bottomRight: Radius.circular(context.r(15)),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.handshake_outlined,
-            size: context.r(15),
-            color: AppColors.primary,
+          Assets.icons.negotiationIcn.svg(
+            width: context.r(20),
+            height: context.r(20),
+            colorFilter: ColorFilter.mode(
+              AppColors.primaryBronze,
+              BlendMode.srcIn,
+            ),
           ),
           context.gapW(6),
           Text(
             context.tr(LocaleKeys.sellerAcceptsOffers),
-            style: TextStyle(
-              fontSize: context.sp(11),
+            style: context.bodySmall?.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w500,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CircleIcon extends StatelessWidget {
+  const _CircleIcon({required this.icon, required this.color});
+
+  final SvgGenImage icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: context.r(26),
+      height: context.r(26),
+      padding: EdgeInsets.all(4),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: icon.svg(),
     );
   }
 }

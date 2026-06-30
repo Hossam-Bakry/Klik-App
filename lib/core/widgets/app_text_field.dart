@@ -206,7 +206,10 @@ class _AppTextFieldState extends State<AppTextField> {
     OutlineInputBorder border() =>
         OutlineInputBorder(borderRadius: radius, borderSide: BorderSide.none);
     return InputDecoration(
-      hintStyle: context.bodyMedium?.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+      hintStyle: context.bodyMedium?.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w500,
+      ),
       filled: true,
       fillColor: AppColors.surface,
       contentPadding: context.edgeSymmetric(horizontal: 16, vertical: 14),

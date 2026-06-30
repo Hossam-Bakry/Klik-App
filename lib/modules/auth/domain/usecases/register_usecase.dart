@@ -1,6 +1,5 @@
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/api_result.dart';
-import '../entities/auth_session.dart';
 import '../repositories/auth_repository.dart';
 
 class RegisterUseCase {
@@ -8,7 +7,7 @@ class RegisterUseCase {
 
   final AuthRepository _repository;
 
-  Future<ApiResult<AuthSession>> call({
+  Future<ApiResult<Unit>> call({
     required String name,
     required String email,
     required String password,
@@ -23,7 +22,7 @@ class RegisterUseCase {
         password.isEmpty ||
         phone.trim().isEmpty) {
       return Future.value(
-        const ApiFailure<AuthSession>(
+        const ApiFailure<Unit>(
           ValidationFailure('Name, email, phone and password are required.'),
         ),
       );

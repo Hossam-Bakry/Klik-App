@@ -7,6 +7,7 @@ import '../../../../core/constants/validators.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -31,13 +32,33 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _agreed = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Rebuild as the user types so the Sign Up button enables/disables live.
+    for (final c in [_name, _email, _phone, _password]) {
+      c.addListener(_onInputChanged);
+    }
+  }
+
+  @override
   void dispose() {
-    _name.dispose();
-    _email.dispose();
-    _phone.dispose();
-    _password.dispose();
+    for (final c in [_name, _email, _phone, _password]) {
+      c.removeListener(_onInputChanged);
+      c.dispose();
+    }
     super.dispose();
   }
+
+  void _onInputChanged() => setState(() {});
+
+  /// The button stays disabled until every field passes its validator and the
+  /// terms are accepted. Reuses the same [Validators] the fields enforce.
+  bool _canSubmit(BuildContext context) =>
+      _agreed &&
+      Validators.name(context)(_name.text) == null &&
+      Validators.email(context)(_email.text) == null &&
+      Validators.phone(context, _country)(_phone.text) == null &&
+      Validators.strongPassword(context)(_password.text) == null;
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -66,9 +87,17 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       bloc: sl<AuthBloc>(),
-      listenWhen: (p, c) => p.errorMessage != c.errorMessage,
+      listenWhen: (p, c) =>
+          p.status != c.status ||
+          p.pendingVerification != c.pendingVerification ||
+          p.errorMessage != c.errorMessage,
       listener: (context, state) {
-        if (state.errorMessage != null) {
+        if (state.pendingVerification != null) {
+          // Account created — go verify the phone to activate it.
+          context.push(AppRoutes.verifyPhone);
+        } else if (state.isAuthenticated) {
+          context.go(AppRoutes.home);
+        } else if (state.errorMessage != null) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -122,7 +151,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 builder: (context, state) => AppButton.filled(
                   label: context.tr(LocaleKeys.signUp),
                   isLoading: state.isSubmitting,
-                  onPressed: _submit,
+                  // Disabled (null) until all fields are valid and terms agreed.
+                  onPressed: _canSubmit(context) ? _submit : null,
                 ),
               ),
               context.gapH(16),

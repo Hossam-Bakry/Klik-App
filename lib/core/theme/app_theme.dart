@@ -136,6 +136,24 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: AppColors.textSecondary,
         ),
+        labelLarge: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(14),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(10),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        labelSmall: TextStyle(
+          fontFamily: "OpenSans",
+          fontSize: context.sp(8),
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
       ),
     );
   }

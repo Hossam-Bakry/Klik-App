@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
       ));
 
   @override
-  Future<ApiResult<AuthSession>> register({
+  Future<ApiResult<Unit>> register({
     required String name,
     required String email,
     required String password,
@@ -45,7 +45,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String countryCode,
     String? gender,
   }) =>
-      _persistSession(_remote.register(
+      // No session persisted: the account is activated by verifyPhoneOtp.
+      _remote.register(
         name: name,
         email: email,
         password: password,
@@ -54,6 +55,20 @@ class AuthRepositoryImpl implements AuthRepository {
         countryIso: countryIso,
         countryCode: countryCode,
         gender: gender,
+      );
+
+  @override
+  Future<ApiResult<AuthSession>> verifyPhoneOtp({
+    required String phone,
+    required String otp,
+    required String countryIso,
+    required String countryCode,
+  }) =>
+      _persistSession(_remote.verifyPhoneOtp(
+        phone: phone,
+        otp: otp,
+        countryIso: countryIso,
+        countryCode: countryCode,
       ));
 
   @override
@@ -109,7 +124,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> logout() => _local.clear();
+  Future<void> logout() async {
+    // Best-effort server-side invalidation (token attached by the interceptor).
+    // The local session is always cleared afterwards — even if the call fails
+    // (offline / expired token) the user must still be signed out locally.
+    try {
+      await _remote.logout();
+    } catch (_) {
+      // Swallow: a failed network logout must not block the local sign-out.
+    }
+    await _local.clear();
+  }
 
   @override
   Future<AuthSession?> currentSession() async {

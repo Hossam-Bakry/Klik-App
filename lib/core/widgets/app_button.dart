@@ -256,7 +256,9 @@ class AppButton extends StatelessWidget {
 
     final text = Text(
       label ?? '',
-      style: TextStyle(color: foregroundColor, fontSize: context.sp(fontSize), fontWeight: FontWeight.w600),
+      style: context.bodySmall?.copyWith(
+        color: foregroundColor,
+      )
     );
 
     if (leading == null && trailing == null) return text;

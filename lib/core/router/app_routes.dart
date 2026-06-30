@@ -9,19 +9,30 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String otp = '/otp';
+  static const String verifyPhone = '/verify-phone';
   static const String changePassword = '/change-password';
   static const String home = '/home';
   static const String addressList = '/address';
   static const String addressAdd = '/address/add';
   static const String addressEdit = '/address/edit';
 
-  /// Routes reachable while unauthenticated (the full auth flow). The guard
-  /// allows free navigation among these and blocks everything else.
+  /// The auth flow screens. Authenticated users are bounced out of these into
+  /// the app; guests may visit them freely to sign in.
   static const Set<String> authFlow = {
     login,
     register,
     forgotPassword,
     otp,
+    verifyPhone,
     changePassword,
+  };
+
+  /// Routes that require a real session. A guest who navigates here is
+  /// redirected to [login]. Browse routes (home, catalog) are intentionally
+  /// absent so anonymous users can explore the app.
+  static const Set<String> authRequired = {
+    addressList,
+    addressAdd,
+    addressEdit,
   };
 }

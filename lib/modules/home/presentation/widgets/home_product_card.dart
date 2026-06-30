@@ -11,7 +11,12 @@ import 'product_price.dart';
 /// Compact product card used by the "Best deals for you" carousel and the
 /// see-all grid.
 class HomeProductCard extends StatelessWidget {
-  const HomeProductCard({super.key, required this.product, this.onTap, this.onAdd});
+  const HomeProductCard({
+    super.key,
+    required this.product,
+    this.onTap,
+    this.onAdd,
+  });
 
   final HomeProduct product;
   final VoidCallback? onTap;
@@ -19,7 +24,7 @@ class HomeProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(context.r(5));
+    final radius = BorderRadius.circular(context.r(8));
     return InkWell(
       onTap: onTap,
       borderRadius: radius,
@@ -29,7 +34,7 @@ class HomeProductCard extends StatelessWidget {
           borderRadius: radius,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: context.r(8),
               offset: Offset(0, context.r(2)),
             ),
@@ -40,26 +45,40 @@ class HomeProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
+              clipBehavior: Clip.none,
               children: [
-                AppNetworkImage(url: product.thumbnail, height: context.r(110), width: double.infinity),
-                if (product.isBidable) Positioned(top: context.r(0), left: context.r(0), child: const NegotiateBadge()),
+                AppNetworkImage(
+                  url: product.thumbnail,
+                  height: context.r(110),
+                  width: double.infinity,
+                ),
+                if (product.isBidable)
+                  Positioned(
+                    top: context.r(0),
+                    left: context.r(0),
+                    child: const NegotiateBadge(),
+                  ),
                 Positioned(
                   top: context.r(8),
                   right: context.r(8),
                   child: _CircleIcon(
-                    icon: product.isFavorite ? Assets.icons.selectedFavoriteIcn : Assets.icons.unSelectedFavoriteIcn,
-                    color: product.isFavorite ? AppColors.error : AppColors.surface,
+                    icon: product.isFavorite
+                        ? Assets.icons.selectedFavoriteIcn
+                        : Assets.icons.unSelectedFavoriteIcn,
+                    color: product.isFavorite
+                        ? AppColors.error
+                        : AppColors.surface,
                   ),
                 ),
                 Positioned(
-                  bottom: context.r(8),
-                  right: context.r(8),
+                  bottom: context.r(-14),
+                  right: context.r(6),
                   child: _AddButton(onTap: onAdd),
                 ),
               ],
             ),
             Padding(
-              padding: context.edgeAll(10),
+              padding: context.edgeSymmetric(horizontal: 5, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -67,17 +86,18 @@ class HomeProductCard extends StatelessWidget {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: context.sp(13),
+                    style: context.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary.withValues(alpha: 0.5),
                     ),
                   ),
                   context.gapH(4),
                   Text(
                     '${context.tr(LocaleKeys.sold)} (${product.totalSold})',
                     textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: context.sp(11), color: AppColors.textSecondary),
+                    style: TextStyle(
+                      fontSize: context.sp(11),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   context.gapH(6),
                   ProductPrice(product: product),
@@ -121,7 +141,10 @@ class _AddButton extends StatelessWidget {
       child: Container(
         width: context.r(28),
         height: context.r(28),
-        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: AppColors.primary,
+          shape: BoxShape.circle,
+        ),
         child: Icon(Icons.add, size: context.r(18), color: Colors.white),
       ),
     );

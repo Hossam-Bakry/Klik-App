@@ -42,6 +42,12 @@ class AddressDeleted extends AddressEvent {
   final int id;
 }
 
+/// Drop all saved addresses and the selection (e.g. on logout), then fall back
+/// to the current-location label so the guest header still shows something.
+class AddressCleared extends AddressEvent {
+  const AddressCleared();
+}
+
 /// Resolve the device's current location into a "Deliver to" label (used when
 /// the user has no saved addresses).
 class CurrentLocationRequested extends AddressEvent {
