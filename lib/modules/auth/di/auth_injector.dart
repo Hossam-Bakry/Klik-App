@@ -15,8 +15,10 @@ import '../domain/usecases/logout_usecase.dart';
 import '../domain/usecases/register_usecase.dart';
 import '../domain/usecases/request_password_reset_usecase.dart';
 import '../domain/usecases/reset_password_usecase.dart';
+import '../domain/usecases/send_phone_otp_usecase.dart';
 import '../domain/usecases/social_sign_in_usecase.dart';
 import '../domain/usecases/verify_otp_usecase.dart';
+import '../domain/usecases/verify_phone_otp_usecase.dart';
 import '../presentation/bloc/auth_bloc.dart';
 import '../presentation/cubit/password_reset_cubit.dart';
 
@@ -51,6 +53,8 @@ void registerAuthModule(GetIt sl) {
     ..registerLazySingleton(() => VerifyOtpUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => ResetPasswordUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => SocialSignInUseCase(sl<AuthRepository>()))
+    ..registerLazySingleton(() => VerifyPhoneOtpUseCase(sl<AuthRepository>()))
+    ..registerLazySingleton(() => SendPhoneOtpUseCase(sl<AuthRepository>()))
     // AuthBloc is app-scoped (the router guard depends on it), so unlike
     // page-scoped BLoCs it lives in the locator as a singleton.
     ..registerLazySingleton(
@@ -60,6 +64,8 @@ void registerAuthModule(GetIt sl) {
         logout: sl<LogoutUseCase>(),
         getCurrentSession: sl<GetCurrentSessionUseCase>(),
         socialSignIn: sl<SocialSignInUseCase>(),
+        verifyPhoneOtp: sl<VerifyPhoneOtpUseCase>(),
+        sendPhoneOtp: sl<SendPhoneOtpUseCase>(),
       ),
     )
     // Page-scoped: a fresh PasswordResetCubit per forgot-password flow

@@ -19,6 +19,12 @@ abstract class LocaleKeys {
   static const storeTitle = 'store_title';
   static const signOut = 'sign_out';
   static const profileTitle = 'profile_title';
+
+  // Guest / auth gating
+  static const guestGreeting = 'guest_greeting';
+  static const guestSubtitle = 'guest_subtitle';
+  static const signInRequiredTitle = 'sign_in_required_title';
+  static const signInRequiredMessage = 'sign_in_required_message';
   static const somethingWentWrong = 'something_went_wrong';
   static const comingSoon = 'coming_soon';
 
@@ -34,6 +40,7 @@ abstract class LocaleKeys {
   static const termsServices = 'terms_services';
   static const privacyPolicy = 'privacy_policy';
   static const logout = 'logout';
+  static const logoutConfirm = 'logout_confirm';
   static const sellWithUs = 'sell_with_us';
   static const appVersion = 'app_version';
   static const allRightsReserved = 'all_rights_reserved';
@@ -87,6 +94,10 @@ abstract class LocaleKeys {
   static const otpSentTo = 'otp_sent_to';
   static const resendOtpIn = 'resend_otp_in';
   static const verifyOtp = 'verify_otp';
+
+  // Phone verification (post-registration)
+  static const verifyPhoneTitle = 'verify_phone_title';
+  static const phoneOtpSentTo = 'phone_otp_sent_to';
 
   // Change password
   static const changePasswordTitle = 'change_password_title';

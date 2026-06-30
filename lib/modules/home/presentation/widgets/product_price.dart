@@ -21,9 +21,8 @@ class ProductPrice extends StatelessWidget {
       children: [
         Text(
           '${product.effectivePrice.toStringAsFixed(2)} $currency',
-          style: TextStyle(
-            fontSize: context.sp(10),
-            fontWeight: FontWeight.w500,
+          style: context.labelMedium?.copyWith(
+            fontWeight: FontWeight.w600,
             color: AppColors.textPrimaryGold,
           ),
         ),
@@ -35,8 +34,7 @@ class ProductPrice extends StatelessWidget {
                 '${product.price.toStringAsFixed(2)} $currency',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: context.sp(8),
+                style: context.labelSmall?.copyWith(
                   color: AppColors.textSecondary,
                   decoration: TextDecoration.lineThrough,
                 ),
@@ -44,8 +42,7 @@ class ProductPrice extends StatelessWidget {
               context.gapW(4),
               Text(
                 '${product.discountPercentage.toStringAsFixed(0)}%',
-                style: TextStyle(
-                  fontSize: context.sp(8),
+                style: context.labelSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.success,
                 ),

@@ -7,6 +7,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../address/presentation/widgets/choose_address_sheet.dart';
+import '../../../auth/presentation/widgets/auth_prompt.dart';
 
 /// Top greeting row: a two-line welcome on the leading side and a notification
 /// bell on the trailing side.
@@ -19,7 +20,10 @@ class HomeAppBar extends StatelessWidget {
       children: [
         Expanded(
           child: InkWell(
-            onTap: () => showChooseAddressSheet(context),
+            // Managing delivery addresses needs an account; guests are prompted
+            // to sign in.
+            onTap: () =>
+                context.requireAuth(() => showChooseAddressSheet(context)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

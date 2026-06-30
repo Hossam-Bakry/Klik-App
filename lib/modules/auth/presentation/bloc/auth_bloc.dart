@@ -8,7 +8,9 @@ import '../../domain/usecases/get_current_session_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/send_phone_otp_usecase.dart';
 import '../../domain/usecases/social_sign_in_usecase.dart';
+import '../../domain/usecases/verify_phone_otp_usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -23,16 +25,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required LogoutUseCase logout,
     required GetCurrentSessionUseCase getCurrentSession,
     required SocialSignInUseCase socialSignIn,
+    required VerifyPhoneOtpUseCase verifyPhoneOtp,
+    required SendPhoneOtpUseCase sendPhoneOtp,
   })  : _login = login,
         _register = register,
         _logout = logout,
         _getCurrentSession = getCurrentSession,
         _socialSignIn = socialSignIn,
+        _verifyPhoneOtp = verifyPhoneOtp,
+        _sendPhoneOtp = sendPhoneOtp,
         super(const AuthState()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
     on<AuthSocialSignInRequested>(_onSocialSignInRequested);
+    on<AuthPhoneOtpSubmitted>(_onPhoneOtpSubmitted);
+    on<AuthPhoneOtpResendRequested>(_onPhoneOtpResendRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
@@ -41,6 +49,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUseCase _logout;
   final GetCurrentSessionUseCase _getCurrentSession;
   final SocialSignInUseCase _socialSignIn;
+  final VerifyPhoneOtpUseCase _verifyPhoneOtp;
+  final SendPhoneOtpUseCase _sendPhoneOtp;
 
   Future<void> _onCheckRequested(
     AuthCheckRequested event,
@@ -82,7 +92,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(isSubmitting: true));
-    // Auto-login: a successful registration yields an authenticated session.
+    // Registration creates the account and triggers the activation OTP; it does
+    // NOT authenticate. On success we surface the phone awaiting verification
+    // so the UI advances to the verify-phone screen.
     final result = await _register(
       name: event.name,
       email: event.email,
@@ -93,7 +105,70 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       countryCode: event.countryCode,
       gender: event.gender,
     );
-    _emitAuthResult(result, emit);
+    switch (result) {
+      case ApiSuccess():
+        emit(state.copyWith(
+          isSubmitting: false,
+          pendingVerification: PendingPhoneVerification(
+            phone: event.phone,
+            countryIso: event.countryIso,
+            countryCode: event.countryCode,
+          ),
+        ));
+      case ApiFailure(:final failure):
+        emit(state.copyWith(
+          isSubmitting: false,
+          errorMessage: failure.message,
+        ));
+    }
+  }
+
+  /// Verify the activation OTP for the pending phone; success activates the
+  /// account and yields an authenticated session.
+  Future<void> _onPhoneOtpSubmitted(
+    AuthPhoneOtpSubmitted event,
+    Emitter<AuthState> emit,
+  ) async {
+    final pending = state.pendingVerification;
+    if (pending == null) return;
+    emit(state.copyWith(isSubmitting: true));
+    final result = await _verifyPhoneOtp(
+      phone: pending.phone,
+      otp: event.otp,
+      countryIso: pending.countryIso,
+      countryCode: pending.countryCode,
+    );
+    switch (result) {
+      case ApiSuccess(:final data):
+        emit(state.copyWith(
+          status: AuthStatus.authenticated,
+          session: data,
+          isSubmitting: false,
+          clearPendingVerification: true,
+        ));
+      case ApiFailure(:final failure):
+        emit(state.copyWith(
+          isSubmitting: false,
+          errorMessage: failure.message,
+        ));
+    }
+  }
+
+  /// Re-send the activation OTP to the pending phone.
+  Future<void> _onPhoneOtpResendRequested(
+    AuthPhoneOtpResendRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final pending = state.pendingVerification;
+    if (pending == null) return;
+    final result = await _sendPhoneOtp(
+      phone: pending.phone,
+      countryIso: pending.countryIso,
+      countryCode: pending.countryCode,
+    );
+    if (result case ApiFailure(:final failure)) {
+      emit(state.copyWith(errorMessage: failure.message));
+    }
   }
 
   Future<void> _onSocialSignInRequested(

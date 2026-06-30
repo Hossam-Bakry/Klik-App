@@ -16,13 +16,20 @@ import '../widgets/just_for_you_section.dart';
 import '../widgets/open_to_offers_section.dart';
 import '../widgets/shops_section.dart';
 import 'just_for_you_page.dart';
-import 'open_to_offers_page.dart';
 
 /// Home tab: a vertically scrolling feed of self-contained sections, driven by
 /// [HomeBloc]. While loading, the sections render against placeholder data
 /// wrapped in a [Skeletonizer] so the layout shows shimmering bones.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onOpenOffers, this.onOpenCategories});
+
+  /// Tapped "See all" on the Open-to-offers section. The shell uses it to
+  /// switch to the Negotiation tab (index 2).
+  final VoidCallback? onOpenOffers;
+
+  /// Tapped "See all" on the Categories section. The shell uses it to switch
+  /// to the Categories tab (index 1).
+  final VoidCallback? onOpenCategories;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +93,11 @@ class HomePage extends StatelessWidget {
                       children: [
                         HomeBannersSection(banners: feed.banners),
                         context.gapH(24),
-                        HomeCategoriesSection(categories: feed.categories),
+                        HomeCategoriesSection(
+                          categories: feed.categories,
+                          // Opens the Categories tab (index 1) via the shell.
+                          onSeeAll: loading ? null : onOpenCategories,
+                        ),
                         context.gapH(24),
                         JustForYouSection(
                           products: feed.justForYou,
@@ -98,18 +109,20 @@ class HomePage extends StatelessWidget {
                                 ),
                         ),
                         context.gapH(24),
-                        ShopsSection(shops: feed.shops),
-                        context.gapH(24),
-                        OpenToOffersSection(
-                          products: feed.bidableProducts,
+                        ShopsSection(
+                          shops: feed.shops,
                           onSeeAll: loading
                               ? null
                               : () => _open(
                                   context,
-                                  OpenToOffersPage(
-                                    products: feed.bidableProducts,
-                                  ),
+                                  JustForYouPage(products: feed.justForYou),
                                 ),
+                        ),
+                        context.gapH(24),
+                        OpenToOffersSection(
+                          products: feed.bidableProducts,
+                          // Opens the Negotiation tab (index 2) via the shell.
+                          onSeeAll: loading ? null : onOpenOffers,
                         ),
                       ],
                     ),

@@ -15,8 +15,10 @@ abstract class AuthRemoteDataSource {
     required String countryCode,
   });
 
-  /// POST /api/registration → access token (auto-login).
-  Future<ApiResult<String>> register({
+  /// POST /api/registration — creates the account. No session is issued here:
+  /// the account must be activated by verifying the phone via [verifyPhoneOtp].
+  /// The server sends the activation OTP as part of this call.
+  Future<ApiResult<Unit>> register({
     required String name,
     required String email,
     required String password,
@@ -32,6 +34,15 @@ abstract class AuthRemoteDataSource {
     required String phone,
     required String countryCode,
     required String countryIso,
+  });
+
+  /// POST /api/verify-phone-otp → access token. Confirms the phone after
+  /// registration and activates the account, returning the session token.
+  Future<ApiResult<String>> verifyPhoneOtp({
+    required String phone,
+    required String otp,
+    required String countryIso,
+    required String countryCode,
   });
 
   /// POST /api/verify-otp → password-reset token used by [resetPassword].
@@ -51,6 +62,10 @@ abstract class AuthRemoteDataSource {
 
   /// POST /api/social-auth → access token (Google / Apple sign-in).
   Future<ApiResult<String>> socialAuth(SocialAccount account);
+
+  /// POST /api/logout — invalidates the current session server-side. The auth
+  /// token is attached by the common-headers interceptor.
+  Future<ApiResult<Unit>> logout();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -77,7 +92,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
   @override
-  Future<ApiResult<String>> register({
+  Future<ApiResult<Unit>> register({
     required String name,
     required String email,
     required String password,
@@ -99,9 +114,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'country_iso': countryIso,
           'gender': ?gender,
         },
-        // TODO: if registration needs phone verification before issuing a
-        // token, switch to the verify-otp flow instead of expecting a token.
-        decoder: _accessToken,
+        // No token here — the account is activated by [verifyPhoneOtp].
+        decoder: (_) => unit,
       );
 
   @override
@@ -140,6 +154,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
   @override
+  Future<ApiResult<String>> verifyPhoneOtp({
+    required String phone,
+    required String otp,
+    required String countryIso,
+    required String countryCode,
+  }) =>
+      _api.post(
+        ApiEndpoints.verifyPhoneOtp,
+        body: {
+          'otp': otp,
+          'phone': phone,
+          'country_iso': countryIso,
+          'country_code': countryCode,
+        },
+        decoder: _accessToken,
+      );
+
+  @override
   Future<ApiResult<Unit>> resetPassword({
     required String token,
     required String password,
@@ -160,6 +192,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ApiEndpoints.socialAuth,
         body: account.toJson(),
         decoder: _accessToken,
+      );
+
+  @override
+  Future<ApiResult<Unit>> logout() => _api.post(
+        ApiEndpoints.logout,
+        decoder: (_) => unit,
       );
 
   /// Extracts `data.access.token`. Throws if missing — DioApiClient turns that

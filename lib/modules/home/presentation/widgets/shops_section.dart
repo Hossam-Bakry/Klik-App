@@ -51,16 +51,20 @@ class _ShopLogo extends StatelessWidget {
     return Container(
       width: context.r(72),
       height: context.r(72),
-      padding: context.edgeAll(8),
+      // padding: context.edgeAll(8),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(context.r(14)),
+        // borderRadius: BorderRadius.circular(context.r(14)),
+        shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.12)),
       ),
-      child: AppNetworkImage(
-        url: shop.logo,
-        fit: BoxFit.contain,
-        borderRadius: BorderRadius.circular(context.r(8)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(context.r(50)),
+        child: AppNetworkImage(
+          url: shop.logo,
+          fit: BoxFit.contain,
+          borderRadius: BorderRadius.circular(context.r(8)),
+        ),
       ),
     );
   }

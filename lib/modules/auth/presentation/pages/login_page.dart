@@ -32,11 +32,30 @@ class _LoginPageState extends State<LoginPage> {
   Country _country = Countries.kuwait;
 
   @override
+  void initState() {
+    super.initState();
+    // Rebuild as the user types so the Log In button enables/disables live.
+    _phone.addListener(_onInputChanged);
+    _password.addListener(_onInputChanged);
+  }
+
+  @override
   void dispose() {
+    _phone.removeListener(_onInputChanged);
+    _password.removeListener(_onInputChanged);
     _phone.dispose();
     _password.dispose();
     super.dispose();
   }
+
+  void _onInputChanged() => setState(() {});
+
+  /// The button stays disabled until the inputs are valid: a phone that passes
+  /// the country's rules and a non-empty password.
+  bool get _canSubmit =>
+      _country.isValidPhone(_phone.text.trim()) &&
+      !_phone.text.trim().startsWith('0') &&
+      _password.text.isNotEmpty;
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
@@ -55,9 +74,14 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       bloc: sl<AuthBloc>(),
-      listenWhen: (p, c) => p.errorMessage != c.errorMessage,
+      listenWhen: (p, c) =>
+          p.status != c.status || p.errorMessage != c.errorMessage,
       listener: (context, state) {
-        if (state.errorMessage != null) {
+        if (state.isAuthenticated) {
+          // Reached via push from a guest screen; `go` replaces the stack so we
+          // land on Home rather than leaving the login page on top.
+          context.go(AppRoutes.home);
+        } else if (state.errorMessage != null) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -100,7 +124,8 @@ class _LoginPageState extends State<LoginPage> {
                 builder: (context, state) => AppButton.filled(
                   label: context.tr(LocaleKeys.logIn),
                   isLoading: state.isSubmitting,
-                  onPressed: _submit,
+                  // Disabled (null) until the form is valid.
+                  onPressed: _canSubmit ? _submit : null,
                 ),
               ),
               context.gapH(20),

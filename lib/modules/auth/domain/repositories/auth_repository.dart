@@ -13,8 +13,9 @@ abstract class AuthRepository {
     required String countryCode,
   });
 
-  /// Creates an account, then persists the resulting session (auto-login).
-  Future<ApiResult<AuthSession>> register({
+  /// Creates an account. No session is issued — the account is inactive until
+  /// the phone is verified via [verifyPhoneOtp]. The server sends the OTP.
+  Future<ApiResult<Unit>> register({
     required String name,
     required String email,
     required String password,
@@ -23,6 +24,15 @@ abstract class AuthRepository {
     required String countryIso,
     required String countryCode,
     String? gender,
+  });
+
+  /// Verifies the phone OTP after registration (POST /api/verify-phone-otp),
+  /// activates the account, and persists the resulting session.
+  Future<ApiResult<AuthSession>> verifyPhoneOtp({
+    required String phone,
+    required String otp,
+    required String countryIso,
+    required String countryCode,
   });
 
   /// Requests a password-reset OTP be sent to the phone.

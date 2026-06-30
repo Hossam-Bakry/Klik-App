@@ -161,6 +161,10 @@ class $AssetsImagesGen {
   AssetGenImage get forgetPasswordImg =>
       const AssetGenImage('assets/images/forget_password_img.png');
 
+  /// File path: assets/images/logout_img.png
+  AssetGenImage get logoutImg =>
+      const AssetGenImage('assets/images/logout_img.png');
+
   /// File path: assets/images/no_address_found_img.png
   AssetGenImage get noAddressFoundImg =>
       const AssetGenImage('assets/images/no_address_found_img.png');
@@ -184,6 +188,7 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [
     authBackgroundImag,
     forgetPasswordImg,
+    logoutImg,
     noAddressFoundImg,
     onBoardingOneImg,
     onBoardingTwoImg,

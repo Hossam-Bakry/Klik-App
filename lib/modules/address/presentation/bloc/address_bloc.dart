@@ -25,6 +25,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     on<AddressCreated>(_onCreated);
     on<AddressUpdated>(_onUpdated);
     on<AddressDeleted>(_onDeleted);
+    on<AddressCleared>(_onCleared);
     on<CurrentLocationRequested>(_onCurrentLocation);
   }
 
@@ -149,6 +150,17 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     final wasSelected = state.selected?.id == event.id;
     if (wasSelected) await _persistSelection(null);
     await _loadAndRestore(emit);
+  }
+
+  Future<void> _onCleared(
+      AddressCleared event, Emitter<AddressState> emit) async {
+    await _persistSelection(null);
+    emit(state.copyWith(
+      status: AddressStatus.success,
+      addresses: const [],
+      clearSelected: true,
+    ));
+    add(const CurrentLocationRequested());
   }
 
   Future<void> _onCurrentLocation(
