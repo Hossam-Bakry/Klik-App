@@ -7,6 +7,7 @@ import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
+import '../../modules/product/di/product_injector.dart';
 import '../localization/locale_cubit.dart';
 import '../network/api_interface.dart';
 import '../network/dio_api_client.dart';
@@ -34,6 +35,7 @@ Future<void> configureDependencies() async {
   registerCatalogModule(sl);
   registerHomeModule(sl);
   registerAddressModule(sl);
+  registerProductModule(sl);
 }
 
 /// Shared, cross-module dependencies.

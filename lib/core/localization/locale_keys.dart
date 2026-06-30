@@ -64,6 +64,16 @@ abstract class LocaleKeys {
   static const currencyKwd = 'currency_kwd';
   static const noItemsYet = 'no_items_yet';
 
+  // Product details
+  static const color = 'color';
+  static const size = 'size';
+  static const aboutProduct = 'about_product';
+  static const reviews = 'reviews';
+  static const noReviewsYet = 'no_reviews_yet';
+  static const similarProducts = 'similar_products';
+  static const addToCart = 'add_to_cart';
+  static const buyNow = 'buy_now';
+
   // Login
   static const welcomeBack = 'welcome_back';
   static const loginSubtitle = 'login_subtitle';

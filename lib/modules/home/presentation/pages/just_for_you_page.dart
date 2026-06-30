@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/home_product.dart';
 import '../widgets/home_product_card.dart';
@@ -29,7 +31,10 @@ class JustForYouPage extends StatelessWidget {
                 childAspectRatio: 0.62,
               ),
               itemCount: products.length,
-              itemBuilder: (context, i) => HomeProductCard(product: products[i]),
+              itemBuilder: (context, i) => HomeProductCard(
+                product: products[i],
+                onTap: () => context.push(AppRoutes.productDetails, extra: products[i].id),
+              ),
             ),
     );
   }
