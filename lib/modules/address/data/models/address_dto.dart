@@ -26,6 +26,7 @@ class AddressDto {
       fullName: json[_K.name] as String? ?? '',
       phone: json[_K.phone] as String? ?? '',
       countryCode: str(json[_K.countryCode]) ?? '965',
+      countryIso: str(json[_K.countryIso]) ?? 'KW',
       city: json[_K.city] as String? ?? '',
       area: json[_K.area] as String? ?? '',
       flatNumber: str(json[_K.flatNumber]),
@@ -45,6 +46,7 @@ class AddressDto {
       _K.name: a.fullName,
       _K.phone: a.phone,
       _K.countryCode: a.countryCode,
+      _K.countryIso: a.countryIso,
       _K.city: a.city,
       _K.area: a.area,
       if (a.flatNumber != null) _K.flatNumber: a.flatNumber,
@@ -75,9 +77,10 @@ class _K {
   static const name = 'name';
   static const phone = 'phone';
   static const countryCode = 'country_code';
+  static const countryIso = 'country_iso';
   static const city = 'city';
   static const area = 'area';
-  static const flatNumber = 'flat_number';
+  static const flatNumber = 'flat_no';
   static const postCode = 'post_code';
   static const line1 = 'address_line';
   static const line2 = 'address_line_2';

@@ -10,9 +10,9 @@ enum AddressType {
   String get apiValue => name;
 
   static AddressType fromApi(String? value) => AddressType.values.firstWhere(
-        (t) => t.name == value?.toLowerCase(),
-        orElse: () => AddressType.home,
-      );
+    (t) => t.name == value?.toLowerCase(),
+    orElse: () => AddressType.home,
+  );
 }
 
 /// A saved delivery address. `id` is null for an address being created locally
@@ -25,6 +25,7 @@ class Address extends Equatable {
     required this.fullName,
     required this.phone,
     this.countryCode = '965',
+    this.countryIso = 'KW',
     required this.city,
     required this.area,
     this.flatNumber,
@@ -41,6 +42,7 @@ class Address extends Equatable {
   final String fullName;
   final String phone;
   final String countryCode;
+  final String countryIso;
   final String city;
   final String area;
   final String? flatNumber;
@@ -64,6 +66,7 @@ class Address extends Equatable {
     String? fullName,
     String? phone,
     String? countryCode,
+    String? countryIso,
     String? city,
     String? area,
     String? flatNumber,
@@ -80,6 +83,7 @@ class Address extends Equatable {
       fullName: fullName ?? this.fullName,
       phone: phone ?? this.phone,
       countryCode: countryCode ?? this.countryCode,
+      countryIso: countryIso ?? this.countryIso,
       city: city ?? this.city,
       area: area ?? this.area,
       flatNumber: flatNumber ?? this.flatNumber,
@@ -94,19 +98,20 @@ class Address extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        type,
-        fullName,
-        phone,
-        countryCode,
-        city,
-        area,
-        flatNumber,
-        postCode,
-        line1,
-        line2,
-        lat,
-        lng,
-        isDefault,
-      ];
+    id,
+    type,
+    fullName,
+    phone,
+    countryCode,
+    countryIso,
+    city,
+    area,
+    flatNumber,
+    postCode,
+    line1,
+    line2,
+    lat,
+    lng,
+    isDefault,
+  ];
 }

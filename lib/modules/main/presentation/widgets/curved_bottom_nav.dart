@@ -46,6 +46,12 @@ class CurvedBottomNav extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final slotWidth = constraints.maxWidth / _icons.length;
+          // The icon Row mirrors in RTL, so logical index 0 sits in the
+          // right-most physical slot. The valley + circle are positioned from
+          // the physical left edge, so map the logical index to its physical
+          // slot before computing centerX, otherwise they land on the mirror
+          // slot in Arabic.
+          final isRtl = Directionality.of(context) == TextDirection.rtl;
 
           // `position` interpolates between slot indices so the valley + circle
           // glide across when [currentIndex] changes.
@@ -54,7 +60,8 @@ class CurvedBottomNav extends StatelessWidget {
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeOutCubic,
             builder: (context, position, _) {
-              final centerX = (position + 0.5) * slotWidth;
+              final slot = isRtl ? (_icons.length - 1 - position) : position;
+              final centerX = (slot + 0.5) * slotWidth;
 
               return Stack(
                 clipBehavior: Clip.none,

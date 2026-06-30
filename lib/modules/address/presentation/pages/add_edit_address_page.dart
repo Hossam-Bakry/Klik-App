@@ -65,8 +65,11 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
     _country = a == null
         ? Countries.defaultCountry
         : Countries.all.firstWhere(
-            (c) => c.dialCode == a.countryCode,
-            orElse: () => Countries.defaultCountry,
+            (c) => c.isoCode == a.countryIso,
+            orElse: () => Countries.all.firstWhere(
+              (c) => c.dialCode == a.countryCode,
+              orElse: () => Countries.defaultCountry,
+            ),
           );
   }
 
@@ -105,6 +108,7 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
       fullName: _fullName.text.trim(),
       phone: _phone.text.trim(),
       countryCode: _country.dialCode,
+      countryIso: _country.isoCode,
       city: _city.text.trim(),
       area: _area.text.trim(),
       flatNumber: _flatNumber.text.trim().isEmpty ? null : _flatNumber.text.trim(),
