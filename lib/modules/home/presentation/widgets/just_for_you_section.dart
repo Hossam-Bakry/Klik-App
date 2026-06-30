@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../domain/entities/home_product.dart';
 import 'home_product_card.dart';
 import 'section_header.dart';
@@ -38,7 +40,10 @@ class JustForYouSection extends StatelessWidget {
             separatorBuilder: (_, _) => context.gapW(12),
             itemBuilder: (context, i) => SizedBox(
               width: context.r(125),
-              child: HomeProductCard(product: preview[i]),
+              child: HomeProductCard(
+                product: preview[i],
+                onTap: () => context.push(AppRoutes.productDetails, extra: preview[i].id),
+              ),
             ),
           ),
         ),

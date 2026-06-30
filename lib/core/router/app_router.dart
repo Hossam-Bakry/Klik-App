@@ -17,6 +17,8 @@ import '../../modules/auth/presentation/pages/register_page.dart';
 import '../../modules/main/presentation/pages/main_layout_page.dart';
 import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
+import '../../modules/product/presentation/bloc/product_bloc.dart';
+import '../../modules/product/presentation/pages/product_details_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
 import '../di/injector.dart';
 import 'app_routes.dart';
@@ -140,6 +142,19 @@ class AppRouter {
           // provides its own CatalogBloc internally).
           path: AppRoutes.home,
           builder: (context, state) => const MainLayoutPage(),
+        ),
+        // Product details (public — guests may browse). The product id arrives
+        // via `extra`; a fresh page-scoped ProductBloc loads it. Reached without
+        // an id (e.g. deep link) bounces home.
+        GoRoute(
+          path: AppRoutes.productDetails,
+          redirect: (context, state) =>
+              state.extra is int ? null : AppRoutes.home,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<ProductBloc>()
+              ..add(ProductDetailsRequested(state.extra as int)),
+            child: const ProductDetailsPage(),
+          ),
         ),
         // Address list/add/edit share the singleton AddressBloc so mutations
         // update the list/selection that the home header and bottom sheet read.
