@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/otp_cooldown_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../bloc/auth_bloc.dart';
@@ -18,7 +20,6 @@ import '../widgets/auth_illustration.dart';
 import '../widgets/auth_scaffold.dart';
 
 const int _otpLength = 4;
-const int _resendSeconds = 40;
 
 /// Post-registration step: the user enters the OTP sent to their phone to
 /// activate the account. Drives the app-level [AuthBloc] (which holds the
@@ -34,14 +35,21 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
   final _otpController = TextEditingController();
   final _otpFocusNode = FocusNode();
   Timer? _timer;
-  int _remaining = _resendSeconds;
 
   String get _code => _otpController.text;
 
   @override
   void initState() {
     super.initState();
-    _startCountdown();
+    // Request the OTP on open. The bloc honors the per-phone cooldown: a
+    // same-number re-entry while the timer is still running reuses the live
+    // code (no new request); a changed number sends a fresh one.
+    context.read<AuthBloc>().add(const AuthPhoneOtpRequested());
+    // Tick once a second to refresh the countdown, which is derived from the
+    // persistent store so re-entering the screen can't reset it.
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -52,29 +60,19 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
     super.dispose();
   }
 
-  void _startCountdown() {
-    setState(() => _remaining = _resendSeconds);
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (_remaining <= 1) {
-        t.cancel();
-        setState(() => _remaining = 0);
-      } else {
-        setState(() => _remaining--);
-      }
-    });
-  }
-
   void _verify() => context.read<AuthBloc>().add(AuthPhoneOtpSubmitted(_code));
 
-  void _resend() {
-    context.read<AuthBloc>().add(const AuthPhoneOtpResendRequested());
-    _startCountdown();
-  }
+  void _resend() =>
+      context.read<AuthBloc>().add(const AuthPhoneOtpRequested());
 
-  String get _timerLabel {
-    final m = (_remaining ~/ 60).toString().padLeft(2, '0');
-    final s = (_remaining % 60).toString().padLeft(2, '0');
+  /// Seconds left in the cooldown, read from the persistent store so it can't
+  /// be reset by leaving and re-entering the screen.
+  int _remainingFor(String? phone) =>
+      phone == null ? 0 : sl<OtpCooldownStore>().remainingSeconds(phone);
+
+  String _timerLabel(int remaining) {
+    final m = (remaining ~/ 60).toString().padLeft(2, '0');
+    final s = (remaining % 60).toString().padLeft(2, '0');
     return '$m:$s';
   }
 
@@ -97,6 +95,7 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
         final pending = state.pendingVerification;
         final phoneLabel =
             pending == null ? '' : '+${pending.countryCode}${pending.phone}';
+        final remaining = _remainingFor(pending?.phone);
         return AuthScaffold(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -119,8 +118,8 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
               ),
               context.gapH(20),
               _ResendRow(
-                remaining: _remaining,
-                label: _timerLabel,
+                remaining: remaining,
+                label: _timerLabel(remaining),
                 onResend: _resend,
               ),
               context.gapH(24),

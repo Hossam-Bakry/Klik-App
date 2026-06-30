@@ -49,8 +49,11 @@ class CountryCodePicker extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.keyboard_arrow_down,
-              color: AppColors.textSecondary, size: context.r(20)),
+          Icon(
+            Icons.keyboard_arrow_down,
+            color: AppColors.textSecondary,
+            size: context.r(20),
+          ),
           context.gapW(6),
           _Flag(isoCode: selected.isoCode),
           context.gapW(6),

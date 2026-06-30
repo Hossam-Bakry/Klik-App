@@ -75,9 +75,12 @@ class AuthPhoneOtpSubmitted extends AuthEvent {
   List<Object?> get props => [otp];
 }
 
-/// Re-sends the activation OTP to the pending phone.
-class AuthPhoneOtpResendRequested extends AuthEvent {
-  const AuthPhoneOtpResendRequested();
+/// Requests an activation OTP for the pending phone — sent on the verify
+/// screen's open and on the explicit resend tap. Honors the per-phone cooldown:
+/// if a code was sent to this same number recently it is skipped (the live one
+/// is reused); a different number always sends.
+class AuthPhoneOtpRequested extends AuthEvent {
+  const AuthPhoneOtpRequested();
 }
 
 class AuthLogoutRequested extends AuthEvent {

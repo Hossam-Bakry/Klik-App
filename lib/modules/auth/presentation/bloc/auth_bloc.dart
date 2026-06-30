@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_result.dart';
+import '../../../../core/services/otp_cooldown_store.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/social_account.dart';
 import '../../domain/usecases/get_current_session_usecase.dart';
@@ -27,20 +28,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required SocialSignInUseCase socialSignIn,
     required VerifyPhoneOtpUseCase verifyPhoneOtp,
     required SendPhoneOtpUseCase sendPhoneOtp,
-  })  : _login = login,
-        _register = register,
-        _logout = logout,
-        _getCurrentSession = getCurrentSession,
-        _socialSignIn = socialSignIn,
-        _verifyPhoneOtp = verifyPhoneOtp,
-        _sendPhoneOtp = sendPhoneOtp,
-        super(const AuthState()) {
+    required OtpCooldownStore otpCooldown,
+  }) : _login = login,
+       _register = register,
+       _logout = logout,
+       _getCurrentSession = getCurrentSession,
+       _socialSignIn = socialSignIn,
+       _verifyPhoneOtp = verifyPhoneOtp,
+       _sendPhoneOtp = sendPhoneOtp,
+       _otpCooldown = otpCooldown,
+       super(const AuthState()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
     on<AuthSocialSignInRequested>(_onSocialSignInRequested);
     on<AuthPhoneOtpSubmitted>(_onPhoneOtpSubmitted);
-    on<AuthPhoneOtpResendRequested>(_onPhoneOtpResendRequested);
+    on<AuthPhoneOtpRequested>(_onPhoneOtpRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
@@ -51,6 +54,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SocialSignInUseCase _socialSignIn;
   final VerifyPhoneOtpUseCase _verifyPhoneOtp;
   final SendPhoneOtpUseCase _sendPhoneOtp;
+  final OtpCooldownStore _otpCooldown;
 
   Future<void> _onCheckRequested(
     AuthCheckRequested event,
@@ -65,12 +69,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (_) {
       session = null;
     }
-    emit(state.copyWith(
-      status: session != null
-          ? AuthStatus.authenticated
-          : AuthStatus.unauthenticated,
-      session: session,
-    ));
+    emit(
+      state.copyWith(
+        status: session != null
+            ? AuthStatus.authenticated
+            : AuthStatus.unauthenticated,
+        session: session,
+      ),
+    );
   }
 
   Future<void> _onLoginRequested(
@@ -107,19 +113,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     switch (result) {
       case ApiSuccess():
-        emit(state.copyWith(
-          isSubmitting: false,
-          pendingVerification: PendingPhoneVerification(
-            phone: event.phone,
-            countryIso: event.countryIso,
-            countryCode: event.countryCode,
+        // Account created. The OTP itself is requested when the verify screen
+        // opens (AuthPhoneOtpRequested), so a same-number re-entry within the
+        // cooldown reuses the live code instead of sending a new one.
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            pendingVerification: PendingPhoneVerification(
+              phone: event.phone,
+              countryIso: event.countryIso,
+              countryCode: event.countryCode,
+            ),
           ),
-        ));
+        );
       case ApiFailure(:final failure):
-        emit(state.copyWith(
-          isSubmitting: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(isSubmitting: false, errorMessage: failure.message),
+        );
     }
   }
 
@@ -140,34 +150,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     switch (result) {
       case ApiSuccess(:final data):
-        emit(state.copyWith(
-          status: AuthStatus.authenticated,
-          session: data,
-          isSubmitting: false,
-          clearPendingVerification: true,
-        ));
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            session: data,
+            isSubmitting: false,
+            clearPendingVerification: true,
+          ),
+        );
       case ApiFailure(:final failure):
-        emit(state.copyWith(
-          isSubmitting: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(isSubmitting: false, errorMessage: failure.message),
+        );
     }
   }
 
-  /// Re-send the activation OTP to the pending phone.
-  Future<void> _onPhoneOtpResendRequested(
-    AuthPhoneOtpResendRequested event,
+  /// Request an OTP for the pending phone, honoring the persistent per-phone
+  /// cooldown: if the same number was sent a code that's still within its
+  /// window, skip the call and let the live code stand; otherwise send and
+  /// (re)start the cooldown. A changed number has no active window, so it sends.
+  Future<void> _onPhoneOtpRequested(
+    AuthPhoneOtpRequested event,
     Emitter<AuthState> emit,
   ) async {
     final pending = state.pendingVerification;
     if (pending == null) return;
+    if (!_otpCooldown.canRequest(pending.phone)) return;
     final result = await _sendPhoneOtp(
       phone: pending.phone,
       countryIso: pending.countryIso,
       countryCode: pending.countryCode,
     );
-    if (result case ApiFailure(:final failure)) {
-      emit(state.copyWith(errorMessage: failure.message));
+    switch (result) {
+      case ApiSuccess():
+        // Start the cooldown from now (persisted; survives navigation). The
+        // verify screen's per-second tick re-reads the store, so no emit needed.
+        await _otpCooldown.markSent(pending.phone);
+      case ApiFailure(:final failure):
+        emit(state.copyWith(errorMessage: failure.message));
     }
   }
 
@@ -186,22 +206,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   /// Shared success/failure handling for login, register & social sign-in.
-  void _emitAuthResult(
-    ApiResult<AuthSession> result,
-    Emitter<AuthState> emit,
-  ) {
+  void _emitAuthResult(ApiResult<AuthSession> result, Emitter<AuthState> emit) {
     switch (result) {
       case ApiSuccess(:final data):
-        emit(state.copyWith(
-          status: AuthStatus.authenticated,
-          session: data,
-          isSubmitting: false,
-        ));
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            session: data,
+            isSubmitting: false,
+          ),
+        );
       case ApiFailure(:final failure):
-        emit(state.copyWith(
-          isSubmitting: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(isSubmitting: false, errorMessage: failure.message),
+        );
     }
   }
 

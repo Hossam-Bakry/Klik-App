@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../core/network/api_interface.dart';
 import '../../../core/network/token_provider.dart';
+import '../../../core/services/otp_cooldown_store.dart';
 import '../data/datasources/auth_local_data_source.dart';
 import '../data/datasources/auth_remote_data_source.dart';
 import '../data/repositories/auth_repository_impl.dart';
@@ -66,6 +67,7 @@ void registerAuthModule(GetIt sl) {
         socialSignIn: sl<SocialSignInUseCase>(),
         verifyPhoneOtp: sl<VerifyPhoneOtpUseCase>(),
         sendPhoneOtp: sl<SendPhoneOtpUseCase>(),
+        otpCooldown: sl<OtpCooldownStore>(),
       ),
     )
     // Page-scoped: a fresh PasswordResetCubit per forgot-password flow
@@ -76,6 +78,7 @@ void registerAuthModule(GetIt sl) {
         requestReset: sl<RequestPasswordResetUseCase>(),
         verifyOtp: sl<VerifyOtpUseCase>(),
         resetPassword: sl<ResetPasswordUseCase>(),
+        otpCooldown: sl<OtpCooldownStore>(),
       ),
     );
 }

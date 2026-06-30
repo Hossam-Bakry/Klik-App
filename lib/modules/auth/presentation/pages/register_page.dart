@@ -87,20 +87,24 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       bloc: sl<AuthBloc>(),
+      // React when a submit settles (isSubmitting falls) or auth changes, so a
+      // repeated registration with the SAME number still re-opens verify even
+      // though pendingVerification is unchanged.
       listenWhen: (p, c) =>
           p.status != c.status ||
-          p.pendingVerification != c.pendingVerification ||
+          (p.isSubmitting && !c.isSubmitting) ||
           p.errorMessage != c.errorMessage,
       listener: (context, state) {
-        if (state.pendingVerification != null) {
-          // Account created — go verify the phone to activate it.
-          context.push(AppRoutes.verifyPhone);
-        } else if (state.isAuthenticated) {
-          context.go(AppRoutes.home);
-        } else if (state.errorMessage != null) {
+        if (state.isSubmitting) return;
+        if (state.errorMessage != null) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        } else if (state.isAuthenticated) {
+          context.go(AppRoutes.home);
+        } else if (state.pendingVerification != null) {
+          // Account created — go verify the phone to activate it.
+          context.push(AppRoutes.verifyPhone);
         }
       },
       child: AuthScaffold(

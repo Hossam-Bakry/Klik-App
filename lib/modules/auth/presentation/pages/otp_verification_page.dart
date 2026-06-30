@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/otp_cooldown_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../cubit/password_reset_cubit.dart';
@@ -18,7 +20,6 @@ import '../widgets/auth_illustration.dart';
 import '../widgets/auth_scaffold.dart';
 
 const int _otpLength = 6;
-const int _resendSeconds = 40;
 
 /// Receives the in-flight [PasswordResetCubit] from the forgot-password screen
 /// (via `extra`) so the captured phone + step state carry over.
@@ -35,14 +36,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _otpController = TextEditingController();
   final _otpFocusNode = FocusNode();
   Timer? _timer;
-  int _remaining = _resendSeconds;
 
   String get _code => _otpController.text;
 
   @override
   void initState() {
     super.initState();
-    _startCountdown();
+    // Tick to refresh the label; remaining time is derived from the cubit's
+    // otpSentAt, so leaving and re-entering can't reset the cooldown.
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -53,28 +57,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     super.dispose();
   }
 
-  void _startCountdown() {
-    setState(() => _remaining = _resendSeconds);
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (_remaining <= 1) {
-        t.cancel();
-        setState(() => _remaining = 0);
-      } else {
-        setState(() => _remaining--);
-      }
-    });
-  }
-
   void _resend() {
     final s = widget.cubit.state;
     widget.cubit.sendOtp(phone: s.phone, countryIso: s.countryIso, countryCode: s.countryCode);
-    _startCountdown();
   }
 
-  String get _timerLabel {
-    final m = (_remaining ~/ 60).toString().padLeft(2, '0');
-    final s = (_remaining % 60).toString().padLeft(2, '0');
+  /// Seconds left in the cooldown, read from the persistent store so it can't
+  /// be reset by leaving and re-entering the screen.
+  int _remainingFor(String phone) =>
+      sl<OtpCooldownStore>().remainingSeconds(phone);
+
+  String _timerLabel(int remaining) {
+    final m = (remaining ~/ 60).toString().padLeft(2, '0');
+    final s = (remaining % 60).toString().padLeft(2, '0');
     return '$m:$s';
   }
 
@@ -97,6 +92,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         },
         builder: (context, state) {
           final loading = state.status == ResetStatus.loading;
+          final remaining = _remainingFor(state.phone);
           return AuthScaffold(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -116,7 +112,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   onCompleted: widget.cubit.verify,
                 ),
                 context.gapH(20),
-                _ResendRow(remaining: _remaining, label: _timerLabel, onResend: _resend),
+                _ResendRow(remaining: remaining, label: _timerLabel(remaining), onResend: _resend),
                 context.gapH(24),
                 AppButton.filled(
                   label: context.tr(LocaleKeys.verifyOtp),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/api_result.dart';
+import '../../../../core/services/otp_cooldown_store.dart';
 import '../../domain/usecases/request_password_reset_usecase.dart';
 import '../../domain/usecases/reset_password_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
@@ -18,14 +19,17 @@ class PasswordResetCubit extends Cubit<PasswordResetState> {
     required RequestPasswordResetUseCase requestReset,
     required VerifyOtpUseCase verifyOtp,
     required ResetPasswordUseCase resetPassword,
+    required OtpCooldownStore otpCooldown,
   })  : _requestReset = requestReset,
         _verifyOtp = verifyOtp,
         _resetPassword = resetPassword,
+        _otpCooldown = otpCooldown,
         super(const PasswordResetState());
 
   final RequestPasswordResetUseCase _requestReset;
   final VerifyOtpUseCase _verifyOtp;
   final ResetPasswordUseCase _resetPassword;
+  final OtpCooldownStore _otpCooldown;
 
   /// Step 1 — send the OTP to [phone].
   Future<void> sendOtp({
@@ -33,6 +37,19 @@ class PasswordResetCubit extends Cubit<PasswordResetState> {
     required String countryIso,
     required String countryCode,
   }) async {
+    // Same number still within its cooldown → reuse the live OTP: skip the
+    // request and just advance to the OTP screen (which shows the remaining
+    // time). A changed number has no active window, so it sends below.
+    if (!_otpCooldown.canRequest(phone)) {
+      emit(state.copyWith(
+        status: ResetStatus.otpSent,
+        phone: phone,
+        countryIso: countryIso,
+        countryCode: countryCode,
+        clearError: true,
+      ));
+      return;
+    }
     emit(state.copyWith(status: ResetStatus.loading, clearError: true));
     final result = await _requestReset(
       phone: phone,
@@ -41,6 +58,7 @@ class PasswordResetCubit extends Cubit<PasswordResetState> {
     );
     switch (result) {
       case ApiSuccess():
+        await _otpCooldown.markSent(phone);
         emit(state.copyWith(
           status: ResetStatus.otpSent,
           phone: phone,

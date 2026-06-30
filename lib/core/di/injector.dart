@@ -13,6 +13,7 @@ import '../network/dio_api_client.dart';
 import '../network/dio_client.dart';
 import '../network/token_provider.dart';
 import '../services/location_service.dart';
+import '../services/otp_cooldown_store.dart';
 
 /// Global service locator. Kept manual (no injectable/codegen) so the project
 /// builds without `build_runner`.
@@ -62,5 +63,9 @@ Future<void> _registerCore() async {
   sl
     ..registerLazySingleton<SharedPreferences>(() => prefs)
     // App-level locale (persisted). Drives MaterialApp + accept-language.
-    ..registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<SharedPreferences>()));
+    ..registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<SharedPreferences>()))
+    // Persistent per-phone OTP resend cooldown (survives navigation/restart).
+    ..registerLazySingleton<OtpCooldownStore>(
+      () => OtpCooldownStore(sl<SharedPreferences>()),
+    );
 }

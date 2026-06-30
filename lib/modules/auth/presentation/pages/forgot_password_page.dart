@@ -29,18 +29,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Country _country = Countries.defaultCountry;
 
   @override
+  void initState() {
+    super.initState();
+    // Rebuild as the user types so Send OTP enables/disables live.
+    _phone.addListener(_onInputChanged);
+  }
+
+  @override
   void dispose() {
+    _phone.removeListener(_onInputChanged);
     _phone.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<PasswordResetCubit>().sendOtp(
-        phone: _phone.text,
-        countryIso: _country.isoCode,
-        countryCode: _country.dialCode,
-      );
+  void _onInputChanged() => setState(() {});
+
+  /// Disabled until a valid phone for the selected country is entered.
+  bool get _canSubmit =>
+      _country.isValidPhone(_phone.text.trim()) &&
+      !_phone.text.trim().startsWith('0');
+
+  Future<void> _submit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final cubit = context.read<PasswordResetCubit>();
+    // sendOtp either sends (new/expired number) or reuses the live code (same
+    // number still in cooldown); both resolve to `otpSent`. Navigate
+    // imperatively on the result so re-tapping the same number still opens the
+    // OTP screen even though the status didn't change.
+    await cubit.sendOtp(
+      phone: _phone.text,
+      countryIso: _country.isoCode,
+      countryCode: _country.dialCode,
+    );
+    if (!mounted) return;
+    if (cubit.state.status == ResetStatus.otpSent) {
+      context.push(AppRoutes.otp, extra: cubit);
     }
   }
 
@@ -49,10 +72,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return BlocConsumer<PasswordResetCubit, PasswordResetState>(
       listenWhen: (p, c) => p.status != c.status,
       listener: (context, state) {
-        if (state.status == ResetStatus.otpSent) {
-          // Hand the same cubit to the OTP screen via `extra`.
-          context.push(AppRoutes.otp, extra: context.read<PasswordResetCubit>());
-        } else if (state.status == ResetStatus.failure && state.error != null) {
+        if (state.status == ResetStatus.failure && state.error != null) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(state.error!)));
@@ -81,7 +101,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   onCountryChanged: (c) => setState(() => _country = c),
                 ),
                 context.gapH(24),
-                AppButton.filled(label: context.tr(LocaleKeys.sendOtp), isLoading: loading, onPressed: _submit),
+                AppButton.filled(
+                  label: context.tr(LocaleKeys.sendOtp),
+                  isLoading: loading,
+                  // Dimmed/disabled until a valid phone is entered.
+                  onPressed: _canSubmit ? _submit : null,
+                ),
               ],
             ),
           ),

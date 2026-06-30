@@ -60,7 +60,8 @@ class AuthState extends Equatable {
 }
 
 /// The phone captured at registration that must be OTP-verified to activate
-/// the account.
+/// the account. The resend cooldown lives in the persistent [OtpCooldownStore]
+/// (keyed by phone), not here, so it survives leaving/reopening the screen.
 class PendingPhoneVerification extends Equatable {
   const PendingPhoneVerification({
     required this.phone,
