@@ -50,6 +50,9 @@ class HomeProduct extends Equatable {
   /// The price the customer actually pays.
   double get effectivePrice => hasDiscount ? discountPrice : price;
 
+  /// No units available — the card shows an "Out of Stock" band.
+  bool get isOutOfStock => quantity <= 0;
+
   @override
   List<Object?> get props => [id, name, price, discountPrice, isBidable];
 }

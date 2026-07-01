@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,11 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../modules/address/di/address_injector.dart';
 import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
+import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
 import '../localization/locale_cubit.dart';
 import '../network/api_interface.dart';
+import '../network/connectivity_cubit.dart';
 import '../network/dio_api_client.dart';
 import '../network/dio_client.dart';
 import '../network/token_provider.dart';
@@ -33,6 +36,7 @@ Future<void> configureDependencies() async {
   registerAuthModule(sl);
   registerOnboardingModule(sl);
   registerCatalogModule(sl);
+  registerCategoriesModule(sl);
   registerHomeModule(sl);
   registerAddressModule(sl);
   registerProductModule(sl);
@@ -58,7 +62,13 @@ Future<void> _registerCore() async {
       () => const FlutterSecureStorage(),
     )
     // Current-location + reverse-geocoding, shared by the address module.
-    ..registerLazySingleton<LocationService>(() => const LocationService());
+    ..registerLazySingleton<LocationService>(() => const LocationService())
+    // App-wide connectivity: a singleton stream of online/offline status,
+    // surfaced as a global overlay in MaterialApp's builder.
+    ..registerLazySingleton<Connectivity>(() => Connectivity())
+    ..registerLazySingleton<ConnectivityCubit>(
+      () => ConnectivityCubit(sl<Connectivity>()),
+    );
 
   // SharedPreferences must be awaited once, then registered as a ready instance.
   final prefs = await SharedPreferences.getInstance();

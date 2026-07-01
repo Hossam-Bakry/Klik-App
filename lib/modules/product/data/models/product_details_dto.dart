@@ -39,6 +39,7 @@ class ProductDetailsDto {
       discountPercentage: _toDouble(p[_K.discountPercentage]),
       rating: _toDouble(p[_K.rating]),
       totalSold: _toInt(p[_K.totalSold]),
+      quantity: _toInt(p[_K.quantity]),
       // The API returns this already-localized (e.g. "3 أيام"), so the UI shows
       // it verbatim — no number formatting or unit suffix added.
       estimatedDeliveryTime: _str(shop?[_K.estimatedDeliveryTime]),

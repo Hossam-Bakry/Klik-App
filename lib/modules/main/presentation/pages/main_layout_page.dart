@@ -9,6 +9,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
+import '../../../categories/presentation/bloc/categories_bloc.dart';
+import '../../../categories/presentation/pages/categories_page.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
@@ -59,7 +61,10 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
           onOpenOffers: () => _onTabTapped(2),
         ),
       ),
-      _PlaceholderTab(icon: Assets.icons.categoryIcn),
+      BlocProvider(
+        create: (_) => sl<CategoriesBloc>()..add(const CategoriesStarted()),
+        child: const CategoriesPage(),
+      ),
       _PlaceholderTab(icon: Assets.icons.negotiationIcn),
       _PlaceholderTab(icon: Assets.icons.cartIcn),
       const ProfilePage(),

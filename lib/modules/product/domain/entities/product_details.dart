@@ -22,6 +22,7 @@ class ProductDetails extends Equatable {
     required this.discountPercentage,
     required this.rating,
     required this.totalSold,
+    required this.quantity,
     required this.estimatedDeliveryTime,
     required this.isFavorite,
     required this.isBidable,
@@ -53,6 +54,9 @@ class ProductDetails extends Equatable {
   final double rating;
   final int totalSold;
 
+  /// Units in stock. `0` (or less) means the product can't be ordered.
+  final int quantity;
+
   /// Estimated delivery time in days, as the API returns it (e.g. "2").
   final String estimatedDeliveryTime;
 
@@ -76,6 +80,9 @@ class ProductDetails extends Equatable {
   /// The price the customer actually pays.
   double get effectivePrice => hasDiscount ? discountPrice : price;
 
+  /// No units available — the CTAs are replaced by an "Out of Stock" banner.
+  bool get isOutOfStock => quantity <= 0;
+
   ProductDetails copyWith({bool? isFavorite}) {
     return ProductDetails(
       id: id,
@@ -88,6 +95,7 @@ class ProductDetails extends Equatable {
       discountPercentage: discountPercentage,
       rating: rating,
       totalSold: totalSold,
+      quantity: quantity,
       estimatedDeliveryTime: estimatedDeliveryTime,
       isFavorite: isFavorite ?? this.isFavorite,
       isBidable: isBidable,

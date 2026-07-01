@@ -64,6 +64,9 @@ class $AssetsIconsGen {
   SvgGenImage get locationIcn =>
       const SvgGenImage('assets/icons/location_icn.svg');
 
+  /// File path: assets/icons/lock_icn.svg
+  SvgGenImage get lockIcn => const SvgGenImage('assets/icons/lock_icn.svg');
+
   /// File path: assets/icons/logout_icn.svg
   SvgGenImage get logoutIcn => const SvgGenImage('assets/icons/logout_icn.svg');
 
@@ -132,6 +135,7 @@ class $AssetsIconsGen {
     instagramIcn,
     languageIcn,
     locationIcn,
+    lockIcn,
     logoutIcn,
     moneyDollarIcn,
     negotiationIcn,
@@ -169,6 +173,14 @@ class $AssetsImagesGen {
   AssetGenImage get noAddressFoundImg =>
       const AssetGenImage('assets/images/no_address_found_img.png');
 
+  /// File path: assets/images/no_item_found_img.png
+  AssetGenImage get noItemFoundImg =>
+      const AssetGenImage('assets/images/no_item_found_img.png');
+
+  /// File path: assets/images/no_network_img.png
+  AssetGenImage get noNetworkImg =>
+      const AssetGenImage('assets/images/no_network_img.png');
+
   /// File path: assets/images/on_boarding_one_img.png
   AssetGenImage get onBoardingOneImg =>
       const AssetGenImage('assets/images/on_boarding_one_img.png');
@@ -190,6 +202,8 @@ class $AssetsImagesGen {
     forgetPasswordImg,
     logoutImg,
     noAddressFoundImg,
+    noItemFoundImg,
+    noNetworkImg,
     onBoardingOneImg,
     onBoardingTwoImg,
     otpImg,

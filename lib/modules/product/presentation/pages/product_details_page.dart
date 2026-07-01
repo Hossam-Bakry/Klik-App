@@ -63,7 +63,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
       bottomNavigationBar: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
-          if (state.product == null) return const SizedBox.shrink();
+          final product = state.product;
+          if (product == null) return const SizedBox.shrink();
+          // Out of stock: swap the CTAs for a disabled "Out Of Stock" banner.
+          if (product.isOutOfStock) return const _OutOfStockBar();
           return ProductBottomBar(
             onAddToCart: () => _comingSoon(context),
             onBuyNow: () => _comingSoon(context),
@@ -82,6 +85,40 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(context.tr(LocaleKeys.comingSoon))));
+  }
+}
+
+/// Footer shown when the product has no stock — a full-width, height-50
+/// "Out Of Stock" pill that replaces the Add-to-Cart / Buy-Now actions.
+class _OutOfStockBar extends StatelessWidget {
+  const _OutOfStockBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.surface,
+      padding: EdgeInsets.fromLTRB(
+        context.r(16),
+        context.r(12),
+        context.r(16),
+        context.r(12) + MediaQuery.viewPaddingOf(context).bottom,
+      ),
+      child: Container(
+        height: context.r(50),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.textSecondary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(context.r(14)),
+        ),
+        child: Text(
+          context.tr(LocaleKeys.outOfStock),
+          style: context.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -27,6 +27,8 @@ abstract class LocaleKeys {
   static const signInRequiredMessage = 'sign_in_required_message';
   static const somethingWentWrong = 'something_went_wrong';
   static const comingSoon = 'coming_soon';
+  static const noInternetConnection = 'no_internet_connection';
+  static const checkConnectionRetry = 'check_connection_retry';
 
   // Profile
   static const orders = 'orders';
@@ -73,6 +75,7 @@ abstract class LocaleKeys {
   static const similarProducts = 'similar_products';
   static const addToCart = 'add_to_cart';
   static const buyNow = 'buy_now';
+  static const outOfStock = 'out_of_stock';
 
   // Login
   static const welcomeBack = 'welcome_back';

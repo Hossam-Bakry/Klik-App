@@ -30,8 +30,8 @@ class JustForYouSection extends StatelessWidget {
           child: SectionHeader(title: context.tr(LocaleKeys.bestDealsForYou), onSeeAll: onSeeAll),
         ),
         context.gapH(12),
-        Container(
-          height: context.r(205),
+        SizedBox(
+          height: context.r(215),
           // color: Colors.red,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,

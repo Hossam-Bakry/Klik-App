@@ -47,10 +47,39 @@ class HomeProductCard extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                AppNetworkImage(
-                  url: product.thumbnail,
-                  height: context.r(110),
-                  width: double.infinity,
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    AppNetworkImage(
+                      url: product.thumbnail,
+                      height: context.r(110),
+                      width: double.infinity,
+                    ),
+                    if (product.isOutOfStock)
+                      Container(
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: context.r(25),
+                        color: AppColors.textSecondary.withValues(alpha: 0.08),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Assets.icons.lockIcn.svg(
+                              width: context.r(16),
+                              height: context.r(16),
+                            ),
+                            context.gapW(4),
+                            Text(
+                              context.tr(LocaleKeys.outOfStock),
+                              style: context.labelMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimaryGold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
                 if (product.isBidable)
                   Positioned(
@@ -77,31 +106,33 @@ class HomeProductCard extends StatelessWidget {
                 ),
               ],
             ),
-            Padding(
-              padding: context.edgeSymmetric(horizontal: 5, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+            Expanded(
+              child: Padding(
+                padding: context.edgeSymmetric(horizontal: 5, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  context.gapH(4),
-                  Text(
-                    '${context.tr(LocaleKeys.sold)} (${product.totalSold})',
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                      fontSize: context.sp(11),
-                      color: AppColors.textSecondary,
+                    context.gapH(4),
+                    Text(
+                      '${context.tr(LocaleKeys.sold)} (${product.totalSold})',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: context.sp(11),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ),
-                  context.gapH(6),
-                  ProductPrice(product: product),
-                ],
+                    context.gapH(6),
+                    ProductPrice(product: product),
+                  ],
+                ),
               ),
             ),
           ],
