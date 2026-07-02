@@ -37,6 +37,8 @@ class AppColors {
 
   static const Color error = Color(0xFFD32F2F);
   static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color info = Color(0xFF3B82F6);
 
   // ---- Splash ----
   /// Warm cream behind the splash artwork (matches the exported PNG edges so

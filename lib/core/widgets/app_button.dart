@@ -33,7 +33,7 @@ class AppButton extends StatelessWidget {
     this.borderColor,
     this.isLoading = false,
     this.expanded = true,
-    this.height = 56,
+    this.height = 45,
     this.horizontalPadding,
     this.fontSize = 16,
     this.cornerRadius,
@@ -51,7 +51,7 @@ class AppButton extends StatelessWidget {
     Color color = AppColors.primary,
     bool isLoading = false,
     bool expanded = true,
-    double cornerRadius = 14,
+    double cornerRadius = 8,
   }) : this._(
          key: key,
          onPressed: onPressed,
@@ -95,22 +95,32 @@ class AppButton extends StatelessWidget {
          onPressed: onPressed,
          label: label,
          trailing: trailing,
-         gradient: const [AppColors.splashAccentLight, AppColors.splashAccentDark],
+         gradient: const [
+           AppColors.splashAccentLight,
+           AppColors.splashAccentDark,
+         ],
          isLoading: isLoading,
          expanded: expanded,
        );
 
   /// Circular icon button with the bronze→gold gradient.
-  const AppButton.circle({Key? key, required VoidCallback? onPressed, required Widget icon, double size = 56})
-    : this._(
-        key: key,
-        onPressed: onPressed,
-        trailing: icon,
-        gradient: const [AppColors.splashAccentLight, AppColors.splashAccentDark],
-        shape: _AppButtonShape.circle,
-        expanded: false,
-        height: size,
-      );
+  const AppButton.circle({
+    Key? key,
+    required VoidCallback? onPressed,
+    required Widget icon,
+    double size = 56,
+  }) : this._(
+         key: key,
+         onPressed: onPressed,
+         trailing: icon,
+         gradient: const [
+           AppColors.splashAccentLight,
+           AppColors.splashAccentDark,
+         ],
+         shape: _AppButtonShape.circle,
+         expanded: false,
+         height: size,
+       );
 
   /// Transparent button with a border.
   const AppButton.outline({
@@ -125,9 +135,10 @@ class AppButton extends StatelessWidget {
          label: label,
          trailing: trailing,
          backgroundColor: Colors.transparent,
-         foregroundColor: AppColors.dark,
-         borderColor: AppColors.dark,
+         foregroundColor: AppColors.primary,
+         borderColor: AppColors.primary,
          expanded: expanded,
+         cornerRadius: 8,
        );
 
   /// Text-only button (no background), e.g. inline links.
@@ -196,13 +207,19 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final disabled = onPressed == null;
     final h = context.r(height);
-    final radius = BorderRadius.circular(_isCircle ? h : (cornerRadius != null ? context.r(cornerRadius!) : h / 2));
+    final radius = BorderRadius.circular(
+      _isCircle ? h : (cornerRadius != null ? context.r(cornerRadius!) : h / 6),
+    );
 
     final decoration = BoxDecoration(
       color: gradient == null ? (backgroundColor ?? AppColors.dark) : null,
       gradient: gradient == null
           ? null
-          : LinearGradient(colors: gradient!, begin: Alignment.centerLeft, end: Alignment.centerRight),
+          : LinearGradient(
+              colors: gradient!,
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
       borderRadius: radius,
       border: borderColor == null ? null : Border.all(color: borderColor!),
     );
@@ -211,6 +228,7 @@ class AppButton extends StatelessWidget {
       opacity: disabled && !isLoading ? 0.5 : 1,
       child: Material(
         color: Colors.transparent,
+
         child: InkWell(
           onTap: (disabled || isLoading) ? null : onPressed,
           borderRadius: radius,
@@ -221,7 +239,11 @@ class AppButton extends StatelessWidget {
           child: Container(
             height: h,
             width: _isCircle ? h : null,
-            padding: _isCircle ? null : EdgeInsets.symmetric(horizontal: context.r(horizontalPadding ?? 24)),
+            padding: _isCircle
+                ? null
+                : EdgeInsets.symmetric(
+                    horizontal: context.r(horizontalPadding ?? 24),
+                  ),
             decoration: decoration,
             // Always center the child vertically (and horizontally). When not
             // expanded the surrounding IntrinsicWidth keeps the button hugging
@@ -244,7 +266,10 @@ class AppButton extends StatelessWidget {
       return SizedBox(
         height: size,
         width: size,
-        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(foregroundColor)),
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation(foregroundColor),
+        ),
       );
     }
 
@@ -256,9 +281,7 @@ class AppButton extends StatelessWidget {
 
     final text = Text(
       label ?? '',
-      style: context.bodySmall?.copyWith(
-        color: foregroundColor,
-      )
+      style: context.bodySmall?.copyWith(color: foregroundColor),
     );
 
     if (leading == null && trailing == null) return text;

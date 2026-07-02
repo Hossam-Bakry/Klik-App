@@ -11,8 +11,6 @@
   "store_title": "متجر كليك",
   "sign_out": "تسجيل الخروج",
   "profile_title": "الملف الشخصي",
-  "guest_greeting": "مرحبًا، زائر",
-  "guest_subtitle": "سجّل الدخول للوصول إلى طلباتك ومفضلتك والمزيد",
   "sign_in_required_title": "تسجيل الدخول مطلوب",
   "sign_in_required_message": "سجّل الدخول أو أنشئ حسابًا للمتابعة.",
   "something_went_wrong": "حدث خطأ ما.",
@@ -158,5 +156,9 @@
   "negotiable_only": "قابل للتفاوض فقط",
   "apply_filters": "تطبيق الفلاتر",
   "clear_all": "مسح الكل",
-  "could_not_load_more": "تعذّر تحميل المزيد. اضغط لإعادة المحاولة."
+  "could_not_load_more": "تعذّر تحميل المزيد. اضغط لإعادة المحاولة.",
+  "logged_out_successfully": "تم تسجيل الخروج بنجاح.",
+  "changes_saved_successfully": "تم حفظ التغييرات بنجاح.",
+  "item_added_to_wishlist": "تمت إضافة المنتج إلى المفضلة.",
+  "item_removed_from_wishlist": "تمت إزالة المنتج من المفضلة."
 }

@@ -11,6 +11,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_scaffold.dart';
@@ -63,11 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (!_agreed) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(context.tr(LocaleKeys.mustAgreeTerms))),
-        );
+      AppToast.warning(context, context.tr(LocaleKeys.mustAgreeTerms));
       return;
     }
     sl<AuthBloc>().add(
@@ -97,9 +94,7 @@ class _RegisterPageState extends State<RegisterPage> {
       listener: (context, state) {
         if (state.isSubmitting) return;
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          AppToast.error(context, state.errorMessage!);
         } else if (state.isAuthenticated) {
           context.go(AppRoutes.home);
         } else if (state.pendingVerification != null) {

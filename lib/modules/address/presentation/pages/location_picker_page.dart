@@ -7,6 +7,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_toast.dart';
 
 /// Full-screen map for browsing and picking any location.
 ///
@@ -113,9 +114,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
       LocationError.permissionDeniedForever => LocaleKeys.locationPermissionDeniedForever,
       _ => LocaleKeys.locationPermissionDenied,
     };
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.tr(key))));
+    AppToast.warning(context, context.tr(key));
   }
 
   @override

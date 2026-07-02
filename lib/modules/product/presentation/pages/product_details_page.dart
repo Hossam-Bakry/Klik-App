@@ -9,6 +9,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/product_details.dart';
 import '../bloc/product_bloc.dart';
 import '../widgets/product_bottom_bar.dart';
@@ -83,9 +84,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   void _comingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.tr(LocaleKeys.comingSoon))));
+    AppToast.info(context, context.tr(LocaleKeys.comingSoon));
   }
 }
 

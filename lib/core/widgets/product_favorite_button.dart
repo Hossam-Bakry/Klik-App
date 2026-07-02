@@ -6,7 +6,9 @@ import '../../modules/auth/presentation/bloc/auth_bloc.dart';
 import '../../modules/auth/presentation/widgets/auth_prompt.dart';
 import '../extensions/context_extensions.dart';
 import '../favorites/presentation/favorites_cubit.dart';
+import '../localization/locale_keys.dart';
 import '../theme/app_colors.dart';
+import 'app_toast.dart';
 
 /// Favorite toggle icon for a product card, wired to the shared
 /// [FavoritesCubit] so tapping it here reflects on every other card showing
@@ -37,22 +39,29 @@ class ProductFavoriteButton extends StatelessWidget {
           (cubit) => cubit.isFavorite(productId),
         );
     return GestureDetector(
-      onTap: () => context.requireAuth(
-        () => context.read<FavoritesCubit>().toggle(productId),
-      ),
+      onTap: () => context.requireAuth(() {
+        final adding = !isFavorite;
+        context.read<FavoritesCubit>().toggle(productId);
+        adding
+            ? AppToast.success(
+                context,
+                context.tr(LocaleKeys.itemAddedToWishlist),
+                icon: Icons.favorite_rounded,
+              )
+            : AppToast.error(
+                context,
+                context.tr(LocaleKeys.itemRemovedFromWishlist),
+                icon: Icons.delete_outline_rounded,
+              );
+      }),
       child: Container(
         width: context.r(26),
         height: context.r(26),
         padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: isFavorite ? selectedColor : unselectedColor,
-          shape: BoxShape.circle,
-        ),
-        child:
-            (isFavorite
-                    ? Assets.icons.selectedFavoriteIcn
-                    : Assets.icons.unSelectedFavoriteIcn)
-                .svg(),
+        decoration: BoxDecoration(shape: BoxShape.circle),
+        child: (isFavorite
+            ? Assets.icons.selectedWishlistIcn.svg()
+            : Assets.icons.unSelectedFavoriteIcn.svg()),
       ),
     );
   }

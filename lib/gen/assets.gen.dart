@@ -103,6 +103,10 @@ class $AssetsIconsGen {
   SvgGenImage get selectedFavoriteIcn =>
       const SvgGenImage('assets/icons/selected_favorite_icn.svg');
 
+  /// File path: assets/icons/selected_wishlist_icn.svg
+  SvgGenImage get selectedWishlistIcn =>
+      const SvgGenImage('assets/icons/selected_wishlist_icn.svg');
+
   /// File path: assets/icons/terms_icn.svg
   SvgGenImage get termsIcn => const SvgGenImage('assets/icons/terms_icn.svg');
 
@@ -146,6 +150,7 @@ class $AssetsIconsGen {
     searchIcn,
     securityIcn,
     selectedFavoriteIcn,
+    selectedWishlistIcn,
     termsIcn,
     tiktokIcn,
     truckIcn,

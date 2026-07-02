@@ -105,7 +105,7 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+        maxHeight: MediaQuery.sizeOf(context).height * 0.95,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -458,15 +458,14 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
       child: Row(
         children: [
           Expanded(
-            flex: 3,
             child: AppButton.filled(
               label: context.tr(LocaleKeys.applyFilters),
               onPressed: () => Navigator.of(context).pop(_build()),
+
             ),
           ),
-          context.gapW(12),
+          context.gapW(45),
           Expanded(
-            flex: 2,
             child: AppButton.outline(
               label: context.tr(LocaleKeys.clearAll),
               onPressed: () {

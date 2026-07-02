@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../cubit/password_reset_cubit.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_scaffold.dart';
@@ -51,12 +52,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         listenWhen: (p, c) => p.status != c.status,
         listener: (context, state) {
           if (state.status == ResetStatus.passwordReset) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr(LocaleKeys.passwordChanged))));
+            AppToast.success(context, context.tr(LocaleKeys.passwordChanged));
             context.go(AppRoutes.login);
           } else if (state.status == ResetStatus.failure && state.error != null) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(state.error!)));
+            AppToast.error(context, state.error!);
           }
         },
         builder: (context, state) {

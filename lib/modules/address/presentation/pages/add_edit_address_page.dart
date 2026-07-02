@@ -10,6 +10,7 @@ import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/address.dart';
 import '../bloc/address_bloc.dart';
 import '../widgets/address_map_picker.dart';
@@ -132,11 +133,10 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
       listenWhen: (p, c) => p.action != c.action,
       listener: (context, state) {
         if (state.action == AddressAction.success) {
+          AppToast.emphasis(context, context.tr(LocaleKeys.changesSavedSuccessfully));
           context.pop();
         } else if (state.action == AddressAction.failure && state.errorMessage != null) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          AppToast.error(context, state.errorMessage!);
         }
       },
       child: Scaffold(

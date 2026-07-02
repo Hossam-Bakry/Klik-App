@@ -14,6 +14,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/otp_cooldown_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../cubit/password_reset_cubit.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_illustration.dart';
@@ -85,9 +86,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             // change-password screen via `extra`.
             context.pushReplacement(AppRoutes.changePassword, extra: widget.cubit);
           } else if (state.status == ResetStatus.failure && state.error != null) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(state.error!)));
+            AppToast.error(context, state.error!);
           }
         },
         builder: (context, state) {

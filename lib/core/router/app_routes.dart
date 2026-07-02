@@ -15,6 +15,7 @@ class AppRoutes {
   static const String productDetails = '/product';
   static const String products = '/products';
   static const String shops = '/shops';
+  static const String wishlist = '/wishlist';
   static const String addressList = '/address';
   static const String addressAdd = '/address/add';
   static const String addressEdit = '/address/edit';
@@ -37,5 +38,6 @@ class AppRoutes {
     addressList,
     addressAdd,
     addressEdit,
+    wishlist,
   };
 }

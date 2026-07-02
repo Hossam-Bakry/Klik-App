@@ -11,8 +11,6 @@
   "store_title": "Klik Store",
   "sign_out": "Sign out",
   "profile_title": "Profile",
-  "guest_greeting": "Welcome, Guest",
-  "guest_subtitle": "Sign in to access your orders, wishlist and more",
   "sign_in_required_title": "Sign in required",
   "sign_in_required_message": "Sign in or create an account to continue.",
   "something_went_wrong": "Something went wrong.",
@@ -158,5 +156,9 @@
   "negotiable_only": "Negotiable only",
   "apply_filters": "Apply Filters",
   "clear_all": "Clear All",
-  "could_not_load_more": "Couldn't load more. Tap to retry."
+  "could_not_load_more": "Couldn't load more. Tap to retry.",
+  "logged_out_successfully": "Logged out successfully.",
+  "changes_saved_successfully": "Changes saved successfully.",
+  "item_added_to_wishlist": "Item added to wishlist.",
+  "item_removed_from_wishlist": "Item removed from wishlist."
 }

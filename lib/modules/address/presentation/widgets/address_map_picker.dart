@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../pages/location_picker_page.dart';
 
 /// Map header for the add/edit address screen.
@@ -114,9 +115,7 @@ class _AddressMapPickerState extends State<AddressMapPicker> {
       LocationError.permissionDeniedForever => LocaleKeys.locationPermissionDeniedForever,
       _ => LocaleKeys.locationPermissionDenied,
     };
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.tr(key))));
+    AppToast.warning(context, context.tr(key));
   }
 
   @override

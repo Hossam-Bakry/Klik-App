@@ -21,8 +21,6 @@ abstract class LocaleKeys {
   static const profileTitle = 'profile_title';
 
   // Guest / auth gating
-  static const guestGreeting = 'guest_greeting';
-  static const guestSubtitle = 'guest_subtitle';
   static const signInRequiredTitle = 'sign_in_required_title';
   static const signInRequiredMessage = 'sign_in_required_message';
   static const somethingWentWrong = 'something_went_wrong';
@@ -195,4 +193,10 @@ abstract class LocaleKeys {
   static const applyFilters = 'apply_filters';
   static const clearAll = 'clear_all';
   static const couldNotLoadMore = 'could_not_load_more';
+
+  // Toast messages
+  static const loggedOutSuccessfully = 'logged_out_successfully';
+  static const changesSavedSuccessfully = 'changes_saved_successfully';
+  static const itemAddedToWishlist = 'item_added_to_wishlist';
+  static const itemRemovedFromWishlist = 'item_removed_from_wishlist';
 }

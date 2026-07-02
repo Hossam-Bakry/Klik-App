@@ -25,6 +25,8 @@ import '../../modules/products/presentation/pages/products_list_page.dart';
 import '../../modules/shops/presentation/bloc/shops_bloc.dart';
 import '../../modules/shops/presentation/pages/shops_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
+import '../../modules/wishlist/presentation/bloc/wishlist_bloc.dart';
+import '../../modules/wishlist/presentation/pages/wishlist_page.dart';
 import '../di/injector.dart';
 import 'app_routes.dart';
 import 'go_router_refresh_stream.dart';
@@ -176,6 +178,15 @@ class AppRouter {
               child: const ProductsListPage(),
             );
           },
+        ),
+        // Wishlist (auth-required — favorites are per-user). Page-scoped
+        // WishlistBloc loads the favorite products.
+        GoRoute(
+          path: AppRoutes.wishlist,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<WishlistBloc>()..add(const WishlistStarted()),
+            child: const WishlistPage(),
+          ),
         ),
         // Shops list (public — guests may browse). Page-scoped ShopsBloc reads
         // the shared AddressBloc to decide whether to send location params.

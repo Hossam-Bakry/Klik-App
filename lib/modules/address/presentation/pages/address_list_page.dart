@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../domain/entities/address.dart';
 import '../bloc/address_bloc.dart';
@@ -57,9 +58,7 @@ class _AddressListPageState extends State<AddressListPage> {
           listenWhen: (p, c) =>
               c.errorMessage != null && p.errorMessage != c.errorMessage,
           listener: (context, state) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+            AppToast.error(context, state.errorMessage!);
           },
           builder: (context, state) {
             if (state.isLoading && !state.hasAddresses) {

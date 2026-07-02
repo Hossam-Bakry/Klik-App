@@ -11,6 +11,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/social_account.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/auth_header.dart';
@@ -82,9 +83,7 @@ class _LoginPageState extends State<LoginPage> {
           // land on Home rather than leaving the login page on top.
           context.go(AppRoutes.home);
         } else if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          AppToast.error(context, state.errorMessage!);
         }
       },
       child: AuthScaffold(
