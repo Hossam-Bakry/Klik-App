@@ -54,7 +54,7 @@ class ProductCardItem extends StatelessWidget {
                   children: [
                     AppNetworkImage(
                       url: product.thumbnail,
-                      height: context.r(110),
+                      height: context.r(135),
                       width: double.infinity,
                     ),
                     if (product.isOutOfStock)

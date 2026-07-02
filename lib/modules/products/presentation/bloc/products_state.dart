@@ -7,6 +7,8 @@ class ProductsState extends Equatable {
     this.status = ProductsStatus.initial,
     this.filter = const ProductsFilter(),
     this.products = const [],
+    this.categories = const [],
+    this.brands = const [],
     this.page = 0,
     this.hasMore = false,
     this.isLoadingMore = false,
@@ -20,6 +22,10 @@ class ProductsState extends Equatable {
   final ProductsFilter filter;
 
   final List<HomeProduct> products;
+
+  /// Filter sheet options, loaded once after the first page.
+  final List<Category> categories;
+  final List<Brand> brands;
 
   /// Last successfully loaded page (0 before the first load).
   final int page;
@@ -42,6 +48,8 @@ class ProductsState extends Equatable {
     ProductsStatus? status,
     ProductsFilter? filter,
     List<HomeProduct>? products,
+    List<Category>? categories,
+    List<Brand>? brands,
     int? page,
     bool? hasMore,
     bool? isLoadingMore,
@@ -53,6 +61,8 @@ class ProductsState extends Equatable {
       status: status ?? this.status,
       filter: filter ?? this.filter,
       products: products ?? this.products,
+      categories: categories ?? this.categories,
+      brands: brands ?? this.brands,
       page: page ?? this.page,
       hasMore: hasMore ?? this.hasMore,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -66,6 +76,8 @@ class ProductsState extends Equatable {
     status,
     filter,
     products,
+    categories,
+    brands,
     page,
     hasMore,
     isLoadingMore,

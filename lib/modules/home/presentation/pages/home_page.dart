@@ -14,6 +14,7 @@ import '../../../products/domain/entities/product_sort.dart';
 import '../../../products/domain/entities/products_filter.dart';
 import '../../domain/entities/category_item.dart';
 import '../../domain/entities/home_feed.dart';
+import '../../domain/entities/shop_item.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_banners_section.dart';
@@ -141,6 +142,7 @@ class HomePage extends StatelessWidget {
                             onSeeAll: loading
                                 ? null
                                 : () => context.push(AppRoutes.shops),
+                            onShopTap: loading ? null : (shop) => _openShop(context, shop),
                           ),
                           context.gapH(24),
                           OpenToOffersSection(
@@ -161,6 +163,14 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  /// Opens the tapped shop's product list (same filtered products page the
+  /// Shops tab uses).
+  void _openShop(BuildContext context, ShopItem shop) {
+    context.push(
+      AppRoutes.products,
+      extra: ProductsFilter(shopId: shop.id, title: shop.name),
+    );
+  }
 }
 
 class _ErrorView extends StatelessWidget {

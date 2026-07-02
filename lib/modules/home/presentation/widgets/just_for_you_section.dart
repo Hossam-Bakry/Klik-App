@@ -31,8 +31,7 @@ class JustForYouSection extends StatelessWidget {
         ),
         context.gapH(12),
         SizedBox(
-          height: context.r(215),
-          // color: Colors.red,
+          height: context.r(240),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: context.edgeSymmetric(horizontal: 16, vertical: 8),

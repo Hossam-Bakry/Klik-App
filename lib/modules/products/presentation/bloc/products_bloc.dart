@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/network/api_result.dart';
+import '../../../categories/domain/entities/category.dart';
+import '../../../categories/domain/repositories/categories_repository.dart';
 import '../../../home/domain/entities/home_product.dart';
+import '../../domain/entities/brand.dart';
 import '../../domain/entities/products_filter.dart';
 import '../../domain/repositories/products_repository.dart';
 
@@ -12,10 +15,14 @@ part 'products_state.dart';
 
 /// Drives the reusable products list page: first-page load, pull-to-refresh,
 /// infinite-scroll pagination, and re-querying when the search text or filter
-/// sheet changes.
+/// sheet changes. Also loads the filter sheet's options (categories, brands).
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
-  ProductsBloc(this._repository, this._favorites, {int perPage = 20})
-      : _perPage = perPage,
+  ProductsBloc(
+    this._repository,
+    this._categoriesRepository,
+    this._favorites, {
+    int perPage = 20,
+  })  : _perPage = perPage,
         super(const ProductsState()) {
     on<ProductsStarted>(_onStarted);
     on<ProductsRefreshed>(_onRefreshed);
@@ -24,6 +31,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   }
 
   final ProductsRepository _repository;
+  final CategoriesRepository _categoriesRepository;
   final FavoritesCubit _favorites;
   final int _perPage;
 
@@ -36,6 +44,22 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       filter: event.filter,
     ));
     await _loadFirstPage(emit);
+    await _loadFilterOptions(emit);
+  }
+
+  /// Loads the filter sheet's option lists once (categories + brands), after
+  /// the products are already on screen so it never delays them. Failures are
+  /// swallowed — the corresponding section just hides.
+  Future<void> _loadFilterOptions(Emitter<ProductsState> emit) async {
+    if (state.categories.isNotEmpty || state.brands.isNotEmpty) return;
+    final results = await Future.wait([
+      _categoriesRepository.fetchCategories(),
+      _repository.fetchBrands(),
+    ]);
+    emit(state.copyWith(
+      categories: (results[0] as ApiResult<List<Category>>).dataOrNull ?? const [],
+      brands: (results[1] as ApiResult<List<Brand>>).dataOrNull ?? const [],
+    ));
   }
 
   Future<void> _onRefreshed(

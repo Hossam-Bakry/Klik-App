@@ -1,4 +1,5 @@
 import '../../../../core/network/api_result.dart';
+import '../../domain/entities/brand.dart';
 import '../../domain/entities/products_filter.dart';
 import '../../domain/entities/products_page.dart';
 import '../../domain/repositories/products_repository.dart';
@@ -15,4 +16,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
     required int page,
     required int perPage,
   }) => _remote.fetchProducts(filter, page: page, perPage: perPage);
+
+  @override
+  Future<ApiResult<List<Brand>>> fetchBrands() => _remote.fetchBrands();
 }

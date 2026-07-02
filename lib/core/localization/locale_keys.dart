@@ -174,13 +174,18 @@ abstract class LocaleKeys {
 
   // Products list / filters
   static const products = 'products';
+  static const filter = 'filter';
   static const filters = 'filters';
-  static const sortBy = 'sort_by';
-  static const sortPopular = 'sort_popular';
-  static const sortNewest = 'sort_newest';
-  static const sortPriceLowToHigh = 'sort_price_low_to_high';
-  static const sortPriceHighToLow = 'sort_price_high_to_low';
-  static const sortTopRated = 'sort_top_rated';
+  static const reset = 'reset';
+  static const selectedFilters = 'selected_filters';
+  static const brand = 'brand';
+  static const sortedBy = 'sorted_by';
+  static const defaultSorting = 'default_sorting';
+  static const sortNewProducts = 'sort_new_products';
+  static const sortHighToLow = 'sort_high_to_low';
+  static const sortLowToHigh = 'sort_low_to_high';
+  static const sortBestSelling = 'sort_best_selling';
+  static const sortMostPopular = 'sort_most_popular';
   static const priceRange = 'price_range';
   static const minPrice = 'min_price';
   static const maxPrice = 'max_price';

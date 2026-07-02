@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -12,6 +13,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
 import '../../../../core/widgets/product_card_item.dart';
+import '../../../home/domain/entities/home_product.dart';
 import '../bloc/products_bloc.dart';
 import '../widgets/products_filter_sheet.dart';
 
@@ -72,7 +74,12 @@ class _ProductsListPageState extends State<ProductsListPage> {
 
   Future<void> _openFilters() async {
     final bloc = context.read<ProductsBloc>();
-    final result = await showProductsFilterSheet(context, bloc.state.filter);
+    final result = await showProductsFilterSheet(
+      context,
+      filter: bloc.state.filter,
+      categories: bloc.state.categories,
+      brands: bloc.state.brands,
+    );
     if (result != null) bloc.add(ProductsFilterChanged(result));
   }
 
@@ -149,7 +156,7 @@ class _ProductsListPageState extends State<ProductsListPage> {
                     );
                   }
                   if (state.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const _SkeletonGrid();
                   }
                   if (state.products.isEmpty) {
                     return Center(
@@ -173,7 +180,7 @@ class _ProductsListPageState extends State<ProductsListPage> {
                                   crossAxisCount: 2,
                                   mainAxisSpacing: context.r(12),
                                   crossAxisSpacing: context.r(12),
-                                  childAspectRatio: 0.62,
+                                  childAspectRatio: 0.75,
                                 ),
                             delegate: SliverChildBuilderDelegate(
                               (context, i) => ProductCardItem(
@@ -203,6 +210,47 @@ class _ProductsListPageState extends State<ProductsListPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Placeholder product grid shown under a [Skeletonizer] while the first page
+/// loads — same layout as the real grid so the transition doesn't jump.
+class _SkeletonGrid extends StatelessWidget {
+  const _SkeletonGrid();
+
+  static const _placeholder = HomeProduct(
+    id: 0,
+    name: 'Product name',
+    thumbnail: '',
+    price: 100,
+    discountPrice: 80,
+    discountPercentage: 20,
+    rating: 4.5,
+    totalSold: 100,
+    quantity: 1,
+    isFavorite: false,
+    isBidable: false,
+    shopName: 'Shop',
+    estimatedDeliveryTime: '2',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Skeletonizer(
+      enabled: true,
+      child: GridView.builder(
+        padding: context.edgeAll(16),
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: context.r(12),
+          crossAxisSpacing: context.r(12),
+          childAspectRatio: 0.75,
+        ),
+        itemCount: 6,
+        itemBuilder: (context, i) => const ProductCardItem(product: _placeholder),
       ),
     );
   }
