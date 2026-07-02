@@ -83,29 +83,6 @@ class ProductDetails extends Equatable {
   /// No units available — the CTAs are replaced by an "Out of Stock" banner.
   bool get isOutOfStock => quantity <= 0;
 
-  ProductDetails copyWith({bool? isFavorite}) {
-    return ProductDetails(
-      id: id,
-      name: name,
-      subtitle: subtitle,
-      description: description,
-      images: images,
-      price: price,
-      discountPrice: discountPrice,
-      discountPercentage: discountPercentage,
-      rating: rating,
-      totalSold: totalSold,
-      quantity: quantity,
-      estimatedDeliveryTime: estimatedDeliveryTime,
-      isFavorite: isFavorite ?? this.isFavorite,
-      isBidable: isBidable,
-      colors: colors,
-      sizes: sizes,
-      reviews: reviews,
-      similarProducts: similarProducts,
-    );
-  }
-
   @override
   List<Object?> get props => [id, name, price, discountPrice, isFavorite, isBidable];
 }

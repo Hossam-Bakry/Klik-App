@@ -14,6 +14,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     on<CategoriesStarted>(_onStarted);
     on<CategoriesRefreshed>(_onRefreshed);
     on<CategoryTapped>(_onCategoryTapped);
+    on<CategoryTappedById>(_onCategoryTappedById);
   }
 
   final CategoriesRepository _repository;
@@ -84,6 +85,21 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
           subCategoriesStatus: SubCategoriesStatus.failure,
           subCategoriesErrorMessage: failure.message,
         ));
+    }
+  }
+
+  /// Resolves [event.categoryId] against the already-loaded category list and
+  /// delegates to [_onCategoryTapped]. A no-op if categories haven't loaded
+  /// yet — the shell only wires this from Home, which loads after Categories.
+  Future<void> _onCategoryTappedById(
+    CategoryTappedById event,
+    Emitter<CategoriesState> emit,
+  ) async {
+    for (final category in state.categories) {
+      if (category.id == event.categoryId) {
+        await _onCategoryTapped(CategoryTapped(category), emit);
+        return;
+      }
     }
   }
 

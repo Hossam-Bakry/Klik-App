@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -140,6 +141,9 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currency = context.tr(LocaleKeys.currencyKwd);
+    final isFavorite = context.select<FavoritesCubit, bool>(
+      (cubit) => cubit.isFavorite(product.id),
+    );
 
     return ListView(
       padding: context.edgeAll(16),
@@ -147,9 +151,9 @@ class _Content extends StatelessWidget {
         ProductImageCarousel(
           images: product.images,
           discountPercentage: product.hasDiscount ? product.discountPercentage : 0,
-          isFavorite: product.isFavorite,
+          isFavorite: isFavorite,
           onToggleFavorite: () =>
-              context.read<ProductBloc>().add(const ProductFavoriteToggled()),
+              context.read<FavoritesCubit>().toggle(product.id),
         ),
         context.gapH(16),
         Text(

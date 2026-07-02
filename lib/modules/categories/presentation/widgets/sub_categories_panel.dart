@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -20,46 +21,45 @@ class SubCategoriesPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return Padding(
-        padding: context.edgeSymmetric(vertical: 24),
-        child: const Center(child: CircularProgressIndicator()),
-      );
-    }
-    if (subCategories.isEmpty) return const SizedBox.shrink();
+    if (!loading && subCategories.isEmpty) return const SizedBox.shrink();
 
-    return Container(
-      margin: EdgeInsets.only(bottom: context.r(12)),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(context.r(12)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: context.r(8),
-            offset: Offset(0, context.r(2)),
-          ),
-        ],
-        // border: Border.all(color: const Color(0xFFE6E0D4)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (var i = 0; i < subCategories.length; i++) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: AppColors.dark.withValues(alpha: 0.1),
-                endIndent: 40,
-                indent: 40,
-              ),
-            _SubCategoryTile(
-              subCategory: subCategories[i],
-              onTap: () => onTap(subCategories[i]),
+    final items = loading ? SubCategory.placeholder() : subCategories;
+
+    return Skeletonizer(
+      enabled: loading,
+      child: Container(
+        margin: EdgeInsets.only(bottom: context.r(12)),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(context.r(12)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: context.r(8),
+              offset: Offset(0, context.r(2)),
             ),
           ],
-        ],
+          // border: Border.all(color: const Color(0xFFE6E0D4)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0)
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColors.dark.withValues(alpha: 0.1),
+                  endIndent: 40,
+                  indent: 40,
+                ),
+              _SubCategoryTile(
+                subCategory: items[i],
+                onTap: loading ? () {} : () => onTap(items[i]),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

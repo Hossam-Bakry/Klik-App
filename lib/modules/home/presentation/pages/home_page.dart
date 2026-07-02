@@ -8,6 +8,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
+import '../../domain/entities/category_item.dart';
 import '../../domain/entities/home_feed.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
@@ -22,7 +23,12 @@ import 'just_for_you_page.dart';
 /// [HomeBloc]. While loading, the sections render against placeholder data
 /// wrapped in a [Skeletonizer] so the layout shows shimmering bones.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onOpenOffers, this.onOpenCategories});
+  const HomePage({
+    super.key,
+    this.onOpenOffers,
+    this.onOpenCategories,
+    this.onCategoryTap,
+  });
 
   /// Tapped "See all" on the Open-to-offers section. The shell uses it to
   /// switch to the Negotiation tab (index 2).
@@ -31,6 +37,10 @@ class HomePage extends StatelessWidget {
   /// Tapped "See all" on the Categories section. The shell uses it to switch
   /// to the Categories tab (index 1).
   final VoidCallback? onOpenCategories;
+
+  /// Tapped a specific category thumbnail. The shell uses it to switch to the
+  /// Categories tab with that category selected/expanded.
+  final ValueChanged<CategoryItem>? onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +115,7 @@ class HomePage extends StatelessWidget {
                             categories: feed.categories,
                             // Opens the Categories tab (index 1) via the shell.
                             onSeeAll: loading ? null : onOpenCategories,
+                            onCategoryTap: loading ? null : onCategoryTap,
                           ),
                           context.gapH(24),
                           JustForYouSection(

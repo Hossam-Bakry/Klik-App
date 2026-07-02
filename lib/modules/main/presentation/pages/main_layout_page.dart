@@ -11,6 +11,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
 import '../../../categories/presentation/bloc/categories_bloc.dart';
 import '../../../categories/presentation/pages/categories_page.dart';
+import '../../../home/domain/entities/category_item.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
@@ -40,12 +41,25 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         ? const AddressStarted()
         : const CurrentLocationRequested());
 
+  // Singleton: lifted out of `pages` (rather than created inline) so the home
+  // tab's category-tap handler can dispatch into the same instance the
+  // Categories tab renders.
+  final CategoriesBloc _categoriesBloc = sl<CategoriesBloc>()
+    ..add(const CategoriesStarted());
+
   void _onTabTapped(int i) {
     if (_authRequiredTabs.contains(i) && !context.isAuthenticated) {
       showAuthRequiredSheet(context);
       return;
     }
     setState(() => _index = i);
+  }
+
+  /// Tapped a category thumbnail on Home: select it on the Categories tab —
+  /// same as tapping it there directly — then switch to that tab.
+  void _openCategory(CategoryItem category) {
+    _categoriesBloc.add(CategoryTappedById(category.id));
+    _onTabTapped(1);
   }
 
   @override
@@ -59,10 +73,11 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         child: HomePage(
           onOpenCategories: () => _onTabTapped(1),
           onOpenOffers: () => _onTabTapped(2),
+          onCategoryTap: _openCategory,
         ),
       ),
-      BlocProvider(
-        create: (_) => sl<CategoriesBloc>()..add(const CategoriesStarted()),
+      BlocProvider.value(
+        value: _categoriesBloc,
         child: const CategoriesPage(),
       ),
       _PlaceholderTab(icon: Assets.icons.negotiationIcn),

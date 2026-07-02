@@ -5,6 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_network_image.dart';
+import '../../../../core/widgets/product_favorite_button.dart';
 import '../../domain/entities/home_product.dart';
 import 'product_price.dart';
 
@@ -102,13 +103,10 @@ class OfferProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _CircleIcon(
-                icon: !product.isFavorite
-                    ? Assets.icons.selectedFavoriteIcn
-                    : Assets.icons.unSelectedFavoriteIcn,
-                color: product.isFavorite
-                    ? AppColors.primaryBronze
-                    : AppColors.primaryBronze,
+              ProductFavoriteButton(
+                productId: product.id,
+                selectedColor: AppColors.primaryBronze,
+                unselectedColor: AppColors.primaryBronze,
               ),
             ],
           ),
@@ -216,24 +214,6 @@ class OfferProductCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CircleIcon extends StatelessWidget {
-  const _CircleIcon({required this.icon, required this.color});
-
-  final SvgGenImage icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: context.r(26),
-      height: context.r(26),
-      padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: icon.svg(),
     );
   }
 }

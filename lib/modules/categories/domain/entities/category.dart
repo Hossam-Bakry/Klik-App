@@ -8,6 +8,12 @@ class Category extends Equatable {
   final String name;
   final String thumbnail;
 
+  /// Placeholder rows shown under a [Skeletonizer] while categories load.
+  static List<Category> placeholder() => List.generate(
+    9,
+    (i) => const Category(id: 0, name: 'Category name', thumbnail: ''),
+  );
+
   @override
   List<Object?> get props => [id, name, thumbnail];
 }

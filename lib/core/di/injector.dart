@@ -10,6 +10,10 @@ import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
+import '../favorites/data/favorites_remote_data_source.dart';
+import '../favorites/data/favorites_repository_impl.dart';
+import '../favorites/domain/favorites_repository.dart';
+import '../favorites/presentation/favorites_cubit.dart';
 import '../localization/locale_cubit.dart';
 import '../network/api_interface.dart';
 import '../network/connectivity_cubit.dart';
@@ -68,6 +72,17 @@ Future<void> _registerCore() async {
     ..registerLazySingleton<Connectivity>(() => Connectivity())
     ..registerLazySingleton<ConnectivityCubit>(
       () => ConnectivityCubit(sl<Connectivity>()),
+    )
+    // App-wide favorites: a single shared set of favorited product ids so
+    // every product card (home, categories, product details) stays in sync.
+    ..registerLazySingleton<FavoritesRemoteDataSource>(
+      () => FavoritesRemoteDataSourceImpl(sl<ApiInterface>()),
+    )
+    ..registerLazySingleton<FavoritesRepository>(
+      () => FavoritesRepositoryImpl(sl<FavoritesRemoteDataSource>()),
+    )
+    ..registerLazySingleton<FavoritesCubit>(
+      () => FavoritesCubit(sl<FavoritesRepository>()),
     );
 
   // SharedPreferences must be awaited once, then registered as a ready instance.

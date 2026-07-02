@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -65,78 +66,87 @@ class _CategoriesPageState extends State<CategoriesPage> {
               }
             },
             builder: (context, state) {
-              switch (state.status) {
-                case CategoriesStatus.initial:
-                case CategoriesStatus.loading:
-                  return const Center(child: CircularProgressIndicator());
-
-                case CategoriesStatus.failure:
-                  return _ErrorView(
-                    message:
-                        state.errorMessage ??
-                        context.tr(LocaleKeys.somethingWentWrong),
-                    onRetry: () => context.read<CategoriesBloc>().add(
-                      const CategoriesStarted(),
-                    ),
-                  );
-
-                case CategoriesStatus.success:
-                  final query = _query.trim().toLowerCase();
-                  final filtered = query.isEmpty
-                      ? state.categories
-                      : state.categories
-                            .where((c) => c.name.toLowerCase().contains(query))
-                            .toList();
-
-                  return RefreshIndicator(
-                    onRefresh: () async => context.read<CategoriesBloc>().add(
-                      const CategoriesRefreshed(),
-                    ),
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: context.edgeAll(16),
-                      children: [
-                        Text(
-                          context.tr(LocaleKeys.categories),
-                          textAlign: TextAlign.center,
-                          style: context.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        context.gapH(16),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(context.r(30)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: context.r(8),
-                                offset: Offset(0, context.r(2)),
-                              ),
-                            ],
-                          ),
-                          child: AppTextField.search(
-                            controller: _searchController,
-                            hint: context.tr(LocaleKeys.searchHint),
-                            onChanged: (value) =>
-                                setState(() => _query = value),
-                          ),
-                        ),
-                        context.gapH(20),
-                        if (filtered.isEmpty)
-                          Padding(
-                            padding: context.edgeAll(24),
-                            child: Center(
-                              child: Text(context.tr(LocaleKeys.noItemsYet)),
-                            ),
-                          )
-                        else
-                          ..._buildRows(context, state, filtered),
-                        context.gapH(100),
-                      ],
-                    ),
-                  );
+              if (state.status == CategoriesStatus.failure) {
+                return _ErrorView(
+                  message:
+                      state.errorMessage ??
+                      context.tr(LocaleKeys.somethingWentWrong),
+                  onRetry: () => context.read<CategoriesBloc>().add(
+                    const CategoriesStarted(),
+                  ),
+                );
               }
+
+              final loading =
+                  state.status == CategoriesStatus.initial ||
+                  state.status == CategoriesStatus.loading;
+
+              final query = _query.trim().toLowerCase();
+              final filtered = loading
+                  ? Category.placeholder()
+                  : query.isEmpty
+                  ? state.categories
+                  : state.categories
+                        .where((c) => c.name.toLowerCase().contains(query))
+                        .toList();
+
+              return RefreshIndicator(
+                onRefresh: () async => context.read<CategoriesBloc>().add(
+                  const CategoriesRefreshed(),
+                ),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: context.edgeAll(16),
+                  children: [
+                    Text(
+                      context.tr(LocaleKeys.categories),
+                      textAlign: TextAlign.center,
+                      style: context.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    context.gapH(16),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(context.r(30)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: context.r(8),
+                            offset: Offset(0, context.r(2)),
+                          ),
+                        ],
+                      ),
+                      child: AppTextField.search(
+                        controller: _searchController,
+                        hint: context.tr(LocaleKeys.searchHint),
+                        onChanged: (value) => setState(() => _query = value),
+                      ),
+                    ),
+                    context.gapH(20),
+                    if (filtered.isEmpty)
+                      Padding(
+                        padding: context.edgeAll(24),
+                        child: Center(
+                          child: Text(context.tr(LocaleKeys.noItemsYet)),
+                        ),
+                      )
+                    else
+                      Skeletonizer(
+                        enabled: loading,
+                        child: Column(
+                          children: _buildRows(
+                            context,
+                            state,
+                            filtered,
+                            loading: loading,
+                          ),
+                        ),
+                      ),
+                    context.gapH(100),
+                  ],
+                ),
+              );
             },
           ),
         ),
@@ -152,8 +162,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
   List<Widget> _buildRows(
     BuildContext context,
     CategoriesState state,
-    List<Category> categories,
-  ) {
+    List<Category> categories, {
+    bool loading = false,
+  }) {
     final rows = <Widget>[];
 
     for (var i = 0; i < categories.length; i += _crossAxisCount) {
@@ -168,9 +179,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 child: CategoryGridTile(
                   category: category,
                   selected: state.expandedCategoryId == category.id,
-                  onTap: () => context.read<CategoriesBloc>().add(
-                    CategoryTapped(category),
-                  ),
+                  onTap: loading
+                      ? () {}
+                      : () => context.read<CategoriesBloc>().add(
+                          CategoryTapped(category),
+                        ),
                 ),
               ),
             for (var j = chunk.length; j < _crossAxisCount; j++)
@@ -181,7 +194,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
       rows.add(
         _AnimatedSubCategories(
-          key: ValueKey(chunk.first.id),
+          key: ValueKey('$i-${chunk.first.id}'),
           expanded: expanded,
           panel: SubCategoriesPanel(
             loading: state.subCategoriesStatus == SubCategoriesStatus.loading,

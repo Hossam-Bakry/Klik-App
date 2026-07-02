@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/product_details.dart';
 import '../../domain/repositories/product_repository.dart';
@@ -9,12 +10,12 @@ part 'product_event.dart';
 part 'product_state.dart';
 
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
-  ProductBloc(this._repository) : super(const ProductState()) {
+  ProductBloc(this._repository, this._favorites) : super(const ProductState()) {
     on<ProductDetailsRequested>(_onRequested);
-    on<ProductFavoriteToggled>(_onFavoriteToggled);
   }
 
   final ProductRepository _repository;
+  final FavoritesCubit _favorites;
 
   Future<void> _onRequested(
     ProductDetailsRequested event,
@@ -25,22 +26,15 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     switch (result) {
       case ApiSuccess(:final data):
         emit(state.copyWith(status: ProductStatus.success, product: data));
+        _favorites.seed([
+          if (data.isFavorite) data.id,
+          ...data.similarProducts.where((p) => p.isFavorite).map((p) => p.id),
+        ]);
       case ApiFailure(:final failure):
         emit(state.copyWith(
           status: ProductStatus.failure,
           errorMessage: failure.message,
         ));
     }
-  }
-
-  /// Optimistic favourite flip. TODO: persist via the favorite-toggle endpoint
-  /// once the favorites repository lands; revert on failure.
-  void _onFavoriteToggled(
-    ProductFavoriteToggled event,
-    Emitter<ProductState> emit,
-  ) {
-    final product = state.product;
-    if (product == null) return;
-    emit(state.copyWith(product: product.copyWith(isFavorite: !product.isFavorite)));
   }
 }

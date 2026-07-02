@@ -16,8 +16,3 @@ class ProductDetailsRequested extends ProductEvent {
   @override
   List<Object?> get props => [productId];
 }
-
-/// Toggle the favourite state of the loaded product.
-class ProductFavoriteToggled extends ProductEvent {
-  const ProductFavoriteToggled();
-}

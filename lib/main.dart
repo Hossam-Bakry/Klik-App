@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/di/injector.dart';
+import 'core/favorites/presentation/favorites_cubit.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_cubit.dart';
 import 'core/localization/locale_keys.dart';
@@ -37,6 +38,7 @@ class _KlikAppState extends State<KlikApp> {
   final OnboardingCubit _onboardingCubit = sl<OnboardingCubit>();
   final LocaleCubit _localeCubit = sl<LocaleCubit>();
   final ConnectivityCubit _connectivityCubit = sl<ConnectivityCubit>();
+  final FavoritesCubit _favoritesCubit = sl<FavoritesCubit>();
   late final _router = AppRouter.create(_authBloc, _onboardingCubit);
 
   /// Minimum time the branded splash stays on screen before resolving where to
@@ -62,42 +64,51 @@ class _KlikAppState extends State<KlikApp> {
         BlocProvider.value(value: _onboardingCubit),
         BlocProvider.value(value: _localeCubit),
         BlocProvider.value(value: _connectivityCubit),
+        BlocProvider.value(value: _favoritesCubit),
       ],
-      // Rebuild MaterialApp when the locale changes; Flutter handles RTL for ar.
-      child: BlocBuilder<LocaleCubit, Locale>(
-        builder: (context, locale) {
-          return MaterialApp.router(
-            onGenerateTitle: (context) =>
-                AppLocalizations.of(context).translate(LocaleKeys.appName),
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(context),
-            locale: locale,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
-            routerConfig: _router,
-            // Global connectivity overlay: the routed app stays mounted (so its
-            // state survives), and the no-network view is laid over it while
-            // offline — removed automatically once the connection returns.
-            builder: (context, child) {
-              return BlocBuilder<ConnectivityCubit, NetworkStatus>(
-                builder: (context, status) {
-                  return Stack(
-                    children: [
-                      ?child,
-                      if (status == NetworkStatus.offline)
-                        const Positioned.fill(child: NoNetworkView()),
-                    ],
-                  );
-                },
-              );
-            },
-          );
-        },
+      // Drop any locally-known favorites once the session ends, so a guest (or
+      // the next account) never sees a previous session's favorited ids.
+      child: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (previous, current) =>
+            previous.status != AuthStatus.unauthenticated &&
+            current.status == AuthStatus.unauthenticated,
+        listener: (context, state) => _favoritesCubit.clear(),
+        // Rebuild MaterialApp when the locale changes; Flutter handles RTL for ar.
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp.router(
+              onGenerateTitle: (context) =>
+                  AppLocalizations.of(context).translate(LocaleKeys.appName),
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light(context),
+              locale: locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              routerConfig: _router,
+              // Global connectivity overlay: the routed app stays mounted (so its
+              // state survives), and the no-network view is laid over it while
+              // offline — removed automatically once the connection returns.
+              builder: (context, child) {
+                return BlocBuilder<ConnectivityCubit, NetworkStatus>(
+                  builder: (context, status) {
+                    return Stack(
+                      children: [
+                        ?child,
+                        if (status == NetworkStatus.offline)
+                          const Positioned.fill(child: NoNetworkView()),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
