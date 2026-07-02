@@ -19,6 +19,9 @@ import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
 import '../../modules/product/presentation/bloc/product_bloc.dart';
 import '../../modules/product/presentation/pages/product_details_page.dart';
+import '../../modules/products/domain/entities/products_filter.dart';
+import '../../modules/products/presentation/bloc/products_bloc.dart';
+import '../../modules/products/presentation/pages/products_list_page.dart';
 import '../../modules/shops/presentation/bloc/shops_bloc.dart';
 import '../../modules/shops/presentation/pages/shops_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
@@ -157,6 +160,22 @@ class AppRouter {
               ..add(ProductDetailsRequested(state.extra as int)),
             child: const ProductDetailsPage(),
           ),
+        ),
+        // Unified products list (public). The entry point's ProductsFilter
+        // arrives via `extra`; a fresh page-scoped ProductsBloc loads page 1.
+        // Reached without a filter (e.g. deep link) falls back to an unfiltered
+        // list rather than bouncing.
+        GoRoute(
+          path: AppRoutes.products,
+          builder: (context, state) {
+            final filter = state.extra is ProductsFilter
+                ? state.extra as ProductsFilter
+                : const ProductsFilter();
+            return BlocProvider(
+              create: (_) => sl<ProductsBloc>()..add(ProductsStarted(filter)),
+              child: const ProductsListPage(),
+            );
+          },
         ),
         // Shops list (public — guests may browse). Page-scoped ShopsBloc reads
         // the shared AddressBloc to decide whether to send location params.

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
+import '../../../products/domain/entities/products_filter.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/categories_bloc.dart';
-import '../bloc/category_products_bloc.dart';
 import '../widgets/category_grid_tile.dart';
 import '../widgets/sub_categories_panel.dart';
-import 'category_products_page.dart';
 
 /// Categories tab: a grid of all top-level categories. Tapping a tile expands
 /// its subcategories inline right below its row; a category with none
@@ -60,8 +60,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
               if (category != null) {
                 _openProducts(
                   context,
-                  categoryId: category.id,
-                  categoryName: category.name,
+                  ProductsFilter(
+                    categoryId: category.id,
+                    title: category.name,
+                  ),
                 );
               }
             },
@@ -202,8 +204,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 state.subCategoriesCache[state.expandedCategoryId] ?? const [],
             onTap: (subCategory) => _openProducts(
               context,
-              categoryId: subCategory.id,
-              categoryName: subCategory.name,
+              ProductsFilter(
+                subCategoryId: subCategory.id,
+                title: subCategory.name,
+              ),
             ),
           ),
         ),
@@ -215,24 +219,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return rows;
   }
 
-  void _openProducts(
-    BuildContext context, {
-    required int categoryId,
-    required String categoryName,
-  }) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) =>
-              sl<CategoryProductsBloc>()
-                ..add(CategoryProductsRequested(categoryId)),
-          child: CategoryProductsPage(
-            categoryId: categoryId,
-            categoryName: categoryName,
-          ),
-        ),
-      ),
-    );
+  void _openProducts(BuildContext context, ProductsFilter filter) {
+    context.push(AppRoutes.products, extra: filter);
   }
 }
 

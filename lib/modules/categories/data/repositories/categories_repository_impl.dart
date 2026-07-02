@@ -1,5 +1,4 @@
 import '../../../../core/network/api_result.dart';
-import '../../../home/domain/entities/home_product.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/sub_category.dart';
 import '../../domain/repositories/categories_repository.dart';
@@ -19,10 +18,4 @@ class CategoriesRepositoryImpl implements CategoriesRepository {
   @override
   Future<ApiResult<List<SubCategory>>> fetchSubCategories(int categoryId) =>
       _remote.fetchSubCategories(categoryId);
-
-  @override
-  Future<ApiResult<List<HomeProduct>>> fetchCategoryProducts(
-    int categoryId,
-  ) =>
-      _remote.fetchCategoryProducts(categoryId);
 }

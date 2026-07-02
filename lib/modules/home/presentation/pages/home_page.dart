@@ -10,6 +10,8 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
+import '../../../products/domain/entities/product_sort.dart';
+import '../../../products/domain/entities/products_filter.dart';
 import '../../domain/entities/category_item.dart';
 import '../../domain/entities/home_feed.dart';
 import '../bloc/home_bloc.dart';
@@ -19,7 +21,6 @@ import '../widgets/home_categories_section.dart';
 import '../widgets/just_for_you_section.dart';
 import '../widgets/open_to_offers_section.dart';
 import '../widgets/shops_section.dart';
-import 'just_for_you_page.dart';
 
 /// Home tab: a vertically scrolling feed of self-contained sections, driven by
 /// [HomeBloc]. While loading, the sections render against placeholder data
@@ -124,9 +125,14 @@ class HomePage extends StatelessWidget {
                             products: feed.justForYou,
                             onSeeAll: loading
                                 ? null
-                                : () => _open(
-                                    context,
-                                    JustForYouPage(products: feed.justForYou),
+                                : () => context.push(
+                                    AppRoutes.products,
+                                    extra: ProductsFilter(
+                                      sort: ProductSort.popular,
+                                      title: context.tr(
+                                        LocaleKeys.bestDealsForYou,
+                                      ),
+                                    ),
                                   ),
                           ),
                           context.gapH(24),
@@ -155,9 +161,6 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _open(BuildContext context, Widget page) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
-  }
 }
 
 class _ErrorView extends StatelessWidget {

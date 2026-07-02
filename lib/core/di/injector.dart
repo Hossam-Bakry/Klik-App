@@ -10,6 +10,7 @@ import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
+import '../../modules/products/di/products_injector.dart';
 import '../../modules/shops/di/shops_injector.dart';
 import '../favorites/data/favorites_remote_data_source.dart';
 import '../favorites/data/favorites_repository_impl.dart';
@@ -45,6 +46,7 @@ Future<void> configureDependencies() async {
   registerHomeModule(sl);
   registerAddressModule(sl);
   registerProductModule(sl);
+  registerProductsModule(sl);
   registerShopsModule(sl);
 }
 

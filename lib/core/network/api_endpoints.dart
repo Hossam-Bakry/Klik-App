@@ -61,7 +61,6 @@ class ApiEndpoints {
   static const String subCategories = '/api/sub-categories'; // ?category_id=
   static const String shopCategories = '/api/shop-categories'; // ?shop_id=
   static const String products = '/api/products';
-  static const String categoryProducts = '/api/category-products';
   static const String productDetails = '/api/product-details'; // ?product_id=
   static const String recentlyViews = '/api/recently-views';
   static const String reviews = '/api/reviews';

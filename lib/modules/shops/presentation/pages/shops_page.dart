@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
+import '../../../products/domain/entities/products_filter.dart';
+import '../../../home/domain/entities/shop_item.dart';
 import '../bloc/shops_bloc.dart';
 import '../widgets/shop_grid_tile.dart';
 
@@ -127,7 +131,7 @@ class _ShopsPageState extends State<ShopsPage> {
                       itemCount: filtered.length,
                       itemBuilder: (context, i) => ShopGridTile(
                         shop: filtered[i],
-                        onTap: () => _comingSoon(context),
+                        onTap: () => _openShop(context, filtered[i]),
                       ),
                     ),
                   context.gapH(100),
@@ -140,10 +144,11 @@ class _ShopsPageState extends State<ShopsPage> {
     );
   }
 
-  void _comingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.tr(LocaleKeys.comingSoon))));
+  void _openShop(BuildContext context, ShopItem shop) {
+    context.push(
+      AppRoutes.products,
+      extra: ProductsFilter(shopId: shop.id, title: shop.name),
+    );
   }
 }
 

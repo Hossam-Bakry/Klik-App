@@ -171,4 +171,23 @@ abstract class LocaleKeys {
   static const locationServiceDisabled = 'location_service_disabled';
   static const locationPermissionDenied = 'location_permission_denied';
   static const locationPermissionDeniedForever = 'location_permission_denied_forever';
+
+  // Products list / filters
+  static const products = 'products';
+  static const filters = 'filters';
+  static const sortBy = 'sort_by';
+  static const sortPopular = 'sort_popular';
+  static const sortNewest = 'sort_newest';
+  static const sortPriceLowToHigh = 'sort_price_low_to_high';
+  static const sortPriceHighToLow = 'sort_price_high_to_low';
+  static const sortTopRated = 'sort_top_rated';
+  static const priceRange = 'price_range';
+  static const minPrice = 'min_price';
+  static const maxPrice = 'max_price';
+  static const rating = 'rating';
+  static const ratingAndUp = 'rating_and_up';
+  static const negotiableOnly = 'negotiable_only';
+  static const applyFilters = 'apply_filters';
+  static const clearAll = 'clear_all';
+  static const couldNotLoadMore = 'could_not_load_more';
 }

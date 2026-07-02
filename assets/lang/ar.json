@@ -136,5 +136,22 @@
   "locating": "جارٍ تحديد الموقع…",
   "location_service_disabled": "خدمات الموقع متوقفة. فعّلها لاستخدام موقعك الحالي.",
   "location_permission_denied": "تم رفض إذن الموقع.",
-  "location_permission_denied_forever": "تم رفض إذن الموقع نهائيًا. فعّله من الإعدادات."
+  "location_permission_denied_forever": "تم رفض إذن الموقع نهائيًا. فعّله من الإعدادات.",
+  "products": "المنتجات",
+  "filters": "الفلاتر",
+  "sort_by": "ترتيب حسب",
+  "sort_popular": "الأكثر رواجًا",
+  "sort_newest": "الأحدث",
+  "sort_price_low_to_high": "السعر: من الأقل للأعلى",
+  "sort_price_high_to_low": "السعر: من الأعلى للأقل",
+  "sort_top_rated": "الأعلى تقييمًا",
+  "price_range": "نطاق السعر",
+  "min_price": "الأدنى",
+  "max_price": "الأعلى",
+  "rating": "التقييم",
+  "rating_and_up": "فأكثر",
+  "negotiable_only": "قابل للتفاوض فقط",
+  "apply_filters": "تطبيق الفلاتر",
+  "clear_all": "مسح الكل",
+  "could_not_load_more": "تعذّر تحميل المزيد. اضغط لإعادة المحاولة."
 }
