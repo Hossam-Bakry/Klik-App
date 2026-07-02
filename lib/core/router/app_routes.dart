@@ -13,6 +13,7 @@ class AppRoutes {
   static const String changePassword = '/change-password';
   static const String home = '/home';
   static const String productDetails = '/product';
+  static const String shops = '/shops';
   static const String addressList = '/address';
   static const String addressAdd = '/address/add';
   static const String addressEdit = '/address/edit';

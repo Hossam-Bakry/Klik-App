@@ -19,6 +19,8 @@ import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
 import '../../modules/product/presentation/bloc/product_bloc.dart';
 import '../../modules/product/presentation/pages/product_details_page.dart';
+import '../../modules/shops/presentation/bloc/shops_bloc.dart';
+import '../../modules/shops/presentation/pages/shops_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
 import '../di/injector.dart';
 import 'app_routes.dart';
@@ -154,6 +156,15 @@ class AppRouter {
             create: (_) => sl<ProductBloc>()
               ..add(ProductDetailsRequested(state.extra as int)),
             child: const ProductDetailsPage(),
+          ),
+        ),
+        // Shops list (public — guests may browse). Page-scoped ShopsBloc reads
+        // the shared AddressBloc to decide whether to send location params.
+        GoRoute(
+          path: AppRoutes.shops,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<ShopsBloc>()..add(const ShopsStarted()),
+            child: const ShopsPage(),
           ),
         ),
         // Address list/add/edit share the singleton AddressBloc so mutations

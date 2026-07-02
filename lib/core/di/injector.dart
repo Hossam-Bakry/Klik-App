@@ -10,6 +10,7 @@ import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
+import '../../modules/shops/di/shops_injector.dart';
 import '../favorites/data/favorites_remote_data_source.dart';
 import '../favorites/data/favorites_repository_impl.dart';
 import '../favorites/domain/favorites_repository.dart';
@@ -44,6 +45,7 @@ Future<void> configureDependencies() async {
   registerHomeModule(sl);
   registerAddressModule(sl);
   registerProductModule(sl);
+  registerShopsModule(sl);
 }
 
 /// Shared, cross-module dependencies.
