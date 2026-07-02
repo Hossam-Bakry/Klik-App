@@ -7,6 +7,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/connectivity_retry_listener.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/categories_bloc.dart';
 import '../bloc/category_products_bloc.dart';
@@ -39,96 +40,105 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        bottom: false,
-        child: BlocConsumer<CategoriesBloc, CategoriesState>(
-          listenWhen: (previous, current) =>
-              previous.navigationToken != current.navigationToken,
-          listener: (context, state) {
-            final category = state.navigateToCategory;
-            if (category != null) {
-              _openProducts(
-                context,
-                categoryId: category.id,
-                categoryName: category.name,
-              );
-            }
-          },
-          builder: (context, state) {
-            switch (state.status) {
-              case CategoriesStatus.initial:
-              case CategoriesStatus.loading:
-                return const Center(child: CircularProgressIndicator());
-
-              case CategoriesStatus.failure:
-                return _ErrorView(
-                  message:
-                      state.errorMessage ??
-                      context.tr(LocaleKeys.somethingWentWrong),
-                  onRetry: () => context.read<CategoriesBloc>().add(
-                    const CategoriesStarted(),
-                  ),
+    return ConnectivityRetryListener(
+      onRestored: () {
+        final bloc = context.read<CategoriesBloc>();
+        if (bloc.state.status == CategoriesStatus.failure) {
+          bloc.add(const CategoriesRefreshed());
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.surface,
+        body: SafeArea(
+          bottom: false,
+          child: BlocConsumer<CategoriesBloc, CategoriesState>(
+            listenWhen: (previous, current) =>
+                previous.navigationToken != current.navigationToken,
+            listener: (context, state) {
+              final category = state.navigateToCategory;
+              if (category != null) {
+                _openProducts(
+                  context,
+                  categoryId: category.id,
+                  categoryName: category.name,
                 );
+              }
+            },
+            builder: (context, state) {
+              switch (state.status) {
+                case CategoriesStatus.initial:
+                case CategoriesStatus.loading:
+                  return const Center(child: CircularProgressIndicator());
 
-              case CategoriesStatus.success:
-                final query = _query.trim().toLowerCase();
-                final filtered = query.isEmpty
-                    ? state.categories
-                    : state.categories
-                          .where((c) => c.name.toLowerCase().contains(query))
-                          .toList();
+                case CategoriesStatus.failure:
+                  return _ErrorView(
+                    message:
+                        state.errorMessage ??
+                        context.tr(LocaleKeys.somethingWentWrong),
+                    onRetry: () => context.read<CategoriesBloc>().add(
+                      const CategoriesStarted(),
+                    ),
+                  );
 
-                return RefreshIndicator(
-                  onRefresh: () async => context.read<CategoriesBloc>().add(
-                    const CategoriesRefreshed(),
-                  ),
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: context.edgeAll(16),
-                    children: [
-                      Text(
-                        context.tr(LocaleKeys.categories),
-                        textAlign: TextAlign.center,
-                        style: context.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      context.gapH(16),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(context.r(30)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: context.r(8),
-                              offset: Offset(0, context.r(2)),
-                            ),
-                          ],
-                        ),
-                        child: AppTextField.search(
-                          controller: _searchController,
-                          hint: context.tr(LocaleKeys.searchHint),
-                          onChanged: (value) => setState(() => _query = value),
-                        ),
-                      ),
-                      context.gapH(20),
-                      if (filtered.isEmpty)
-                        Padding(
-                          padding: context.edgeAll(24),
-                          child: Center(
-                            child: Text(context.tr(LocaleKeys.noItemsYet)),
+                case CategoriesStatus.success:
+                  final query = _query.trim().toLowerCase();
+                  final filtered = query.isEmpty
+                      ? state.categories
+                      : state.categories
+                            .where((c) => c.name.toLowerCase().contains(query))
+                            .toList();
+
+                  return RefreshIndicator(
+                    onRefresh: () async => context.read<CategoriesBloc>().add(
+                      const CategoriesRefreshed(),
+                    ),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: context.edgeAll(16),
+                      children: [
+                        Text(
+                          context.tr(LocaleKeys.categories),
+                          textAlign: TextAlign.center,
+                          style: context.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                        )
-                      else
-                        ..._buildRows(context, state, filtered),
-                      context.gapH(100),
-                    ],
-                  ),
-                );
-            }
-          },
+                        ),
+                        context.gapH(16),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(context.r(30)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: context.r(8),
+                                offset: Offset(0, context.r(2)),
+                              ),
+                            ],
+                          ),
+                          child: AppTextField.search(
+                            controller: _searchController,
+                            hint: context.tr(LocaleKeys.searchHint),
+                            onChanged: (value) =>
+                                setState(() => _query = value),
+                          ),
+                        ),
+                        context.gapH(20),
+                        if (filtered.isEmpty)
+                          Padding(
+                            padding: context.edgeAll(24),
+                            child: Center(
+                              child: Text(context.tr(LocaleKeys.noItemsYet)),
+                            ),
+                          )
+                        else
+                          ..._buildRows(context, state, filtered),
+                        context.gapH(100),
+                      ],
+                    ),
+                  );
+              }
+            },
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/connectivity_retry_listener.dart';
 import '../../../home/presentation/widgets/home_product_card.dart';
 import '../bloc/category_products_bloc.dart';
 
@@ -25,50 +26,62 @@ class CategoryProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(title: Text(categoryName)),
-      body: BlocBuilder<CategoryProductsBloc, CategoryProductsState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case CategoryProductsStatus.initial:
-            case CategoryProductsStatus.loading:
-              return const Center(child: CircularProgressIndicator());
+    return ConnectivityRetryListener(
+      onRestored: () {
+        final bloc = context.read<CategoryProductsBloc>();
+        if (bloc.state.status == CategoryProductsStatus.failure) {
+          bloc.add(CategoryProductsRefreshed(categoryId));
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.surface,
+        appBar: AppBar(title: Text(categoryName)),
+        body: BlocBuilder<CategoryProductsBloc, CategoryProductsState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case CategoryProductsStatus.initial:
+              case CategoryProductsStatus.loading:
+                return const Center(child: CircularProgressIndicator());
 
-            case CategoryProductsStatus.failure:
-              return _ErrorView(
-                message: state.errorMessage ?? context.tr(LocaleKeys.somethingWentWrong),
-                onRetry: () => context
-                    .read<CategoryProductsBloc>()
-                    .add(CategoryProductsRequested(categoryId)),
-              );
+              case CategoryProductsStatus.failure:
+                return _ErrorView(
+                  message:
+                      state.errorMessage ??
+                      context.tr(LocaleKeys.somethingWentWrong),
+                  onRetry: () => context.read<CategoryProductsBloc>().add(
+                    CategoryProductsRequested(categoryId),
+                  ),
+                );
 
-            case CategoryProductsStatus.success:
-              if (state.products.isEmpty) {
-                return Center(child: Text(context.tr(LocaleKeys.noItemsYet)));
-              }
-              return RefreshIndicator(
-                onRefresh: () async => context
-                    .read<CategoryProductsBloc>()
-                    .add(CategoryProductsRefreshed(categoryId)),
-                child: GridView.builder(
-                  padding: context.edgeAll(16),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: context.r(12),
-                    crossAxisSpacing: context.r(12),
-                    childAspectRatio: 0.62,
+              case CategoryProductsStatus.success:
+                if (state.products.isEmpty) {
+                  return Center(child: Text(context.tr(LocaleKeys.noItemsYet)));
+                }
+                return RefreshIndicator(
+                  onRefresh: () async => context
+                      .read<CategoryProductsBloc>()
+                      .add(CategoryProductsRefreshed(categoryId)),
+                  child: GridView.builder(
+                    padding: context.edgeAll(16),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: context.r(12),
+                      crossAxisSpacing: context.r(12),
+                      childAspectRatio: 0.62,
+                    ),
+                    itemCount: state.products.length,
+                    itemBuilder: (context, i) => HomeProductCard(
+                      product: state.products[i],
+                      onTap: () => context.push(
+                        AppRoutes.productDetails,
+                        extra: state.products[i].id,
+                      ),
+                    ),
                   ),
-                  itemCount: state.products.length,
-                  itemBuilder: (context, i) => HomeProductCard(
-                    product: state.products[i],
-                    onTap: () =>
-                        context.push(AppRoutes.productDetails, extra: state.products[i].id),
-                  ),
-                ),
-              );
-          }
-        },
+                );
+            }
+          },
+        ),
       ),
     );
   }
@@ -88,12 +101,19 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: context.r(48), color: AppColors.textSecondary),
+            Icon(
+              Icons.cloud_off_rounded,
+              size: context.r(48),
+              color: AppColors.textSecondary,
+            ),
             context.gapH(12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(14)),
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: context.sp(14),
+              ),
             ),
             context.gapH(16),
             AppButton.text(

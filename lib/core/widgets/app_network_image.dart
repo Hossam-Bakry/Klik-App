@@ -31,7 +31,10 @@ class AppNetworkImage extends StatelessWidget {
             height: height,
             fit: fit,
             errorBuilder: (_, _, _) => _placeholder(
-              child: const Icon(Icons.broken_image_outlined, color: AppColors.textSecondary),
+              child: const Icon(
+                Icons.broken_image_outlined,
+                color: AppColors.textSecondary,
+              ),
             ),
             loadingBuilder: (context, image, progress) {
               if (progress == null) return image;
@@ -52,10 +55,10 @@ class AppNetworkImage extends StatelessWidget {
   }
 
   Widget _placeholder({Widget? child}) => Container(
-        width: width,
-        height: height,
-        alignment: Alignment.center,
-        color: AppColors.primary.withValues(alpha: 0.06),
-        child: child,
-      );
+    width: width,
+    height: height,
+    alignment: Alignment.center,
+    color: AppColors.primary.withValues(alpha: 0.06),
+    child: child,
+  );
 }
