@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/product_card_item.dart';
 import '../../domain/entities/home_product.dart';
-import 'home_product_card.dart';
 import 'section_header.dart';
 
 /// "Best deals for you" — a horizontal carousel showing the first few products,
@@ -39,8 +39,8 @@ class JustForYouSection extends StatelessWidget {
             itemCount: preview.length,
             separatorBuilder: (_, _) => context.gapW(12),
             itemBuilder: (context, i) => SizedBox(
-              width: context.r(125),
-              child: HomeProductCard(
+              width: context.r(140),
+              child: ProductCardItem(
                 product: preview[i],
                 onTap: () => context.push(AppRoutes.productDetails, extra: preview[i].id),
               ),

@@ -5,8 +5,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/product_card_item.dart';
 import '../../domain/entities/home_product.dart';
-import '../widgets/home_product_card.dart';
 
 /// Full "Best deals for you" listing, reached from the section's "See all".
 /// Receives the already-loaded products from the home feed.
@@ -31,7 +31,7 @@ class JustForYouPage extends StatelessWidget {
                 childAspectRatio: 0.62,
               ),
               itemCount: products.length,
-              itemBuilder: (context, i) => HomeProductCard(
+              itemBuilder: (context, i) => ProductCardItem(
                 product: products[i],
                 onTap: () => context.push(AppRoutes.productDetails, extra: products[i].id),
               ),

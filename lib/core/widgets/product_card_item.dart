@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/localization/locale_keys.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_network_image.dart';
-import '../../../../core/widgets/product_favorite_button.dart';
-import '../../domain/entities/home_product.dart';
-import 'product_price.dart';
+import '../../modules/home/domain/entities/home_product.dart';
+import '../../modules/home/presentation/widgets/product_price.dart';
+import '../extensions/context_extensions.dart';
+import '../localization/locale_keys.dart';
+import '../theme/app_colors.dart';
+import 'app_network_image.dart';
+import 'product_favorite_button.dart';
 
-/// Compact product card used by the "Best deals for you" carousel and the
-/// see-all grid.
-class HomeProductCard extends StatelessWidget {
-  const HomeProductCard({
+/// Compact product card shared across the app — the "Best deals for you"
+/// carousel/see-all grid, the Categories product grid, and the product
+/// details "Similar products" rail all render the same card.
+class ProductCardItem extends StatelessWidget {
+  const ProductCardItem({
     super.key,
     required this.product,
     this.onTap,

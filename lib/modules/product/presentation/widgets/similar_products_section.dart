@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/widgets/product_card_item.dart';
 import '../../../home/domain/entities/home_product.dart';
-import '../../../home/presentation/widgets/home_product_card.dart';
 
-/// Horizontal "Similar Products" rail. Reuses the home feed's [HomeProductCard]
-/// so cards stay visually consistent across the app.
+/// Horizontal "Similar Products" rail. Reuses the shared [ProductCardItem] so
+/// cards stay visually consistent across the app.
 class SimilarProductsSection extends StatelessWidget {
   const SimilarProductsSection({super.key, required this.products, this.onProductTap});
 
@@ -34,7 +34,7 @@ class SimilarProductsSection extends StatelessWidget {
             separatorBuilder: (_, _) => context.gapW(12),
             itemBuilder: (context, i) => SizedBox(
               width: context.r(125),
-              child: HomeProductCard(
+              child: ProductCardItem(
                 product: products[i],
                 onTap: onProductTap == null ? null : () => onProductTap!(products[i]),
               ),

@@ -8,7 +8,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
-import '../../../home/presentation/widgets/home_product_card.dart';
+import '../../../../core/widgets/product_card_item.dart';
 import '../bloc/category_products_bloc.dart';
 
 /// Products for a leaf category (one with no subcategories), reached from
@@ -67,10 +67,10 @@ class CategoryProductsPage extends StatelessWidget {
                       crossAxisCount: 2,
                       mainAxisSpacing: context.r(12),
                       crossAxisSpacing: context.r(12),
-                      childAspectRatio: 0.62,
+                      childAspectRatio: 0.85,
                     ),
                     itemCount: state.products.length,
-                    itemBuilder: (context, i) => HomeProductCard(
+                    itemBuilder: (context, i) => ProductCardItem(
                       product: state.products[i],
                       onTap: () => context.push(
                         AppRoutes.productDetails,
