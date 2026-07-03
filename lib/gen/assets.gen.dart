@@ -107,6 +107,9 @@ class $AssetsIconsGen {
   SvgGenImage get selectedWishlistIcn =>
       const SvgGenImage('assets/icons/selected_wishlist_icn.svg');
 
+  /// File path: assets/icons/send_icn.svg
+  SvgGenImage get sendIcn => const SvgGenImage('assets/icons/send_icn.svg');
+
   /// File path: assets/icons/terms_icn.svg
   SvgGenImage get termsIcn => const SvgGenImage('assets/icons/terms_icn.svg');
 
@@ -151,6 +154,7 @@ class $AssetsIconsGen {
     securityIcn,
     selectedFavoriteIcn,
     selectedWishlistIcn,
+    sendIcn,
     termsIcn,
     tiktokIcn,
     truckIcn,
@@ -165,6 +169,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/auth_background_imag.png
   AssetGenImage get authBackgroundImag =>
       const AssetGenImage('assets/images/auth_background_imag.png');
+
+  /// File path: assets/images/delete_account_img.png
+  AssetGenImage get deleteAccountImg =>
+      const AssetGenImage('assets/images/delete_account_img.png');
 
   /// File path: assets/images/forget_password_img.png
   AssetGenImage get forgetPasswordImg =>
@@ -201,9 +209,14 @@ class $AssetsImagesGen {
   AssetGenImage get splashImg =>
       const AssetGenImage('assets/images/splash_img.png');
 
+  /// File path: assets/images/support_img.png
+  AssetGenImage get supportImg =>
+      const AssetGenImage('assets/images/support_img.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     authBackgroundImag,
+    deleteAccountImg,
     forgetPasswordImg,
     logoutImg,
     noAddressFoundImg,
@@ -213,6 +226,7 @@ class $AssetsImagesGen {
     onBoardingTwoImg,
     otpImg,
     splashImg,
+    supportImg,
   ];
 }
 

@@ -42,7 +42,9 @@ class ProfilePage extends StatelessWidget {
         actions: [
           Padding(
             padding: context.edgeSymmetric(horizontal: 12),
-            child: _SupportButton(onTap: () {}),
+            child: _SupportButton(
+              onTap: () => context.push(AppRoutes.support),
+            ),
           ),
         ],
       ),
@@ -68,9 +70,10 @@ class ProfilePage extends StatelessWidget {
                   const GuestAuthButtons(),
                   context.gapH(16),
                 ] else ...[
-                  const ProfileHeader(
+                  ProfileHeader(
                     name: 'Sarah Ahmed',
                     email: 'sarahahmed@gmail.com',
+                    onEdit: () => context.push(AppRoutes.editProfile),
                   ),
                   context.gapH(20),
 
@@ -122,13 +125,16 @@ class ProfilePage extends StatelessWidget {
                           icon: Assets.icons.changePasswordIcn,
                           title: context.tr(LocaleKeys.changePassword),
                           trailing: const ProfileTileChevron(),
-                          onTap: () => gated(() {}),
+                          onTap: () => gated(
+                            () => context.push(AppRoutes.updatePassword),
+                          ),
                         ),
                         ProfileMenuTile(
                           icon: Assets.icons.securityIcn,
                           title: context.tr(LocaleKeys.security),
                           trailing: const ProfileTileChevron(),
-                          onTap: () => gated(() {}),
+                          onTap: () =>
+                              gated(() => context.push(AppRoutes.security)),
                         ),
                         ProfileMenuTile(
                           icon: Assets.icons.termsIcn,

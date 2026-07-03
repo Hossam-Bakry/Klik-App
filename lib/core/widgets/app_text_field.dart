@@ -15,7 +15,8 @@ import 'country_code_picker.dart';
 ///
 /// Cases: [AppTextField.text], [AppTextField.search], [AppTextField.name],
 /// [AppTextField.email], [AppTextField.password] (with show/hide toggle),
-/// [AppTextField.phone] (with an embedded [CountryCodePicker]).
+/// [AppTextField.phone] (with an embedded [CountryCodePicker]),
+/// [AppTextField.multiline] (multi-row, with a character counter).
 ///
 /// Any case may pass a [decoration] to fully replace the default
 /// [InputDecoration] when the surface needs a bespoke look.
@@ -30,6 +31,8 @@ class AppTextField extends StatefulWidget {
   final Country? country;
   final ValueChanged<Country>? onCountryChanged;
   final ValueChanged<String>? onChanged;
+  final int maxLines;
+  final int? maxLength;
 
   const AppTextField._({
     required this.controller,
@@ -44,6 +47,8 @@ class AppTextField extends StatefulWidget {
     this.onChanged,
     this.decoration,
     this.isSearch = false,
+    this.maxLines = 1,
+    this.maxLength,
   });
 
   /// Generic single-line field.
@@ -141,6 +146,28 @@ class AppTextField extends StatefulWidget {
          onCountryChanged: onCountryChanged,
        );
 
+  /// Fixed-height, multi-row field ([lines] tall) with a `current/max`
+  /// character counter (e.g. a support message or review comment).
+  const AppTextField.multiline({
+    Key? key,
+    required TextEditingController controller,
+    required String hint,
+    required int maxLength,
+    int lines = 5,
+    IconData? prefixIcon = Icons.chat_outlined,
+    String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
+  }) : this._(
+         controller: controller,
+         hint: hint,
+         prefixIcon: prefixIcon,
+         keyboardType: TextInputType.multiline,
+         validator: validator,
+         onChanged: onChanged,
+         maxLines: lines,
+         maxLength: maxLength,
+       );
+
   /// When non-null, fully replaces the default [InputDecoration]. The hint and
   /// prefix/suffix icons baked into the case are still applied on top of it so
   /// callers only override what they care about (colors, borders, fill).
@@ -228,13 +255,20 @@ class _AppTextFieldState extends State<AppTextField> {
           borderSide: BorderSide(color: color, width: width),
         );
 
-    final prefix = widget.prefixIcon == null
+    final prefixIcon = widget.prefixIcon == null
         ? null
         : Icon(
             widget.prefixIcon,
             color: AppColors.primary,
             size: context.r(22),
           );
+    // Multiline: the built-in `prefixIcon` slot is always vertically centered
+    // across the *whole* decorator by Flutter's InputDecorator, regardless of
+    // padding put inside it — so nudging it with Padding/Align never actually
+    // moves it to the top. Handled separately below with a manual Stack
+    // overlay instead of the decoration's prefixIcon.
+    final isMultiline = widget.maxLines > 1;
+    final prefix = isMultiline ? null : prefixIcon;
 
     final suffix = widget.suffixIcon == null
         ? null
@@ -258,9 +292,14 @@ class _AppTextFieldState extends State<AppTextField> {
                 ),
                 filled: true,
                 fillColor: AppColors.surface,
-                contentPadding: context.edgeSymmetric(
-                  horizontal: 16,
-                  vertical: 16,
+                // Multiline reserves extra left space for the manually
+                // overlaid icon (see below) instead of using the decoration's
+                // prefixIcon slot.
+                contentPadding: EdgeInsets.only(
+                  left: context.r(isMultiline && prefixIcon != null ? 44 : 16),
+                  right: context.r(16),
+                  top: context.r(16),
+                  bottom: context.r(16),
                 ),
                 enabledBorder: border(const Color(0xFFE6E0D4)),
                 focusedBorder: border(AppColors.primary, 1.4),
@@ -268,20 +307,45 @@ class _AppTextFieldState extends State<AppTextField> {
                 focusedErrorBorder: border(AppColors.error, 1.4),
               ));
 
-    return TextFormField(
+    final field = TextFormField(
       controller: widget.controller,
       validator: (value) => _validate(context, value),
       keyboardType: widget.keyboardType,
       inputFormatters: _formatters,
       obscureText: widget.isPassword && _obscured,
       onChanged: widget.onChanged,
+      maxLines: widget.maxLines,
+      maxLength: widget.maxLength,
+      textAlignVertical: isMultiline ? TextAlignVertical.top : null,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
       decoration: base.copyWith(
         hintText: widget.hint,
+        alignLabelWithHint: isMultiline,
         prefixIcon: prefix,
         suffixIcon: _buildSuffix(context),
+        counterStyle: TextStyle(
+          fontSize: context.sp(12),
+          color: AppColors.textSecondary,
+        ),
       ),
+    );
+
+    if (!isMultiline || prefixIcon == null) return field;
+
+    // Manual top-left overlay: Flutter's InputDecorator always vertically
+    // centers the decoration's `prefixIcon` slot across the whole field, so
+    // for a tall multiline box that reads as "centered" no matter how the
+    // icon inside that slot is padded/aligned. A Stack sidesteps that.
+    return Stack(
+      children: [
+        field,
+        Positioned(
+          top: context.r(16),
+          left: context.r(14),
+          child: IgnorePointer(child: prefixIcon),
+        ),
+      ],
     );
   }
 

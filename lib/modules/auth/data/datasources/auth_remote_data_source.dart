@@ -60,6 +60,13 @@ abstract class AuthRemoteDataSource {
     required String passwordConfirmation,
   });
 
+  /// 🔒 POST /api/change-password — changes the signed-in user's password.
+  Future<ApiResult<Unit>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  });
+
   /// POST /api/social-auth → access token (Google / Apple sign-in).
   Future<ApiResult<String>> socialAuth(SocialAccount account);
 
@@ -181,6 +188,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ApiEndpoints.resetPassword,
         body: {
           'token': token,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+        decoder: (_) => unit,
+      );
+
+  @override
+  Future<ApiResult<Unit>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) =>
+      _api.post(
+        ApiEndpoints.changePassword,
+        body: {
+          'current_password': currentPassword,
           'password': password,
           'password_confirmation': passwordConfirmation,
         },

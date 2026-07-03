@@ -3,6 +3,10 @@
          address and to centre the map on them. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Camera: needed to take a new profile photo (image_picker). Gallery
+         picking needs no explicit permission here — the plugin handles
+         scoped-storage access itself. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="klik_app"
         android:name="${applicationName}"

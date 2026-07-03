@@ -22,9 +22,17 @@ import '../../modules/product/presentation/pages/product_details_page.dart';
 import '../../modules/products/domain/entities/products_filter.dart';
 import '../../modules/products/presentation/bloc/products_bloc.dart';
 import '../../modules/products/presentation/pages/products_list_page.dart';
+import '../../modules/profile/presentation/cubit/edit_profile_cubit.dart';
+import '../../modules/profile/presentation/pages/edit_profile_page.dart';
+import '../../modules/security/presentation/cubit/security_cubit.dart';
+import '../../modules/security/presentation/pages/security_page.dart';
 import '../../modules/shops/presentation/bloc/shops_bloc.dart';
 import '../../modules/shops/presentation/pages/shops_page.dart';
 import '../../modules/splash/presentation/pages/splash_view.dart';
+import '../../modules/support/presentation/cubit/support_cubit.dart';
+import '../../modules/support/presentation/pages/support_page.dart';
+import '../../modules/update_password/presentation/cubit/update_password_cubit.dart';
+import '../../modules/update_password/presentation/pages/update_password_page.dart';
 import '../../modules/wishlist/presentation/bloc/wishlist_bloc.dart';
 import '../../modules/wishlist/presentation/pages/wishlist_page.dart';
 import '../di/injector.dart';
@@ -195,6 +203,43 @@ class AppRouter {
           builder: (context, state) => BlocProvider(
             create: (_) => sl<ShopsBloc>()..add(const ShopsStarted()),
             child: const ShopsPage(),
+          ),
+        ),
+        // Support form (public — no session required). Page-scoped
+        // SupportCubit owns the single submit action.
+        GoRoute(
+          path: AppRoutes.support,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<SupportCubit>(),
+            child: const SupportPage(),
+          ),
+        ),
+        // Security (auth-required — account deletion). Page-scoped
+        // SecurityCubit owns the single delete-account action.
+        GoRoute(
+          path: AppRoutes.security,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<SecurityCubit>(),
+            child: const SecurityPage(),
+          ),
+        ),
+        // Change password (auth-required — account settings). Distinct from
+        // AppRoutes.changePassword, the forgot-password flow's OTP-token step.
+        // Page-scoped UpdatePasswordCubit owns the single submit action.
+        GoRoute(
+          path: AppRoutes.updatePassword,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<UpdatePasswordCubit>(),
+            child: const UpdatePasswordPage(),
+          ),
+        ),
+        // Edit Profile (auth-required). Page-scoped EditProfileCubit fetches
+        // the current profile on creation, then submits edits.
+        GoRoute(
+          path: AppRoutes.editProfile,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<EditProfileCubit>(),
+            child: const EditProfilePage(),
           ),
         ),
         // Address list/add/edit share the singleton AddressBloc so mutations

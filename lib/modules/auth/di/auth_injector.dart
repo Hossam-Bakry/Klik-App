@@ -10,6 +10,7 @@ import '../data/repositories/auth_repository_impl.dart';
 import '../data/services/social_auth_service_impl.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/services/social_auth_service.dart';
+import '../domain/usecases/change_password_usecase.dart';
 import '../domain/usecases/get_current_session_usecase.dart';
 import '../domain/usecases/login_usecase.dart';
 import '../domain/usecases/logout_usecase.dart';
@@ -53,6 +54,7 @@ void registerAuthModule(GetIt sl) {
     ..registerLazySingleton(() => RequestPasswordResetUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => VerifyOtpUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => ResetPasswordUseCase(sl<AuthRepository>()))
+    ..registerLazySingleton(() => ChangePasswordUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => SocialSignInUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => VerifyPhoneOtpUseCase(sl<AuthRepository>()))
     ..registerLazySingleton(() => SendPhoneOtpUseCase(sl<AuthRepository>()))

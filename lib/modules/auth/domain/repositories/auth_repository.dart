@@ -57,6 +57,15 @@ abstract class AuthRepository {
     required String passwordConfirmation,
   });
 
+  /// Changes the signed-in user's password (requires [currentPassword]) — the
+  /// account settings flow, distinct from [resetPassword]'s forgot-password
+  /// (token-based) flow.
+  Future<ApiResult<Unit>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  });
+
   /// Runs the native social sign-in for [type], exchanges it via
   /// `/api/social-auth`, and persists the session. Returns `null` if the user
   /// cancelled the native flow (no error to show).

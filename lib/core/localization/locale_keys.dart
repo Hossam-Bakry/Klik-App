@@ -113,8 +113,10 @@ abstract class LocaleKeys {
   // Change password
   static const changePasswordTitle = 'change_password_title';
   static const changePasswordSubtitle = 'change_password_subtitle';
+  static const currentPassword = 'current_password';
   static const newPassword = 'new_password';
   static const confirmPassword = 'confirm_password';
+  static const confirmNewPassword = 'confirm_new_password';
   static const changePassword = 'change_password';
   static const passwordChanged = 'password_changed';
 
@@ -199,4 +201,29 @@ abstract class LocaleKeys {
   static const changesSavedSuccessfully = 'changes_saved_successfully';
   static const itemAddedToWishlist = 'item_added_to_wishlist';
   static const itemRemovedFromWishlist = 'item_removed_from_wishlist';
+
+  // Support
+  static const support = 'support';
+  static const supportHeading = 'support_heading';
+  static const supportSubtitle = 'support_subtitle';
+  static const supportMessageHint = 'support_message_hint';
+  static const sendMessage = 'send_message';
+  static const supportRequestSent = 'support_request_sent';
+
+  // Security / delete account
+  static const deleteAccount = 'delete_account';
+  static const deleteAccountTitle = 'delete_account_title';
+  static const deleteAccountSubtitle = 'delete_account_subtitle';
+  static const pleaseNote = 'please_note';
+  static const deleteAccountNoteData = 'delete_account_note_data';
+  static const deleteAccountNoteAccess = 'delete_account_note_access';
+  static const deleteAccountConfirm = 'delete_account_confirm';
+  static const accountDeletedSuccessfully = 'account_deleted_successfully';
+
+  // Edit profile
+  static const editProfile = 'edit_profile';
+  static const changePhoto = 'change_photo';
+  static const profileUpdatedSuccessfully = 'profile_updated_successfully';
+  static const takePhoto = 'take_photo';
+  static const chooseFromGallery = 'choose_from_gallery';
 }

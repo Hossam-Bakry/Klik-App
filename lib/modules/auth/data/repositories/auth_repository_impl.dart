@@ -110,6 +110,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
   @override
+  Future<ApiResult<Unit>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) =>
+      _remote.changePassword(
+        currentPassword: currentPassword,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
+
+  @override
   Future<ApiResult<AuthSession>?> socialSignIn(SocialAuthType type) async {
     final SocialAccount? account;
     try {

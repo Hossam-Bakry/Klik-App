@@ -11,7 +11,11 @@ import '../../modules/home/di/home_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
 import '../../modules/products/di/products_injector.dart';
+import '../../modules/profile/di/profile_injector.dart';
+import '../../modules/security/di/security_injector.dart';
 import '../../modules/shops/di/shops_injector.dart';
+import '../../modules/support/di/support_injector.dart';
+import '../../modules/update_password/di/update_password_injector.dart';
 import '../../modules/wishlist/di/wishlist_injector.dart';
 import '../favorites/data/favorites_remote_data_source.dart';
 import '../favorites/data/favorites_repository_impl.dart';
@@ -48,7 +52,11 @@ Future<void> configureDependencies() async {
   registerAddressModule(sl);
   registerProductModule(sl);
   registerProductsModule(sl);
+  registerProfileModule(sl);
+  registerSecurityModule(sl);
   registerShopsModule(sl);
+  registerSupportModule(sl);
+  registerUpdatePasswordModule(sl);
   registerWishlistModule(sl);
 }
 

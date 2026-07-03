@@ -51,6 +51,10 @@ class ApiEndpoints {
   ///                   profile_photo }
   static const String updateProfile = '/api/update-profile';
 
+  /// 🔒 POST — PROVISIONAL: no delete-account endpoint was in the Postman
+  /// collection when this was written; reconcile the path against the backend.
+  static const String deleteAccount = '/api/delete-account';
+
   // ---------------------------------------------------------------------------
   // Home & catalog (public)
   // ---------------------------------------------------------------------------

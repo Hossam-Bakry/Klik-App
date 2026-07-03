@@ -41,6 +41,10 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We use your location to find your current address and show it on the map when adding a delivery address.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We use your camera to take a new profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We use your photo library to choose a profile photo.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
