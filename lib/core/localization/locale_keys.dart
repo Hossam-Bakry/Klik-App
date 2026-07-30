@@ -174,6 +174,7 @@ abstract class LocaleKeys {
 
   // Products list / filters
   static const products = 'products';
+  static const searchProductsPrompt = 'search_products_prompt';
   static const filter = 'filter';
   static const filters = 'filters';
   static const reset = 'reset';
@@ -186,6 +187,7 @@ abstract class LocaleKeys {
   static const sortLowToHigh = 'sort_low_to_high';
   static const sortBestSelling = 'sort_best_selling';
   static const sortMostPopular = 'sort_most_popular';
+  static const sortJustForYou = 'sort_just_for_you';
   static const priceRange = 'price_range';
   static const minPrice = 'min_price';
   static const maxPrice = 'max_price';

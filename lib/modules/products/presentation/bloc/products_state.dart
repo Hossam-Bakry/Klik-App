@@ -13,10 +13,15 @@ class ProductsState extends Equatable {
     this.hasMore = false,
     this.isLoadingMore = false,
     this.loadMoreError = false,
+    this.searchMode = false,
     this.errorMessage,
   });
 
   final ProductsStatus status;
+
+  /// True when the page opened as a search screen: it stays idle (empty list)
+  /// until the user types a query or applies a refinement (see [isAwaitingQuery]).
+  final bool searchMode;
 
   /// The active query (identity filters + search + sheet refinements).
   final ProductsFilter filter;
@@ -44,6 +49,13 @@ class ProductsState extends Equatable {
   bool get isLoading =>
       status == ProductsStatus.initial || status == ProductsStatus.loading;
 
+  /// A search screen with no query or refinement yet — show the idle prompt
+  /// rather than a "no results" empty state.
+  bool get isAwaitingQuery =>
+      searchMode &&
+      (filter.search == null || filter.search!.trim().isEmpty) &&
+      !filter.hasActiveRefinements;
+
   ProductsState copyWith({
     ProductsStatus? status,
     ProductsFilter? filter,
@@ -55,6 +67,7 @@ class ProductsState extends Equatable {
     bool? isLoadingMore,
     bool? loadMoreError,
     bool clearLoadMoreError = false,
+    bool? searchMode,
     String? errorMessage,
   }) {
     return ProductsState(
@@ -67,6 +80,7 @@ class ProductsState extends Equatable {
       hasMore: hasMore ?? this.hasMore,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       loadMoreError: clearLoadMoreError ? false : (loadMoreError ?? this.loadMoreError),
+      searchMode: searchMode ?? this.searchMode,
       errorMessage: errorMessage,
     );
   }
@@ -82,6 +96,7 @@ class ProductsState extends Equatable {
     hasMore,
     isLoadingMore,
     loadMoreError,
+    searchMode,
     errorMessage,
   ];
 }

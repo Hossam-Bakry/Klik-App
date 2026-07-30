@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/empty_view.dart';
 import '../../domain/entities/user_profile.dart';
 import '../cubit/edit_profile_cubit.dart';
 import '../widgets/photo_source_sheet.dart';
@@ -123,7 +124,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               return const Center(child: CircularProgressIndicator());
             }
             if (state.status == EditProfileStatus.loadFailure) {
-              return _ErrorView(
+              return EmptyView(
+                icon: Icons.cloud_off_rounded,
                 message:
                     state.errorMessage ??
                     context.tr(LocaleKeys.somethingWentWrong),
@@ -277,36 +279,3 @@ class _AvatarPicker extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: context.edgeAll(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_rounded,
-              size: context.r(48),
-              color: AppColors.textSecondary,
-            ),
-            context.gapH(12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: context.sp(14),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

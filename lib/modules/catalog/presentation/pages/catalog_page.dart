@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/catalog_bloc.dart';
 import '../widgets/product_card.dart';
@@ -37,7 +38,7 @@ class CatalogPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
 
             case CatalogStatus.failure:
-              return _ErrorView(
+              return ErrorView(
                 message: state.errorMessage ??
                     context.tr(LocaleKeys.somethingWentWrong),
                 onRetry: () =>
@@ -70,31 +71,3 @@ class CatalogPage extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: context.edgeAll(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off, size: context.r(48)),
-            context.gapH(12),
-            Text(message, textAlign: TextAlign.center),
-            context.gapH(16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: Text(context.tr(LocaleKeys.retry)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

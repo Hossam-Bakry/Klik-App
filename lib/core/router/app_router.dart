@@ -181,9 +181,14 @@ class AppRouter {
             final filter = state.extra is ProductsFilter
                 ? state.extra as ProductsFilter
                 : const ProductsFilter();
+            // `?focus=true` (set by the home search field) opens the page as a
+            // search screen: it autofocuses the input so the keyboard rises
+            // straight away, and stays idle (empty list) until the user types.
+            final searchMode = state.uri.queryParameters['focus'] == 'true';
             return BlocProvider(
-              create: (_) => sl<ProductsBloc>()..add(ProductsStarted(filter)),
-              child: const ProductsListPage(),
+              create: (_) => sl<ProductsBloc>()
+                ..add(ProductsStarted(filter, searchMode: searchMode)),
+              child: ProductsListPage(autofocusSearch: searchMode),
             );
           },
         ),

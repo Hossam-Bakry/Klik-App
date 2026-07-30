@@ -16,17 +16,18 @@ import 'app_toast.dart';
 ///
 /// Guests always see the unfavorited state (favorites aren't persisted for
 /// them) and tapping it prompts sign-in instead of toggling.
+///
+/// Favorited renders in [selectedColor] (red by default); the unfavorited
+/// outline keeps the asset's own bronze.
 class ProductFavoriteButton extends StatelessWidget {
   const ProductFavoriteButton({
     super.key,
     required this.productId,
     this.selectedColor = AppColors.error,
-    this.unselectedColor = AppColors.surface,
   });
 
   final int productId;
   final Color selectedColor;
-  final Color unselectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,9 @@ class ProductFavoriteButton extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(shape: BoxShape.circle),
         child: (isFavorite
-            ? Assets.icons.selectedWishlistIcn.svg()
+            ? Assets.icons.selectedWishlistIcn.svg(
+                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
+              )
             : Assets.icons.unSelectedFavoriteIcn.svg()),
       ),
     );

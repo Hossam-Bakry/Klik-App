@@ -72,13 +72,27 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                 children: [
                   _CircleAction(
                     icon: widget.isFavorite
-                        ? Assets.icons.selectedFavoriteIcn.svg(width: context.r(20), height: context.r(20))
-                        : Assets.icons.unSelectedFavoriteIcn.svg(width: context.r(20), height: context.r(20)),
+                        ? Assets.icons.selectedWishlistIcn.svg(
+                            width: context.r(20),
+                            height: context.r(20),
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.error,
+                              BlendMode.srcIn,
+                            ),
+                          )
+                        : Assets.icons.unSelectedFavoriteIcn.svg(
+                            width: context.r(20),
+                            height: context.r(20),
+                          ),
                     onTap: widget.onToggleFavorite,
                   ),
                   context.gapH(10),
                   _CircleAction(
-                    icon: Icon(Icons.share_outlined, size: context.r(18), color: AppColors.primary),
+                    icon: Icon(
+                      Icons.share_outlined,
+                      size: context.r(18),
+                      color: AppColors.primary,
+                    ),
                     onTap: widget.onShare,
                   ),
                 ],
@@ -136,7 +150,10 @@ class _CircleAction extends StatelessWidget {
         width: context.r(36),
         height: context.r(36),
         alignment: Alignment.center,
-        decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+        ),
         child: icon,
       ),
     );

@@ -10,10 +10,11 @@ import 'product_sort.dart';
 ///   • from a shop      → `ProductsFilter(shopId: ...)`
 ///   • from a category  → `ProductsFilter(categoryId: ...)`
 ///   • "Best deals"     → `ProductsFilter(sort: ProductSort.popular)`
+///   • "Open to offers" → `ProductsFilter(isBidable: true)`
 ///
-/// The identity fields set by the entry point (shopId/categoryId/…) are kept
-/// intact when the user tweaks the in-page filter sheet — the sheet only edits
-/// [search], [sort], price range, [rating] and [isBidable].
+/// The identity fields set by the entry point (shopId/categoryId/isBidable/…)
+/// are kept intact when the user tweaks the in-page filter sheet — the sheet
+/// only edits [search], [sort], price range, [rating] and [brandId].
 class ProductsFilter extends Equatable {
   const ProductsFilter({
     this.title,
@@ -41,7 +42,12 @@ class ProductsFilter extends Equatable {
   final int? categoryId;
   final int? subCategoryId;
 
+  /// Bidable-only listing (the Open-to-offers tab). Identity, not a
+  /// sheet-editable refinement — no UI toggles it.
+  final bool? isBidable;
+
   // Refinements — editable in the filter sheet.
+  /// Single-select: the products endpoint takes one `brand_id`, not a list.
   final int? brandId;
   final int? colorId;
   final int? sizeId;
@@ -49,7 +55,6 @@ class ProductsFilter extends Equatable {
   final num? maxPrice;
   final int? rating;
   final ProductSort? sort;
-  final bool? isBidable;
 
   /// Query params for one page. `page`/`per_page` are supplied by the repo.
   /// Only set keys are included, so an omitted filter isn't sent at all.
@@ -64,7 +69,7 @@ class ProductsFilter extends Equatable {
     if (minPrice != null) 'min_price': minPrice,
     if (maxPrice != null) 'max_price': maxPrice,
     if (rating != null) 'rating': rating,
-    if (sort != null) 'sort_type': sort!.apiValue,
+    if (sort != null) 'sort_by': sort!.apiValue,
     if (isBidable != null) 'is_bidable': isBidable! ? 1 : 0,
   };
 
@@ -88,8 +93,6 @@ class ProductsFilter extends Equatable {
     bool clearRating = false,
     ProductSort? sort,
     bool clearSort = false,
-    bool? isBidable,
-    bool clearIsBidable = false,
   }) {
     return ProductsFilter(
       title: title ?? this.title,
@@ -97,6 +100,7 @@ class ProductsFilter extends Equatable {
       shopId: shopId,
       categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
       subCategoryId: subCategoryId,
+      isBidable: isBidable,
       brandId: clearBrandId ? null : (brandId ?? this.brandId),
       colorId: clearColorId ? null : (colorId ?? this.colorId),
       sizeId: clearSizeId ? null : (sizeId ?? this.sizeId),
@@ -104,7 +108,6 @@ class ProductsFilter extends Equatable {
       maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
       rating: clearRating ? null : (rating ?? this.rating),
       sort: clearSort ? null : (sort ?? this.sort),
-      isBidable: clearIsBidable ? null : (isBidable ?? this.isBidable),
     );
   }
 
@@ -117,8 +120,7 @@ class ProductsFilter extends Equatable {
       minPrice != null ||
       maxPrice != null ||
       rating != null ||
-      sort != null ||
-      isBidable != null;
+      sort != null;
 
   @override
   List<Object?> get props => [

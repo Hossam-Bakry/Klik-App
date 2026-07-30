@@ -8,13 +8,18 @@ sealed class ProductsEvent extends Equatable {
 }
 
 /// Initial load with the entry-point [filter] (shop/category/best-for-you).
+///
+/// [searchMode] opens the page as a search screen: it waits idle with an empty
+/// list until the user types a query (or applies a refinement) instead of
+/// eagerly loading the full catalog.
 class ProductsStarted extends ProductsEvent {
-  const ProductsStarted(this.filter);
+  const ProductsStarted(this.filter, {this.searchMode = false});
 
   final ProductsFilter filter;
+  final bool searchMode;
 
   @override
-  List<Object?> get props => [filter];
+  List<Object?> get props => [filter, searchMode];
 }
 
 /// Pull-to-refresh — reloads page 1 with the current filter.

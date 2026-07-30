@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/localization/locale_keys.dart';
 
-/// Sort options for `GET /api/products` (`sort_type` query param). "Default
+/// Sort options for `GET /api/products` (`sort_by` query param). "Default
 /// sorting" is the absence of a sort (null), so it isn't a member here.
 ///
-/// PROVISIONAL: only [popular] (`popular_product`) is confirmed from the API
-/// example. The other `apiValue`s are best-guess conventions — reconcile them
-/// against the backend; this enum is the single place to edit.
+/// The `apiValue`s are the full set the backend accepts:
+/// `top_selling | popular_product | newest | just_for_you | high_to_low |
+/// low_to_high`.
 enum ProductSort {
   newest('newest', LocaleKeys.sortNewProducts, Icons.access_time_rounded),
-  priceHighToLow('price_high_to_low', LocaleKeys.sortHighToLow, Icons.south_rounded),
-  priceLowToHigh('price_low_to_high', LocaleKeys.sortLowToHigh, Icons.north_rounded),
-  bestSelling('best_selling', LocaleKeys.sortBestSelling, Icons.local_fire_department_outlined),
-  popular('popular_product', LocaleKeys.sortMostPopular, Icons.star_rounded);
+  priceHighToLow('high_to_low', LocaleKeys.sortHighToLow, Icons.south_rounded),
+  priceLowToHigh('low_to_high', LocaleKeys.sortLowToHigh, Icons.north_rounded),
+  bestSelling('top_selling', LocaleKeys.sortBestSelling, Icons.local_fire_department_outlined),
+  popular('popular_product', LocaleKeys.sortMostPopular, Icons.star_rounded),
+  justForYou('just_for_you', LocaleKeys.sortJustForYou, Icons.favorite_border_rounded);
 
   const ProductSort(this.apiValue, this.labelKey, this.icon);
 

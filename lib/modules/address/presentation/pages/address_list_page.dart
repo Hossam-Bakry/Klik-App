@@ -7,6 +7,7 @@ import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/empty_view.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../domain/entities/address.dart';
 import '../bloc/address_bloc.dart';
@@ -205,18 +206,9 @@ class _EmptyAddresses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Assets.images.noAddressFoundImg.image(width: context.wf(0.55)),
-          context.gapH(12),
-          Text(
-            context.tr(LocaleKeys.noAddressesAdded),
-            style: context.bodyMedium,
-          ),
-        ],
-      ),
+    return EmptyView(
+      image: Assets.images.emptyAddressImg.image(width: context.wf(0.6)),
+      message: context.tr(LocaleKeys.noAddressesAdded),
     );
   }
 }

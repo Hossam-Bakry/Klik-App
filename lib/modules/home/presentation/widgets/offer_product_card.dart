@@ -103,11 +103,7 @@ class OfferProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-              ProductFavoriteButton(
-                productId: product.id,
-                selectedColor: AppColors.primaryBronze,
-                unselectedColor: AppColors.primaryBronze,
-              ),
+              ProductFavoriteButton(productId: product.id),
             ],
           ),
           context.gapH(4),

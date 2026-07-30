@@ -174,6 +174,26 @@ class $AssetsImagesGen {
   AssetGenImage get deleteAccountImg =>
       const AssetGenImage('assets/images/delete_account_img.png');
 
+  /// File path: assets/images/empty_address_img.png
+  AssetGenImage get emptyAddressImg =>
+      const AssetGenImage('assets/images/empty_address_img.png');
+
+  /// File path: assets/images/empty_cart_img.png
+  AssetGenImage get emptyCartImg =>
+      const AssetGenImage('assets/images/empty_cart_img.png');
+
+  /// File path: assets/images/empty_check_out_img.png
+  AssetGenImage get emptyCheckOutImg =>
+      const AssetGenImage('assets/images/empty_check_out_img.png');
+
+  /// File path: assets/images/empty_order_img.png
+  AssetGenImage get emptyOrderImg =>
+      const AssetGenImage('assets/images/empty_order_img.png');
+
+  /// File path: assets/images/empty_wishlist_img.png
+  AssetGenImage get emptyWishlistImg =>
+      const AssetGenImage('assets/images/empty_wishlist_img.png');
+
   /// File path: assets/images/forget_password_img.png
   AssetGenImage get forgetPasswordImg =>
       const AssetGenImage('assets/images/forget_password_img.png');
@@ -185,10 +205,6 @@ class $AssetsImagesGen {
   /// File path: assets/images/no_address_found_img.png
   AssetGenImage get noAddressFoundImg =>
       const AssetGenImage('assets/images/no_address_found_img.png');
-
-  /// File path: assets/images/no_item_found_img.png
-  AssetGenImage get noItemFoundImg =>
-      const AssetGenImage('assets/images/no_item_found_img.png');
 
   /// File path: assets/images/no_network_img.png
   AssetGenImage get noNetworkImg =>
@@ -217,10 +233,14 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [
     authBackgroundImag,
     deleteAccountImg,
+    emptyAddressImg,
+    emptyCartImg,
+    emptyCheckOutImg,
+    emptyOrderImg,
+    emptyWishlistImg,
     forgetPasswordImg,
     logoutImg,
     noAddressFoundImg,
-    noItemFoundImg,
     noNetworkImg,
     onBoardingOneImg,
     onBoardingTwoImg,

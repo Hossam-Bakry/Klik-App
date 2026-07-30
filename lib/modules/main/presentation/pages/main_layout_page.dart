@@ -14,6 +14,7 @@ import '../../../categories/presentation/pages/categories_page.dart';
 import '../../../home/domain/entities/category_item.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../../home/presentation/pages/open_to_offers_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../widgets/curved_bottom_nav.dart';
 
@@ -80,7 +81,9 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         value: _categoriesBloc,
         child: const CategoriesPage(),
       ),
-      _PlaceholderTab(icon: Assets.icons.negotiationIcn),
+      // Negotiation destination: the full bidable listing (is_bidable=1), with
+      // its own search + filter. Where Home's "Open to offers" see-all lands.
+      const OpenToOffersPage(),
       _PlaceholderTab(icon: Assets.icons.cartIcn),
       const ProfilePage(),
     ];

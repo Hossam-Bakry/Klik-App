@@ -33,6 +33,7 @@ class AppTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final int maxLines;
   final int? maxLength;
+  final bool autofocus;
 
   const AppTextField._({
     required this.controller,
@@ -49,6 +50,7 @@ class AppTextField extends StatefulWidget {
     this.isSearch = false,
     this.maxLines = 1,
     this.maxLength,
+    this.autofocus = false,
   });
 
   /// Generic single-line field.
@@ -80,6 +82,7 @@ class AppTextField extends StatefulWidget {
     required String hint,
     ValueChanged<String>? onChanged,
     InputDecoration? decoration,
+    bool autofocus = false,
   }) : this._(
          controller: controller,
          hint: hint,
@@ -87,6 +90,7 @@ class AppTextField extends StatefulWidget {
          onChanged: onChanged,
          decoration: decoration,
          isSearch: true,
+         autofocus: autofocus,
        );
 
   const AppTextField.name({
@@ -309,6 +313,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
     final field = TextFormField(
       controller: widget.controller,
+      autofocus: widget.autofocus,
       validator: (value) => _validate(context, value),
       keyboardType: widget.keyboardType,
       inputFormatters: _formatters,

@@ -8,8 +8,8 @@ import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../domain/entities/product_details.dart';
 import '../bloc/product_bloc.dart';
 import '../widgets/product_bottom_bar.dart';
@@ -46,8 +46,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       body: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
           if (state.status == ProductStatus.failure && state.product == null) {
-            return _ErrorView(
-              message: state.errorMessage,
+            return ErrorView(
+              message:
+                  state.errorMessage ?? context.tr(LocaleKeys.somethingWentWrong),
               onRetry: () => _reload(context),
             );
           }
@@ -299,36 +300,3 @@ class _DeliveryRow extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({this.message, required this.onRetry});
-
-  final String? message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: context.edgeAll(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_rounded, size: context.r(48), color: AppColors.textSecondary),
-            context.gapH(12),
-            Text(
-              message ?? context.tr(LocaleKeys.somethingWentWrong),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(14)),
-            ),
-            context.gapH(16),
-            AppButton.text(
-              label: context.tr(LocaleKeys.retry),
-              foregroundColor: AppColors.primary,
-              onPressed: onRetry,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

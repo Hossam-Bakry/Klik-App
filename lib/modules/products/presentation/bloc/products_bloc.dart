@@ -42,8 +42,16 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     emit(state.copyWith(
       status: ProductsStatus.loading,
       filter: event.filter,
+      searchMode: event.searchMode,
     ));
-    await _loadFirstPage(emit);
+    // In search mode with nothing to query yet, stay idle with an empty list
+    // (the page shows a "type to search" prompt) instead of loading the whole
+    // catalog. The filter options are still fetched for the filter sheet.
+    if (state.isAwaitingQuery) {
+      emit(state.copyWith(status: ProductsStatus.success, products: const []));
+    } else {
+      await _loadFirstPage(emit);
+    }
     await _loadFilterOptions(emit);
   }
 
@@ -77,6 +85,12 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   ) async {
     if (event.filter == state.filter) return;
     emit(state.copyWith(status: ProductsStatus.loading, filter: event.filter));
+    // Clearing the search box (with no refinements) in search mode returns to
+    // the idle empty list rather than reloading the whole catalog.
+    if (state.isAwaitingQuery) {
+      emit(state.copyWith(status: ProductsStatus.success, products: const []));
+      return;
+    }
     await _loadFirstPage(emit);
   }
 
