@@ -123,6 +123,7 @@ class _ShopsPageState extends State<ShopsPage> {
                         crossAxisCount: _crossAxisCount,
                         mainAxisSpacing: context.r(16),
                         crossAxisSpacing: context.r(16),
+                        childAspectRatio: shopTileAspectRatio,
                       ),
                       itemCount: filtered.length,
                       itemBuilder: (context, i) => ShopGridTile(
@@ -179,7 +180,8 @@ class _FilterButton extends StatelessWidget {
   }
 }
 
-/// Placeholder tile grid shown while the shop list loads.
+/// Placeholder tile grid shown while the shop list loads — logo card plus a
+/// name bar, mirroring [ShopGridTile] so the real grid doesn't shift in.
 class _LoadingGrid extends StatelessWidget {
   const _LoadingGrid({required this.crossAxisCount});
 
@@ -187,6 +189,11 @@ class _LoadingGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bone = BoxDecoration(
+      color: AppColors.textSecondary.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(context.r(16)),
+    );
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -194,16 +201,19 @@ class _LoadingGrid extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: context.r(16),
         crossAxisSpacing: context.r(16),
+        childAspectRatio: shopTileAspectRatio,
       ),
       itemCount: 9,
-      itemBuilder: (context, i) => AspectRatio(
-        aspectRatio: 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.textSecondary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(context.r(16)),
+      itemBuilder: (context, i) => Column(
+        children: [
+          Expanded(child: DecoratedBox(decoration: bone)),
+          context.gapH(6),
+          Container(
+            height: context.r(10),
+            width: double.infinity,
+            decoration: bone,
           ),
-        ),
+        ],
       ),
     );
   }

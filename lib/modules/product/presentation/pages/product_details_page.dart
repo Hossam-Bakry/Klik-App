@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/favorites/presentation/favorites_cubit.dart';
@@ -52,22 +53,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               onRetry: () => _reload(context),
             );
           }
-          if (state.isLoading || state.product == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return _Content(
-            product: state.product!,
-            colorIndex: _colorIndex,
-            sizeIndex: _sizeIndex,
-            onColorSelected: (i) => setState(() => _colorIndex = i),
-            onSizeSelected: (i) => setState(() => _sizeIndex = i),
+          // While loading, the real layout renders against a dummy product
+          // wrapped in a Skeletonizer so the page shows shimmering bones
+          // instead of a spinner (same approach as the home feed).
+          final loading = state.isLoading || state.product == null;
+          final product = loading
+              ? ProductDetails.placeholder()
+              : state.product!;
+          return Skeletonizer(
+            enabled: loading,
+            child: _Content(
+              product: product,
+              colorIndex: loading ? 0 : _colorIndex,
+              sizeIndex: loading ? 0 : _sizeIndex,
+              onColorSelected: (i) => setState(() => _colorIndex = i),
+              onSizeSelected: (i) => setState(() => _sizeIndex = i),
+            ),
           );
         },
       ),
       bottomNavigationBar: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
           final product = state.product;
-          if (product == null) return const SizedBox.shrink();
+          // Failed with nothing to show: no footer at all. Still loading: bones,
+          // so the CTAs don't pop in under the user's thumb.
+          if (product == null) {
+            return state.status == ProductStatus.failure
+                ? const SizedBox.shrink()
+                : const Skeletonizer(enabled: true, child: ProductBottomBar());
+          }
           // Out of stock: swap the CTAs for a disabled "Out Of Stock" banner.
           if (product.isOutOfStock) return const _OutOfStockBar();
           return ProductBottomBar(

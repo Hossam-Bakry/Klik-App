@@ -73,6 +73,65 @@ class ProductDetails extends Equatable {
   final List<ProductReview> reviews;
   final List<HomeProduct> similarProducts;
 
+  /// A dummy product used to lay out skeleton bones while the real one loads
+  /// (same trick as `HomeFeed.placeholder`). Every optional section is filled
+  /// in so the bones cover the whole page.
+  factory ProductDetails.placeholder() {
+    return ProductDetails(
+      id: 0,
+      name: 'Samsung washing machine',
+      subtitle: 'Wireless Noise Canceling headphone',
+      description:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do '
+          'eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim '
+          'ad minim veniam, quis nostrud exercitation ullamco laboris.',
+      images: const [''],
+      price: 22,
+      discountPrice: 19,
+      discountPercentage: 20,
+      rating: 4.5,
+      totalSold: 113,
+      quantity: 1,
+      estimatedDeliveryTime: '2 days',
+      isFavorite: false,
+      isBidable: false,
+      colors: List.generate(
+        4,
+        (i) => const ProductColorOption(name: 'Color', hex: '#CCCCCC'),
+      ),
+      sizes: List.generate(3, (i) => '128GB'),
+      reviews: List.generate(
+        2,
+        (i) => const ProductReview(
+          id: 0,
+          authorName: 'Customer name',
+          avatar: '',
+          rating: 4.5,
+          comment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          date: '2024-06-30',
+        ),
+      ),
+      similarProducts: List.generate(
+        4,
+        (i) => const HomeProduct(
+          id: 0,
+          name: 'Samsung washing machine',
+          thumbnail: '',
+          price: 22,
+          discountPrice: 19,
+          discountPercentage: 20,
+          rating: 4.5,
+          totalSold: 113,
+          quantity: 1,
+          isFavorite: false,
+          isBidable: false,
+          shopName: 'Klik Store',
+          estimatedDeliveryTime: '2',
+        ),
+      ),
+    );
+  }
+
   /// Whether a discount is active — drives the struck-through original price and
   /// the percentage badge.
   bool get hasDiscount => discountPercentage > 0 && discountPrice > 0;
