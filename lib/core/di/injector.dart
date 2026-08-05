@@ -17,6 +17,11 @@ import '../../modules/shops/di/shops_injector.dart';
 import '../../modules/support/di/support_injector.dart';
 import '../../modules/update_password/di/update_password_injector.dart';
 import '../../modules/wishlist/di/wishlist_injector.dart';
+import '../cart/data/cart_remote_data_source.dart';
+import '../cart/data/cart_repository_impl.dart';
+import '../cart/data/guest_cart_store.dart';
+import '../cart/domain/cart_repository.dart';
+import '../cart/presentation/cart_count_cubit.dart';
 import '../favorites/data/favorites_remote_data_source.dart';
 import '../favorites/data/favorites_repository_impl.dart';
 import '../favorites/domain/favorites_repository.dart';
@@ -70,7 +75,12 @@ Future<void> _registerCore() async {
       () => DioClient(
         sl<TokenProvider>(),
         languageProvider: () => sl<LocaleCubit>().state.languageCode,
+        guestTokenProvider: sl<GuestTokenProvider>(),
       ),
+    )
+    // Supplies the guest cart token (synchronously) to GuestTokenInterceptor.
+    ..registerLazySingleton<GuestTokenProvider>(
+      () => () => sl<GuestCartStore>().token,
     )
     // Data sources depend on ApiInterface, not Dio directly.
     ..registerLazySingleton<ApiInterface>(
@@ -108,5 +118,20 @@ Future<void> _registerCore() async {
     // Persistent per-phone OTP resend cooldown (survives navigation/restart).
     ..registerLazySingleton<OtpCooldownStore>(
       () => OtpCooldownStore(sl<SharedPreferences>()),
+    )
+    // Guest cart: only the token + item count are cached locally; the cart
+    // itself lives on the server. The count cubit feeds the bottom-nav badge
+    // and folds the guest cart into the account on sign-in.
+    ..registerLazySingleton<GuestCartStore>(
+      () => GuestCartStore(sl<SharedPreferences>()),
+    )
+    ..registerLazySingleton<CartRemoteDataSource>(
+      () => CartRemoteDataSourceImpl(sl<ApiInterface>()),
+    )
+    ..registerLazySingleton<CartRepository>(
+      () => CartRepositoryImpl(sl<CartRemoteDataSource>()),
+    )
+    ..registerLazySingleton<CartCountCubit>(
+      () => CartCountCubit(sl<CartRepository>(), sl<GuestCartStore>()),
     );
 }

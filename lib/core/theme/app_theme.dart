@@ -105,54 +105,63 @@ class AppTheme {
           fontSize: context.sp(20),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         titleMedium: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(18),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         titleSmall: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(16),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         bodyLarge: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(16),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         bodyMedium: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(14),
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
+          letterSpacing: 0.2
         ),
         bodySmall: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(12),
           fontWeight: FontWeight.w600,
           color: AppColors.textSecondary,
+          letterSpacing: 0.2
         ),
         labelLarge: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(14),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         labelMedium: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(10),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
         labelSmall: TextStyle(
           fontFamily: "OpenSans",
           fontSize: context.sp(8),
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          letterSpacing: 0.2
         ),
       ),
     );

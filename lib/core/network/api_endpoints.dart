@@ -65,6 +65,7 @@ class ApiEndpoints {
   static const String subCategories = '/api/sub-categories'; // ?category_id=
   static const String shopCategories = '/api/shop-categories'; // ?shop_id=
   static const String products = '/api/products';
+
   // PROVISIONAL: guessed endpoint for the products filter's Brand section.
   static const String brands = '/api/brands';
   static const String productDetails = '/api/product-details'; // ?product_id=
@@ -74,13 +75,17 @@ class ApiEndpoints {
 
   // Flash sales
   static const String flashSales = '/api/flash-sales';
+
   static String flashSaleDetails(Object id) => '/api/flash-sale/$id/details';
 
   // Blog & legal
   static const String blogs = '/api/blogs';
+
   static String blogDetails(Object id) => '/api/blog/$id/details';
   static const String contactUs = '/api/contact-us';
+
   static String legalPage(String slug) => '/api/legal-pages/$slug';
+
   static String translations(String locale) => '/api/lang/$locale';
 
   // ---------------------------------------------------------------------------
@@ -89,6 +94,7 @@ class ApiEndpoints {
   static const String shops = '/api/shops';
   static const String topShops = '/api/shops/top';
   static const String popularProducts = '/api/shops/popular-products';
+
   static String shopDetails(Object shop) => '/api/shops/$shop';
 
   // ---------------------------------------------------------------------------
@@ -96,7 +102,9 @@ class ApiEndpoints {
   // ---------------------------------------------------------------------------
   static const String addresses = '/api/addresses';
   static const String addressStore = '/api/address/store';
+
   static String addressUpdate(Object id) => '/api/address/$id/update';
+
   static String addressDelete(Object id) => '/api/address/$id/delete';
 
   // ---------------------------------------------------------------------------
@@ -109,6 +117,11 @@ class ApiEndpoints {
   static const String cartDelete = '/api/cart/delete';
   static const String cartCheckout = '/api/cart/checkout';
 
+  // PROVISIONAL: folds a guest cart (identified by X-Guest-Token / guest_token
+  // body field) into the authenticated user's cart on sign-in. Path + payload
+  // unconfirmed — no merge endpoint was in the Postman collection.
+  static const String cartMerge = '/api/cart/merge';
+
   // ---------------------------------------------------------------------------
   // Orders 🔒
   // ---------------------------------------------------------------------------
@@ -118,6 +131,7 @@ class ApiEndpoints {
   static const String placeOrderV1 = '/api/v1/place-order';
   static const String reOrder = '/api/place-order/again';
   static const String cancelOrder = '/api/orders/cancel';
+
   static String orderPayment(Object order, Object method) =>
       '/api/order-payment/$order/$method';
 

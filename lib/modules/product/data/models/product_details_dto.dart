@@ -1,7 +1,9 @@
 import '../../../home/domain/entities/home_product.dart';
+import '../../domain/entities/product_bid.dart';
 import '../../domain/entities/product_color_option.dart';
 import '../../domain/entities/product_details.dart';
 import '../../domain/entities/product_review.dart';
+import '../../domain/entities/product_size_option.dart';
 
 /// Parses the `GET /api/product-details` `data` object into [ProductDetails].
 ///
@@ -28,6 +30,17 @@ class ProductDetailsDto {
         (data[_K.popularProducts] as List?) ??
         const [];
 
+    // `bidding` is what the API actually sends; `bid`/`my_bid` are kept as
+    // fallbacks so an older/renamed payload still parses.
+    final bidding = _biddingFromJson(
+      p[_K.bidding] ??
+          p[_K.bid] ??
+          p[_K.myBid] ??
+          data[_K.bidding] ??
+          data[_K.bid] ??
+          data[_K.myBid],
+    );
+
     return ProductDetails(
       id: _toInt(p[_K.id]),
       name: _str(p[_K.name]),
@@ -51,6 +64,8 @@ class ProductDetailsDto {
       similarProducts: related
           .map((e) => _similarFromJson(e as Map<String, dynamic>))
           .toList(),
+      bid: bidding.selected,
+      bidVariants: bidding.variants,
     );
   }
 
@@ -66,16 +81,27 @@ class ProductDetailsDto {
 
   static ProductColorOption _colorFromJson(Map<String, dynamic> json) =>
       ProductColorOption(
+        // Kept for the bid body's optional `color`.
+        id: _toNullableInt(json[_K.id]),
         name: _str(json[_K.colorName]),
         hex: _str(json[_K.colorCode]),
       );
 
   /// Sizes come as objects (shape not yet seen populated); accept a `name`/
-  /// `label` field or a bare scalar.
-  static List<String> _sizes(Object? raw) => (raw as List? ?? const [])
-      .map((e) => e is Map ? _str(e[_K.sizeName] ?? e[_K.sizeLabel]) : _str(e))
-      .where((s) => s.isNotEmpty)
-      .toList();
+  /// `label` field or a bare scalar. The id, when present, is what the bid body
+  /// sends as `size`.
+  static List<ProductSizeOption> _sizes(Object? raw) =>
+      (raw as List? ?? const [])
+          .map(
+            (e) => e is Map
+                ? ProductSizeOption(
+                    id: _toNullableInt(e[_K.id]),
+                    label: _str(e[_K.sizeName] ?? e[_K.sizeLabel]),
+                  )
+                : ProductSizeOption(label: _str(e)),
+          )
+          .where((s) => s.label.isNotEmpty)
+          .toList();
 
   static ProductReview _reviewFromJson(Map<String, dynamic> json) {
     final user = json[_K.reviewUser] as Map<String, dynamic>?;
@@ -87,6 +113,139 @@ class ProductDetailsDto {
       comment: _str(json[_K.reviewComment]),
       date: _str(json[_K.reviewDate]),
     );
+  }
+
+  /// The customer's negotiation on this product, when the payload carries one.
+  ///
+  /// The `bid` object is variant-based: an attempt allowance under
+  /// `rules.attempts` plus a `variants` array keyed `size_id:color_id`. We flat-
+  /// ten *every* variant into a [ProductBid] — so the UI can re-resolve the bid
+  /// from the customer's size/colour pick (see [ProductDetails.bidForVariant]) —
+  /// and mark the server's `selected_variant_key` (falling back to the first) as
+  /// the default. Returns an empty result when bidding is disabled or carries no
+  /// usable variant, so the UI hides the bid section.
+  static ({ProductBid? selected, List<ProductBid> variants}) _biddingFromJson(
+    Object? raw,
+  ) {
+    const empty = (selected: null, variants: <ProductBid>[]);
+    if (raw is! Map) return empty;
+    final json = raw.cast<String, dynamic>();
+    // `enabled: false` means this product isn't open to offers.
+    if (json.containsKey(_K.bidEnabled) && !_toBool(json[_K.bidEnabled])) {
+      return empty;
+    }
+
+    final rawVariants = (json[_K.bidVariants] as List?)
+        ?.whereType<Map>()
+        .map((e) => e.cast<String, dynamic>())
+        .toList();
+    if (rawVariants == null || rawVariants.isEmpty) return empty;
+
+    // Attempts are product-wide (the product-per-day bucket { max, used,
+    // remaining }), so they're shared across every variant.
+    final rules = json[_K.bidRules] as Map?;
+    final attempts = rules?[_K.bidAttempts] as Map?;
+    final perDay = attempts?[_K.attemptsProductPerDay] as Map?;
+    // The floor as a share of the listed price — also product-wide.
+    final minPercent = _toNullableDouble(rules?[_K.minimumBidPercentage]);
+    final dailyLimit = perDay?[_K.attemptMax] == null
+        ? 3
+        : _toInt(perDay![_K.attemptMax]);
+
+    final variants = rawVariants
+        .map((v) => _variantBid(v, perDay, dailyLimit, minPercent))
+        .toList();
+
+    final key = _str(json[_K.selectedVariantKey]);
+    final selected = key.isEmpty
+        ? variants.first
+        : variants.firstWhere(
+            (v) => v.variantKey == key,
+            orElse: () => variants.first,
+          );
+
+    return (selected: selected, variants: variants);
+  }
+
+  /// Flattens one `variants[]` entry into a [ProductBid], folding in the shared
+  /// [perDay] attempt bucket, [dailyLimit] and [minPercent] floor rule.
+  static ProductBid _variantBid(
+    Map<String, dynamic> variant,
+    Map? perDay,
+    int dailyLimit,
+    double? minPercent,
+  ) {
+    // The customer's last offer and its state.
+    final lastBid = variant[_K.lastBid] as Map?;
+    final state = _str(lastBid?[_K.bidState]).toLowerCase();
+
+    // The variant's `price` is the seller's price on the table: a counter while
+    // the bid is still pending, a standing offer after a decline, or the agreed
+    // price once accepted. An expired price trumps the bid's own state.
+    final price = variant[_K.variantPrice] as Map?;
+    final priceAmount = _toNullableDouble(price?[_K.priceAmount]);
+    // An explicit `countered` state puts the seller's price on the table even if
+    // the `active` flag lags behind it.
+    final hasSellerPrice = priceAmount != null &&
+        (_toBool(price?[_K.priceActive]) || state == _S.countered);
+    final priceExpired = _toBool(price?[_K.priceExpired]);
+
+    final status = _bidStatus(
+      state,
+      hasSellerPrice: hasSellerPrice,
+      priceExpired: priceExpired,
+    );
+
+    final key = _str(variant[_K.variantKey]);
+
+    return ProductBid(
+      variantKey: key.isEmpty ? null : key,
+      sizeId: _toNullableInt(variant[_K.variantSizeId]),
+      colorId: _toNullableInt(variant[_K.variantColorId]),
+      listedPrice: _toNullableDouble(variant[_K.variantListedPrice]),
+      status: status,
+      attemptsUsed: perDay?[_K.attemptUsed] == null
+          ? 0
+          : _toInt(perDay![_K.attemptUsed]),
+      dailyLimit: dailyLimit,
+      offeredPrice: _toNullableDouble(lastBid?[_K.bidAmount]),
+      // The seller's price, shown while countered or beside a decline.
+      counteredPrice: hasSellerPrice &&
+              (status == BidStatus.countered || status == BidStatus.declined)
+          ? priceAmount
+          : null,
+      suggestedPrice: _toNullableDouble(variant[_K.recommendedBid]),
+      acceptedPrice: status == BidStatus.approved ? priceAmount : null,
+      minimumOffer: _toNullableDouble(variant[_K.minimumBidAmount]),
+      minimumOfferPercent: minPercent,
+      expiresAt: DateTime.tryParse(_str(price?[_K.priceExpiresAt]))?.toLocal(),
+      canSubmit: variant[_K.canSubmit] == null
+          ? true
+          : _toBool(variant[_K.canSubmit]),
+    );
+  }
+
+  /// Maps `last_bid.state` + the seller's `price` to a [BidStatus]:
+  /// - an expired seller price → [BidStatus.expired] (a fresh bid is needed);
+  /// - `countered` → [BidStatus.countered], the seller's own price to accept or
+  ///   negotiate against;
+  /// - `pending` with an active seller price is also a counter, otherwise still
+  ///   [BidStatus.pending];
+  /// - `rejected` → [BidStatus.declined] (a standing price may sit alongside it);
+  /// - `accepted`/`approved` → [BidStatus.approved]; `none`/unknown → null.
+  static BidStatus? _bidStatus(
+    String state, {
+    required bool hasSellerPrice,
+    required bool priceExpired,
+  }) {
+    if (priceExpired) return BidStatus.expired;
+    return switch (state) {
+      _S.countered => BidStatus.countered,
+      _S.pending => hasSellerPrice ? BidStatus.countered : BidStatus.pending,
+      _S.rejected => BidStatus.declined,
+      _S.accepted || _S.approved => BidStatus.approved,
+      _ => null,
+    };
   }
 
   /// `related_products` / `popular_products` share the home feed's product
@@ -122,6 +281,19 @@ class ProductDetailsDto {
   static double _toDouble(Object? v) =>
       v == null ? 0 : (v is num ? v.toDouble() : double.tryParse('$v') ?? 0);
 
+  /// Like [_toInt] but keeps "absent" distinct from 0, so a missing variant id
+  /// isn't sent as `0`.
+  static int? _toNullableInt(Object? v) => switch (v) {
+    num n => n.toInt(),
+    String s => int.tryParse(s),
+    _ => null,
+  };
+
+  /// Like [_toDouble] but keeps "absent" distinct from 0 — an accepted offer of
+  /// 0 KWD is meaningless, a missing one just isn't shown.
+  static double? _toNullableDouble(Object? v) =>
+      v == null ? null : (v is num ? v.toDouble() : double.tryParse('$v'));
+
   static int _toInt(Object? v) => switch (v) {
         num n => n.toInt(),
         String s => int.tryParse(s) ?? 0,
@@ -150,6 +322,22 @@ class ProductDetailsDto {
   }
 }
 
+/// `last_bid.state` values, lower-cased before matching.
+class _S {
+  const _S._();
+
+  static const pending = 'pending';
+
+  /// The seller answered with a price of their own.
+  static const countered = 'countered';
+  static const rejected = 'rejected';
+
+  /// The seller took the customer's offer — `accepted` and `approved` are the
+  /// same outcome.
+  static const accepted = 'accepted';
+  static const approved = 'approved';
+}
+
 /// Backend JSON keys, isolated so a schema change is a one-place edit.
 class _K {
   // Envelope sections
@@ -175,6 +363,36 @@ class _K {
   static const isFavorite = 'is_favorite';
   static const isBidable = 'is_bidable';
   static const shop = 'shop';
+
+  // Negotiation — the variant-based `bidding` object from product-details.
+  static const bidding = 'bidding';
+  static const bid = 'bid';
+  static const myBid = 'my_bid';
+  static const bidEnabled = 'enabled';
+  static const selectedVariantKey = 'selected_variant_key';
+  static const bidVariants = 'variants';
+  static const bidRules = 'rules';
+  static const minimumBidPercentage = 'minimum_bid_percentage';
+  static const bidAttempts = 'attempts';
+  static const attemptsProductPerDay = 'product_per_day';
+  static const attemptMax = 'max';
+  static const attemptUsed = 'used';
+  // Per-variant fields.
+  static const variantKey = 'key';
+  static const variantSizeId = 'size_id';
+  static const variantColorId = 'color_id';
+  static const variantListedPrice = 'listed_price';
+  static const minimumBidAmount = 'minimum_bid_amount';
+  static const recommendedBid = 'recommended_bid';
+  static const canSubmit = 'can_submit';
+  static const variantPrice = 'price';
+  static const priceActive = 'active';
+  static const priceAmount = 'amount';
+  static const priceExpiresAt = 'expires_at';
+  static const priceExpired = 'expired';
+  static const lastBid = 'last_bid';
+  static const bidState = 'state';
+  static const bidAmount = 'amount';
 
   // Colours
   static const colors = 'colors';

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/cart/presentation/cart_count_cubit.dart';
 import 'core/di/injector.dart';
 import 'core/favorites/presentation/favorites_cubit.dart';
 import 'core/localization/app_localizations.dart';
@@ -39,6 +40,7 @@ class _KlikAppState extends State<KlikApp> {
   final LocaleCubit _localeCubit = sl<LocaleCubit>();
   final ConnectivityCubit _connectivityCubit = sl<ConnectivityCubit>();
   final FavoritesCubit _favoritesCubit = sl<FavoritesCubit>();
+  final CartCountCubit _cartCountCubit = sl<CartCountCubit>();
   late final _router = AppRouter.create(_authBloc, _onboardingCubit);
 
   /// Minimum time the branded splash stays on screen before resolving where to
@@ -65,14 +67,24 @@ class _KlikAppState extends State<KlikApp> {
         BlocProvider.value(value: _localeCubit),
         BlocProvider.value(value: _connectivityCubit),
         BlocProvider.value(value: _favoritesCubit),
+        BlocProvider.value(value: _cartCountCubit),
       ],
-      // Drop any locally-known favorites once the session ends, so a guest (or
-      // the next account) never sees a previous session's favorited ids.
+      // React to session transitions: on sign-in, fold any guest cart into the
+      // account and refresh the badge; on sign-out, drop locally-known favorites
+      // and reset the badge so the next session starts clean.
       child: BlocListener<AuthBloc, AuthState>(
-        listenWhen: (previous, current) =>
-            previous.status != AuthStatus.unauthenticated &&
-            current.status == AuthStatus.unauthenticated,
-        listener: (context, state) => _favoritesCubit.clear(),
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: (context, state) {
+          switch (state.status) {
+            case AuthStatus.authenticated:
+              _cartCountCubit.onSignedIn();
+            case AuthStatus.unauthenticated:
+              _favoritesCubit.clear();
+              _cartCountCubit.clear();
+            case AuthStatus.unknown:
+              break;
+          }
+        },
         // Rebuild MaterialApp when the locale changes; Flutter handles RTL for ar.
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {

@@ -48,4 +48,11 @@ class AppColors {
   /// Splash gradient/accent pair (bronze → gold).
   static const Color splashAccentDark = Color(0xFF905D1B);
   static const Color splashAccentLight = Color(0xFFD2A04E);
+
+  /// Status Product Details Info Card
+  static const Color pendingStatusColor = Color(0xFFFDE68A);
+  static const Color rejectStatusColor = Color(0xFFD3212D);
+  static const Color counterStatusColor = Color(0xFFBFDBFE);
+  static const Color approvedStatusColor = Color(0xFF34C759);
+  static const Color expiredStatusColor = Color(0xFFF8FAFC);
 }

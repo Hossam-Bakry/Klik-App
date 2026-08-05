@@ -52,6 +52,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home_icn.svg
   SvgGenImage get homeIcn => const SvgGenImage('assets/icons/home_icn.svg');
 
+  /// File path: assets/icons/idea_icn.svg
+  SvgGenImage get ideaIcn => const SvgGenImage('assets/icons/idea_icn.svg');
+
   /// File path: assets/icons/instagram_icn.svg
   SvgGenImage get instagramIcn =>
       const SvgGenImage('assets/icons/instagram_icn.svg');
@@ -139,6 +142,7 @@ class $AssetsIconsGen {
     facebookIcn,
     googleIcn,
     homeIcn,
+    ideaIcn,
     instagramIcn,
     languageIcn,
     locationIcn,
@@ -263,9 +267,7 @@ class $AssetsLangGen {
   List<String> get values => [ar, en];
 }
 
-class Assets {
-  const Assets._();
-
+abstract final class Assets {
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsLangGen lang = $AssetsLangGen();

@@ -13,12 +13,18 @@ class ProductImageCarousel extends StatefulWidget {
     required this.images,
     required this.discountPercentage,
     required this.isFavorite,
+    this.badgeColor,
     this.onToggleFavorite,
     this.onShare,
   });
 
   final List<String> images;
   final double discountPercentage;
+
+  /// Discount-badge fill; defaults to bronze. The product page turns it green
+  /// when a negotiated offer has been accepted.
+  final Color? badgeColor;
+
   final bool isFavorite;
   final VoidCallback? onToggleFavorite;
   final VoidCallback? onShare;
@@ -62,7 +68,10 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
               Positioned(
                 top: context.r(12),
                 left: context.r(12),
-                child: _DiscountBadge(percentage: widget.discountPercentage),
+                child: _DiscountBadge(
+                  percentage: widget.discountPercentage,
+                  color: widget.badgeColor ?? AppColors.primaryBronze,
+                ),
               ),
             Positioned(
               top: context.r(12),
@@ -112,16 +121,17 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
 }
 
 class _DiscountBadge extends StatelessWidget {
-  const _DiscountBadge({required this.percentage});
+  const _DiscountBadge({required this.percentage, required this.color});
 
   final double percentage;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: context.edgeSymmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.primaryBronze,
+        color: color,
         borderRadius: BorderRadius.circular(context.r(8)),
       ),
       child: Text(

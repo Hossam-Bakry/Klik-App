@@ -103,7 +103,7 @@ class ProductCardItem extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: context.edgeSymmetric(horizontal: 5, vertical: 10),
+                padding: context.edgeSymmetric(horizontal: 5, vertical: 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

@@ -26,6 +26,8 @@ class ApiConstants {
   static const String headerContentType = 'Content-Type';
   static const String headerAcceptLanguage = 'accept-language';
   static const String headerAuthorization = 'Authorization';
+  // PROVISIONAL: guest cart identifier header; confirm the name with the backend.
+  static const String headerGuestToken = 'X-Guest-Token';
 
   // ---- Header values ----
   static const String applicationJson = 'application/json';

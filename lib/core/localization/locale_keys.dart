@@ -75,6 +75,42 @@ abstract class LocaleKeys {
   static const buyNow = 'buy_now';
   static const outOfStock = 'out_of_stock';
 
+  // Negotiation (bidable products)
+  static const negotiateOffer = 'negotiate_offer';
+  static const offersLeft = 'offers_left';
+  static const onlyYouSeeOffers = 'only_you_see_offers';
+  static const bidExpiresAt = 'bid_expires_at';
+
+  // Price-negotiate sheet
+  static const priceNegotiate = 'price_negotiate';
+  static const dailyBidLimit = 'daily_bid_limit';
+  static const expireIn = 'expire_in';
+  static const realPrice = 'real_price';
+  static const noAttemptsToday = 'no_attempts_today';
+  static const bidPending = 'bid_pending';
+  static const bidDeclined = 'bid_declined';
+  static const bidCountered = 'bid_countered';
+  static const bidApproved = 'bid_approved';
+  static const bidExpired = 'bid_expired';
+  static const yourOffer = 'your_offer';
+  static const yourLastOffer = 'your_last_offer';
+  static const lastAcceptedOffer = 'last_accepted_offer';
+  static const sellerOffer = 'seller_offer';
+  static const counteredPrice = 'countered_price';
+  static const clickToFill = 'click_to_fill';
+  static const suggestedOffer = 'suggested_offer';
+  static const suggestedOfferForYou = 'suggested_offer_for_you';
+  static const listedPrice = 'listed_price';
+  static const priceAvailableUntil = 'price_available_until';
+  static const percentOff = 'percent_off';
+  static const yourNegotiatedPrice = 'your_negotiated_price';
+  static const offerAmountHint = 'offer_amount_hint';
+  static const proceedToCheckout = 'proceed_to_checkout';
+  static const bidMinimumOffer = 'bid_minimum_offer';
+  static const bidOfferTooSmall = 'bid_offer_too_small';
+  static const bidInvalidAmount = 'bid_invalid_amount';
+  static const bidSubmitted = 'bid_submitted';
+
   // Login
   static const welcomeBack = 'welcome_back';
   static const loginSubtitle = 'login_subtitle';

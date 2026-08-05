@@ -11,8 +11,12 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../auth/presentation/widgets/auth_prompt.dart';
 import '../../domain/entities/product_details.dart';
 import '../bloc/product_bloc.dart';
+import '../widgets/bid_status_banner.dart';
+import '../widgets/negotiate_offer_card.dart';
+import '../widgets/price_negotiate_sheet.dart';
 import '../widgets/product_bottom_bar.dart';
 import '../widgets/product_color_selector.dart';
 import '../widgets/product_image_carousel.dart';
@@ -34,8 +38,67 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _colorIndex = 0;
   int _sizeIndex = 0;
 
+  /// The product whose selection we've already aligned, so the one-time sync to
+  /// the server-selected bid variant doesn't fight the user's later taps.
+  int? _syncedProductId;
+
   @override
   Widget build(BuildContext context) {
+    return BlocListener<ProductBloc, ProductState>(
+      // Two concerns: align the size/colour pick to the server-selected bid
+      // variant when a product first loads, and toast the offer outcome once
+      // per submission (success/failure) — the refetch on success then updates
+      // the negotiate card in place.
+      listenWhen: (p, c) =>
+          c.product?.id != p.product?.id ||
+          (p.bidStatus != c.bidStatus &&
+              (c.bidStatus == BidSubmissionStatus.success ||
+                  c.bidStatus == BidSubmissionStatus.failure)),
+      listener: (context, state) {
+        final product = state.product;
+        if (product != null && product.id != _syncedProductId) {
+          final (size, color) = _initialSelection(product);
+          setState(() {
+            _syncedProductId = product.id;
+            _sizeIndex = size;
+            _colorIndex = color;
+          });
+        }
+        if (state.bidStatus == BidSubmissionStatus.success) {
+          AppToast.success(
+            context,
+            state.bidMessage ?? context.tr(LocaleKeys.bidSubmitted),
+          );
+        } else if (state.bidStatus == BidSubmissionStatus.failure) {
+          AppToast.error(
+            context,
+            state.bidMessage ?? context.tr(LocaleKeys.somethingWentWrong),
+          );
+        }
+      },
+      child: _buildScaffold(context),
+    );
+  }
+
+  /// The (size, colour) chip indices that match the server-selected bid variant,
+  /// so the page opens on the variant the offer state belongs to. Defaults to
+  /// the first chips when there's no bid or no matching option.
+  (int, int) _initialSelection(ProductDetails product) {
+    final bid = product.bid;
+    if (bid == null) return (0, 0);
+    return (
+      _indexOfId(product.sizes, bid.sizeId, (s) => s.id),
+      _indexOfId(product.colors, bid.colorId, (c) => c.id),
+    );
+  }
+
+  int _indexOfId<T>(List<T> options, int? id, int? Function(T) idOf) {
+    if (id == null) return 0;
+    final i = options.indexWhere((o) => idOf(o) == id);
+    return i < 0 ? 0 : i;
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -49,7 +112,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (state.status == ProductStatus.failure && state.product == null) {
             return ErrorView(
               message:
-                  state.errorMessage ?? context.tr(LocaleKeys.somethingWentWrong),
+                  state.errorMessage ??
+                  context.tr(LocaleKeys.somethingWentWrong),
               onRetry: () => _reload(context),
             );
           }
@@ -68,6 +132,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               sizeIndex: loading ? 0 : _sizeIndex,
               onColorSelected: (i) => setState(() => _colorIndex = i),
               onSizeSelected: (i) => setState(() => _sizeIndex = i),
+              onOpenNegotiate: () => _openNegotiate(context, product),
             ),
           );
         },
@@ -95,13 +160,65 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   void _reload(BuildContext context) {
     final id = context.read<ProductBloc>().state.product?.id;
-    if (id != null) context.read<ProductBloc>().add(ProductDetailsRequested(id));
+    if (id != null) {
+      context.read<ProductBloc>().add(ProductDetailsRequested(id));
+    }
+  }
+
+  /// Opens the "Price Negotiate" sheet, then acts on what the customer chose.
+  /// Offers belong to an account, so a guest gets the sign-in prompt first.
+  ///
+  /// Both outcomes need endpoints the API doesn't expose yet (bids, cart), so
+  /// the UI is complete but the actions land on the coming-soon toast: wire the
+  /// offer to a `ProductBloc` event (POST the amount, refresh the product's bid)
+  /// and checkout to the cart flow once those exist.
+  Future<void> _openNegotiate(
+    BuildContext context,
+    ProductDetails product,
+  ) async {
+    if (!context.isAuthenticated) {
+      await showAuthRequiredSheet(context);
+      return;
+    }
+    final bloc = context.read<ProductBloc>();
+    // Negotiate against the variant the customer has picked, so the suggested
+    // offer, floor and status match their size/colour selection.
+    final sizeId = _optionId(product.sizes, _sizeIndex, (s) => s.id);
+    final colorId = _optionId(product.colors, _colorIndex, (c) => c.id);
+    final bid = product.bidForVariant(sizeId: sizeId, colorId: colorId);
+    final result = await showPriceNegotiateSheet(
+      context,
+      bid: bid,
+      // Offers are negotiated against the variant's listed price when present,
+      // else the product price actually on sale.
+      listedPrice: bid?.listedPrice ??
+          (product.hasDiscount ? product.discountPrice : product.price),
+      currency: context.tr(LocaleKeys.currencyKwd),
+    );
+    if (!context.mounted || result == null) return;
+    switch (result) {
+      case NegotiateOfferSent(:final amount):
+        // Only send variant ids the product actually offers; both are optional
+        // on `/api/bid`. The BlocListener toasts the outcome.
+        bloc.add(BidSubmitted(
+          price: amount,
+          sizeId: sizeId,
+          colorId: colorId,
+        ));
+      case NegotiateCheckout():
+        _comingSoon(context);
+    }
   }
 
   void _comingSoon(BuildContext context) {
     AppToast.info(context, context.tr(LocaleKeys.comingSoon));
   }
 }
+
+/// Id of the option at [index], or null when the list is empty / the index is
+/// out of range / the option carries no id.
+int? _optionId<T>(List<T> options, int index, int? Function(T) id) =>
+    index >= 0 && index < options.length ? id(options[index]) : null;
 
 /// Footer shown when the product has no stock — a full-width, height-50
 /// "Out Of Stock" pill that replaces the Add-to-Cart / Buy-Now actions.
@@ -144,6 +261,7 @@ class _Content extends StatelessWidget {
     required this.sizeIndex,
     required this.onColorSelected,
     required this.onSizeSelected,
+    required this.onOpenNegotiate,
   });
 
   final ProductDetails product;
@@ -152,9 +270,18 @@ class _Content extends StatelessWidget {
   final ValueChanged<int> onColorSelected;
   final ValueChanged<int> onSizeSelected;
 
+  /// Tapped the negotiate card — opens the "Price Negotiate" sheet.
+  final VoidCallback onOpenNegotiate;
+
   @override
   Widget build(BuildContext context) {
     final currency = context.tr(LocaleKeys.currencyKwd);
+    // The banner and negotiate card follow the customer's size/colour pick, so
+    // the shown offer state matches the variant they're looking at.
+    final bid = product.bidForVariant(
+      sizeId: _optionId(product.sizes, sizeIndex, (s) => s.id),
+      colorId: _optionId(product.colors, colorIndex, (c) => c.id),
+    );
     final isFavorite = context.select<FavoritesCubit, bool>(
       (cubit) => cubit.isFavorite(product.id),
     );
@@ -164,7 +291,12 @@ class _Content extends StatelessWidget {
       children: [
         ProductImageCarousel(
           images: product.images,
-          discountPercentage: product.hasDiscount ? product.discountPercentage : 0,
+          discountPercentage: product.hasDiscount
+              ? product.discountPercentage
+              : 0,
+          // An accepted offer recolours the badge green, matching the banner
+          // below and signalling the price now shown is the agreed one.
+          badgeColor: bid?.isApproved == true ? AppColors.success : null,
           isFavorite: isFavorite,
           onToggleFavorite: () =>
               context.read<FavoritesCubit>().toggle(product.id),
@@ -189,6 +321,16 @@ class _Content extends StatelessWidget {
           context.gapH(8),
           _DeliveryRow(days: product.estimatedDeliveryTime),
         ],
+        // Negotiation is only offered on bidable products: the status of the
+        // customer's last offer, then the offer panel itself.
+        if (product.isBidable) ...[
+          if (bid?.status != null) ...[
+            context.gapH(12),
+            BidStatusBanner(bid: bid!),
+          ],
+          context.gapH(12),
+          NegotiateOfferCard(bid: bid, onTap: onOpenNegotiate),
+        ],
         if (product.colors.isNotEmpty) ...[
           context.gapH(20),
           _SectionTitle(context.tr(LocaleKeys.color)),
@@ -210,11 +352,15 @@ class _Content extends StatelessWidget {
           ),
         ],
         context.gapH(20),
-        ProductInfoTabs(description: product.description, reviews: product.reviews),
+        ProductInfoTabs(
+          description: product.description,
+          reviews: product.reviews,
+        ),
         context.gapH(24),
         SimilarProductsSection(
           products: product.similarProducts,
-          onProductTap: (p) => context.push(AppRoutes.productDetails, extra: p.id),
+          onProductTap: (p) =>
+              context.push(AppRoutes.productDetails, extra: p.id),
         ),
       ],
     );
@@ -228,7 +374,10 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(title, style: context.titleSmall?.copyWith(fontWeight: FontWeight.bold));
+    return Text(
+      title,
+      style: context.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+    );
   }
 }
 
@@ -242,7 +391,11 @@ class _RatingRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.star_rounded, size: context.r(20), color: AppColors.primaryBronze),
+        Icon(
+          Icons.star_rounded,
+          size: context.r(20),
+          color: AppColors.primaryBronze,
+        ),
         context.gapW(4),
         Text(
           rating.toStringAsFixed(1),
@@ -266,16 +419,19 @@ class _PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // An accepted offer replaces the shown price, so the list price is struck
+    // through even on products that carry no discount of their own.
+    final showOriginal =
+        product.hasDiscount || product.effectivePrice < product.price;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           '${product.effectivePrice.toStringAsFixed(2)} $currency',
-          style: context.titleLarge?.copyWith(
-            color: AppColors.textPrimaryGold,
-          ),
+          style: context.titleLarge?.copyWith(color: AppColors.textPrimaryGold),
         ),
-        if (product.hasDiscount) ...[
+        if (showOriginal) ...[
           context.gapW(10),
           Padding(
             padding: EdgeInsets.only(bottom: context.r(2)),
@@ -313,4 +469,3 @@ class _DeliveryRow extends StatelessWidget {
     );
   }
 }
-

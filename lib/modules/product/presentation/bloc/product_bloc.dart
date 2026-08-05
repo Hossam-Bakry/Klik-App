@@ -12,6 +12,7 @@ part 'product_state.dart';
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   ProductBloc(this._repository, this._favorites) : super(const ProductState()) {
     on<ProductDetailsRequested>(_onRequested);
+    on<BidSubmitted>(_onBidSubmitted);
   }
 
   final ProductRepository _repository;
@@ -34,6 +35,37 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         emit(state.copyWith(
           status: ProductStatus.failure,
           errorMessage: failure.message,
+        ));
+    }
+  }
+
+  Future<void> _onBidSubmitted(
+    BidSubmitted event,
+    Emitter<ProductState> emit,
+  ) async {
+    final productId = state.product?.id;
+    if (productId == null) return;
+
+    emit(state.copyWith(bidStatus: BidSubmissionStatus.submitting));
+    final result = await _repository.placeBid(
+      productId: productId,
+      price: event.price,
+      sizeId: event.sizeId,
+      colorId: event.colorId,
+    );
+    switch (result) {
+      case ApiSuccess(:final message):
+        emit(state.copyWith(
+          bidStatus: BidSubmissionStatus.success,
+          bidMessage: message,
+        ));
+        // Refetch so the offer's new status/prices replace the old bid. Keeps
+        // the current product on screen (loading only flips the overlay).
+        add(ProductDetailsRequested(productId));
+      case ApiFailure(:final failure):
+        emit(state.copyWith(
+          bidStatus: BidSubmissionStatus.failure,
+          bidMessage: failure.message,
         ));
     }
   }

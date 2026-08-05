@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/product_size_option.dart';
 
 /// Row of variant chips (e.g. storage sizes); the selected one fills with the
 /// brand colour, the rest are outlined.
@@ -13,7 +14,7 @@ class ProductSizeSelector extends StatelessWidget {
     required this.onSelected,
   });
 
-  final List<String> sizes;
+  final List<ProductSizeOption> sizes;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
@@ -25,7 +26,7 @@ class ProductSizeSelector extends StatelessWidget {
       children: [
         for (var i = 0; i < sizes.length; i++)
           _Chip(
-            label: sizes[i],
+            label: sizes[i].label,
             selected: i == selectedIndex,
             onTap: () => onSelected(i),
           ),

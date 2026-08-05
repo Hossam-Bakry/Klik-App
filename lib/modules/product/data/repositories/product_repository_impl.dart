@@ -14,4 +14,17 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<ApiResult<ProductDetails>> getProductDetails(int productId) =>
       _remote.fetchProductDetails(productId);
+
+  @override
+  Future<ApiResult<Unit>> placeBid({
+    required int productId,
+    required double price,
+    int? sizeId,
+    int? colorId,
+  }) => _remote.createBid(
+    productId: productId,
+    price: price,
+    sizeId: sizeId,
+    colorId: colorId,
+  );
 }
