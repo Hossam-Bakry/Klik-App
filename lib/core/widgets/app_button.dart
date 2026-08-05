@@ -49,7 +49,7 @@ class AppButton extends StatelessWidget {
     required VoidCallback? onPressed,
     required String label,
     Widget? leading,
-    Color color = AppColors.primary,
+    Color color = AppColors.primaryBronze,
     bool isLoading = false,
     bool expanded = true,
     double cornerRadius = 8,
@@ -137,8 +137,8 @@ class AppButton extends StatelessWidget {
          label: label,
          trailing: trailing,
          backgroundColor: Colors.transparent,
-         foregroundColor: AppColors.primary,
-         borderColor: AppColors.primary,
+         foregroundColor: AppColors.primaryBronze,
+         borderColor: AppColors.primaryBronze,
          expanded: expanded,
          cornerRadius: 8,
        );
@@ -148,7 +148,7 @@ class AppButton extends StatelessWidget {
     Key? key,
     required VoidCallback? onPressed,
     required String label,
-    Color foregroundColor = AppColors.textPrimary,
+    Color foregroundColor = AppColors.primaryBronze,
   }) : this._(
          key: key,
          onPressed: onPressed,

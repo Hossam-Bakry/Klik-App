@@ -26,7 +26,7 @@ class SimilarProductsSection extends StatelessWidget {
         ),
         context.gapH(12),
         SizedBox(
-          height: context.r(215),
+          height: context.r(225),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: context.edgeSymmetric(vertical: 8),

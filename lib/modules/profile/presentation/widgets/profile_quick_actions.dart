@@ -69,7 +69,7 @@ class _QuickAction extends StatelessWidget {
               width: context.r(26),
               height: context.r(26),
               colorFilter: const ColorFilter.mode(
-                AppColors.primary,
+                AppColors.primaryBronze,
                 BlendMode.srcIn,
               ),
             ),

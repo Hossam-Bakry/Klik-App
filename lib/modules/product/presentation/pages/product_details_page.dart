@@ -288,6 +288,7 @@ class _Content extends StatelessWidget {
 
     return ListView(
       padding: context.edgeAll(16),
+      physics: ClampingScrollPhysics(),
       children: [
         ProductImageCarousel(
           images: product.images,

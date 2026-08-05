@@ -111,6 +111,16 @@ abstract class LocaleKeys {
   static const bidInvalidAmount = 'bid_invalid_amount';
   static const bidSubmitted = 'bid_submitted';
 
+  // My Negotiations
+  static const myNegotiations = 'my_negotiations';
+  static const all = 'all';
+  static const pending = 'pending';
+  static const accepted = 'accepted';
+  static const approved = 'approved';
+  static const rejected = 'rejected';
+  static const expired = 'expired';
+  static const noNegotiationsYet = 'no_negotiations_yet';
+
   // Login
   static const welcomeBack = 'welcome_back';
   static const loginSubtitle = 'login_subtitle';

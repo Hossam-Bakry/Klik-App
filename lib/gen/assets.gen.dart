@@ -23,6 +23,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/apple_icn.svg
   SvgGenImage get appleIcn => const SvgGenImage('assets/icons/apple_icn.svg');
 
+  /// File path: assets/icons/approved_icn.svg
+  SvgGenImage get approvedIcn =>
+      const SvgGenImage('assets/icons/approved_icn.svg');
+
   /// File path: assets/icons/cart_icn.svg
   SvgGenImage get cartIcn => const SvgGenImage('assets/icons/cart_icn.svg');
 
@@ -41,6 +45,13 @@ class $AssetsIconsGen {
   /// File path: assets/icons/delivery_icn.svg
   SvgGenImage get deliveryIcn =>
       const SvgGenImage('assets/icons/delivery_icn.svg');
+
+  /// File path: assets/icons/edit_icn.svg
+  SvgGenImage get editIcn => const SvgGenImage('assets/icons/edit_icn.svg');
+
+  /// File path: assets/icons/expired_icn.svg
+  SvgGenImage get expiredIcn =>
+      const SvgGenImage('assets/icons/expired_icn.svg');
 
   /// File path: assets/icons/facebook_icn.svg
   SvgGenImage get facebookIcn =>
@@ -88,12 +99,20 @@ class $AssetsIconsGen {
   /// File path: assets/icons/order_icn.svg
   SvgGenImage get orderIcn => const SvgGenImage('assets/icons/order_icn.svg');
 
+  /// File path: assets/icons/pending_icn.svg
+  SvgGenImage get pendingIcn =>
+      const SvgGenImage('assets/icons/pending_icn.svg');
+
   /// File path: assets/icons/policy_icn.svg
   SvgGenImage get policyIcn => const SvgGenImage('assets/icons/policy_icn.svg');
 
   /// File path: assets/icons/profile_icn.svg
   SvgGenImage get profileIcn =>
       const SvgGenImage('assets/icons/profile_icn.svg');
+
+  /// File path: assets/icons/rejected_icn.svg
+  SvgGenImage get rejectedIcn =>
+      const SvgGenImage('assets/icons/rejected_icn.svg');
 
   /// File path: assets/icons/search_icn.svg
   SvgGenImage get searchIcn => const SvgGenImage('assets/icons/search_icn.svg');
@@ -112,6 +131,10 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/send_icn.svg
   SvgGenImage get sendIcn => const SvgGenImage('assets/icons/send_icn.svg');
+
+  /// File path: assets/icons/support_icn.svg
+  SvgGenImage get supportIcn =>
+      const SvgGenImage('assets/icons/support_icn.svg');
 
   /// File path: assets/icons/terms_icn.svg
   SvgGenImage get termsIcn => const SvgGenImage('assets/icons/terms_icn.svg');
@@ -134,11 +157,14 @@ class $AssetsIconsGen {
   List<dynamic> get values => [
     appIcon,
     appleIcn,
+    approvedIcn,
     cartIcn,
     categoryIcn,
     changePasswordIcn,
     countryIcn,
     deliveryIcn,
+    editIcn,
+    expiredIcn,
     facebookIcn,
     googleIcn,
     homeIcn,
@@ -152,13 +178,16 @@ class $AssetsIconsGen {
     negotiationIcn,
     notificationIcn,
     orderIcn,
+    pendingIcn,
     policyIcn,
     profileIcn,
+    rejectedIcn,
     searchIcn,
     securityIcn,
     selectedFavoriteIcn,
     selectedWishlistIcn,
     sendIcn,
+    supportIcn,
     termsIcn,
     tiktokIcn,
     truckIcn,

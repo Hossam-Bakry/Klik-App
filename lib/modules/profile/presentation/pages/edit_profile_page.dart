@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../domain/entities/user_profile.dart';
+import '../cubit/current_user_cubit.dart';
 import '../cubit/edit_profile_cubit.dart';
 import '../widgets/photo_source_sheet.dart';
 
@@ -96,6 +97,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       listenWhen: (p, c) => p.saved != c.saved || p.saveError != c.saveError,
       listener: (context, state) {
         if (state.saved) {
+          // Push the saved profile into the app-wide holder so the Profile
+          // header updates on the way back, without another GET.
+          final saved = state.profile;
+          if (saved != null) context.read<CurrentUserCubit>().set(saved);
           AppToast.success(
             context,
             context.tr(LocaleKeys.profileUpdatedSuccessfully),

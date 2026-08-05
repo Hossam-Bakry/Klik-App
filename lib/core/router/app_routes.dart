@@ -16,6 +16,7 @@ class AppRoutes {
   static const String products = '/products';
   static const String shops = '/shops';
   static const String wishlist = '/wishlist';
+  static const String negotiations = '/negotiations';
   static const String support = '/support';
   static const String security = '/security';
   static const String updatePassword = '/update-password';
@@ -43,6 +44,7 @@ class AppRoutes {
     addressAdd,
     addressEdit,
     wishlist,
+    negotiations,
     security,
     updatePassword,
     editProfile,

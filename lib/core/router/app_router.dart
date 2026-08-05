@@ -15,6 +15,8 @@ import '../../modules/auth/presentation/pages/otp_verification_page.dart';
 import '../../modules/auth/presentation/pages/phone_verification_page.dart';
 import '../../modules/auth/presentation/pages/register_page.dart';
 import '../../modules/main/presentation/pages/main_layout_page.dart';
+import '../../modules/negotiations/presentation/bloc/negotiations_bloc.dart';
+import '../../modules/negotiations/presentation/pages/negotiations_page.dart';
 import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
 import '../../modules/product/presentation/bloc/product_bloc.dart';
@@ -191,6 +193,16 @@ class AppRouter {
               child: ProductsListPage(autofocusSearch: searchMode),
             );
           },
+        ),
+        // My Negotiations (auth-required — offers are per-user). Page-scoped
+        // NegotiationsBloc loads every status bucket in one call.
+        GoRoute(
+          path: AppRoutes.negotiations,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<NegotiationsBloc>()
+              ..add(const NegotiationsStarted()),
+            child: const NegotiationsPage(),
+          ),
         ),
         // Wishlist (auth-required — favorites are per-user). Page-scoped
         // WishlistBloc loads the favorite products.

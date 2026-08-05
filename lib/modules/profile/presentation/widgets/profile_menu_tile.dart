@@ -27,7 +27,7 @@ class ProfileMenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? AppColors.error : AppColors.primary;
+    final color = danger ? AppColors.error : AppColors.primaryBronze;
 
     return InkWell(
       onTap: onTap,
@@ -64,7 +64,7 @@ class ProfileTileChevron extends StatelessWidget {
     return Icon(
       Icons.chevron_right_rounded,
       size: context.r(24),
-      color: AppColors.primary,
+      color: AppColors.primaryBronze,
     );
   }
 }

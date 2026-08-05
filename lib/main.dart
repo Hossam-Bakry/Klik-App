@@ -15,6 +15,7 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/no_network_view.dart';
 import 'modules/auth/presentation/bloc/auth_bloc.dart';
 import 'modules/onboarding/presentation/cubit/onboarding_cubit.dart';
+import 'modules/profile/presentation/cubit/current_user_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ class _KlikAppState extends State<KlikApp> {
   final ConnectivityCubit _connectivityCubit = sl<ConnectivityCubit>();
   final FavoritesCubit _favoritesCubit = sl<FavoritesCubit>();
   final CartCountCubit _cartCountCubit = sl<CartCountCubit>();
+  final CurrentUserCubit _currentUserCubit = sl<CurrentUserCubit>();
   late final _router = AppRouter.create(_authBloc, _onboardingCubit);
 
   /// Minimum time the branded splash stays on screen before resolving where to
@@ -68,19 +70,23 @@ class _KlikAppState extends State<KlikApp> {
         BlocProvider.value(value: _connectivityCubit),
         BlocProvider.value(value: _favoritesCubit),
         BlocProvider.value(value: _cartCountCubit),
+        BlocProvider.value(value: _currentUserCubit),
       ],
       // React to session transitions: on sign-in, fold any guest cart into the
-      // account and refresh the badge; on sign-out, drop locally-known favorites
-      // and reset the badge so the next session starts clean.
+      // account, refresh the badge and load the user's profile; on sign-out,
+      // drop locally-known favorites, the profile, and reset the badge so the
+      // next session starts clean.
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
           switch (state.status) {
             case AuthStatus.authenticated:
               _cartCountCubit.onSignedIn();
+              _currentUserCubit.load();
             case AuthStatus.unauthenticated:
               _favoritesCubit.clear();
               _cartCountCubit.clear();
+              _currentUserCubit.clear();
             case AuthStatus.unknown:
               break;
           }

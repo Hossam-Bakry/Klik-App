@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -34,9 +35,10 @@ class ProfileHeader extends StatelessWidget {
               Container(
                 width: size,
                 height: size,
+                padding: context.edgeAll(context.r(10)),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary, width: 2),
+                  border: Border.all(color: AppColors.primaryBronze, width: 2),
                   color: AppColors.inputLabel,
                   image: avatarUrl != null
                       ? DecorationImage(
@@ -62,12 +64,12 @@ class ProfileHeader extends StatelessWidget {
                   child: Container(
                     padding: context.edgeAll(5),
                     decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                      color: AppColors.primaryBronze,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.edit_outlined,
-                      size: context.r(13),
+                    child: Assets.icons.editIcn.svg(
+                      width: context.r(15),
+                      height: context.r(15),
                       color: AppColors.surface,
                     ),
                   ),

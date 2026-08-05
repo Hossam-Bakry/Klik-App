@@ -35,13 +35,13 @@ class ProfileFooter extends StatelessWidget {
               children: [
                 Text(
                   context.tr(LocaleKeys.sellWithUs),
-                  style: context.bodyLarge?.copyWith(color: AppColors.primary),
+                  style: context.bodyLarge?.copyWith(color: AppColors.primaryBronze),
                 ),
                 context.gapW(8),
                 Icon(
                   Icons.open_in_new_rounded,
                   size: context.r(18),
-                  color: AppColors.primary,
+                  color: AppColors.primaryBronze,
                 ),
               ],
             ),

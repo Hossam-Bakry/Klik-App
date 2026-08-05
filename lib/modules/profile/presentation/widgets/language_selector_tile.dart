@@ -39,7 +39,7 @@ class _LanguageSelectorTileState extends State<LanguageSelectorTile> {
             child: Icon(
               Icons.keyboard_arrow_down_rounded,
               size: context.r(24),
-              color: AppColors.primary,
+              color: AppColors.primaryBronze,
             ),
           ),
           onTap: () => setState(() => _expanded = !_expanded),

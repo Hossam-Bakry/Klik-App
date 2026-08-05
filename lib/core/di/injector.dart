@@ -8,6 +8,7 @@ import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
 import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
+import '../../modules/negotiations/di/negotiations_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/product/di/product_injector.dart';
 import '../../modules/products/di/products_injector.dart';
@@ -55,6 +56,7 @@ Future<void> configureDependencies() async {
   registerCategoriesModule(sl);
   registerHomeModule(sl);
   registerAddressModule(sl);
+  registerNegotiationsModule(sl);
   registerProductModule(sl);
   registerProductsModule(sl);
   registerProfileModule(sl);

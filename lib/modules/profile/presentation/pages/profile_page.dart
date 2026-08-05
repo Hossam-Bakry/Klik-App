@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -11,6 +12,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
+import '../cubit/current_user_cubit.dart';
 import '../widgets/guest_auth_buttons.dart';
 import '../widgets/language_selector_tile.dart';
 import '../widgets/logout_confirmation_dialog.dart';
@@ -28,8 +30,8 @@ import '../widgets/profile_section_card.dart';
 /// they'd just prompt sign-in anyway). A signed-in user sees the full set of
 /// account sections plus the logout action.
 ///
-/// Name/email/avatar are placeholders for now — [AuthSession] only carries a
-/// token; wire these to a user profile once the backend exposes one.
+/// Name/email/avatar come from the app-wide [CurrentUserCubit], which holds the
+/// `GET /api/profile` response for the current session.
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -70,11 +72,7 @@ class ProfilePage extends StatelessWidget {
                   const GuestAuthButtons(),
                   context.gapH(16),
                 ] else ...[
-                  ProfileHeader(
-                    name: 'Sarah Ahmed',
-                    email: 'sarahahmed@gmail.com',
-                    onEdit: () => context.push(AppRoutes.editProfile),
-                  ),
+                  const _Header(),
                   context.gapH(20),
 
                   // Quick shortcuts.
@@ -82,7 +80,8 @@ class ProfilePage extends StatelessWidget {
                     padding: context.edgeSymmetric(horizontal: 12, vertical: 16),
                     child: ProfileQuickActions(
                       onOrders: () => gated(() {}),
-                      onNegotiation: () => gated(() {}),
+                      onNegotiation: () =>
+                          gated(() => context.push(AppRoutes.negotiations)),
                       onWishlist: () =>
                           gated(() => context.push(AppRoutes.wishlist)),
                     ),
@@ -230,6 +229,35 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
+/// The avatar/name/email header, fed by the app-wide [CurrentUserCubit]
+/// (`GET /api/profile`). Shows skeleton bones until the first load lands, and
+/// falls back to the placeholder name/email if the call fails so the row never
+/// collapses.
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CurrentUserCubit, CurrentUserState>(
+      builder: (context, state) {
+        final user = state.profile;
+        return Skeletonizer(
+          enabled: state.isLoading,
+          child: ProfileHeader(
+            name: user?.name ?? 'Klik customer',
+            email: user?.email ?? '',
+            // An empty string would try (and fail) to load a network image.
+            avatarUrl: (user?.profilePhoto ?? '').isEmpty
+                ? null
+                : user!.profilePhoto,
+            onEdit: () => context.push(AppRoutes.editProfile),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// Circular bronze support (headset) button in the app bar.
 class _SupportButton extends StatelessWidget {
   const _SupportButton({required this.onTap});
@@ -241,18 +269,7 @@ class _SupportButton extends StatelessWidget {
     return InkResponse(
       onTap: onTap,
       radius: context.r(24),
-      child: Container(
-        padding: context.edgeAll(9),
-        decoration: const BoxDecoration(
-          color: AppColors.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.headset_mic_outlined,
-          size: context.r(20),
-          color: AppColors.surface,
-        ),
-      ),
+      child: Assets.icons.supportIcn.svg(),
     );
   }
 }

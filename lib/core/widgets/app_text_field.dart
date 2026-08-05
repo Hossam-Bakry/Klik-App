@@ -359,7 +359,7 @@ class _AppTextFieldState extends State<AppTextField> {
       return IconButton(
         icon: Icon(
           _obscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-          color: AppColors.textSecondary,
+          color: AppColors.primaryBronze,
           size: context.r(22),
         ),
         onPressed: () => setState(() => _obscured = !_obscured),

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/constants/validators.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -60,80 +61,75 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
           AppToast.error(context, state.errorMessage!);
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.surface,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: const BackButton(color: AppColors.textPrimary),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: Assets.images.authBackgroundImag.provider(), fit: BoxFit.cover),
         ),
-        body: Stack(
-          children: [
-            const Positioned.fill(
-              child: _DotScatterBackground(corner: Alignment.topRight),
-            ),
-            const Positioned.fill(
-              child: _DotScatterBackground(corner: Alignment.bottomLeft),
-            ),
-            SafeArea(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  padding: context.edgeAll(20),
-                  children: [
-                    context.gapH(20),
-                    Text(
-                      context.tr(LocaleKeys.changePassword),
-                      textAlign: TextAlign.center,
-                      style: context.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: const BackButton(color: AppColors.textPrimary),
+          ),
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: context.edgeAll(20),
+                children: [
+                  context.gapH(20),
+                  Text(
+                    context.tr(LocaleKeys.changePassword),
+                    textAlign: TextAlign.center,
+                    style: context.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    context.gapH(8),
-                    Text(
-                      context.tr(LocaleKeys.changePasswordSubtitle),
-                      textAlign: TextAlign.center,
-                      style: context.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  ),
+                  context.gapH(8),
+                  Text(
+                    context.tr(LocaleKeys.changePasswordSubtitle),
+                    textAlign: TextAlign.center,
+                    style: context.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                    context.gapH(28),
-                    AppTextField.password(
-                      controller: _current,
-                      hint: context.tr(LocaleKeys.currentPassword),
-                      validator: Validators.required(context),
+                  ),
+                  context.gapH(28),
+                  AppTextField.password(
+                    controller: _current,
+                    hint: context.tr(LocaleKeys.currentPassword),
+                    validator: Validators.required(context),
+                  ),
+                  context.gapH(14),
+                  AppTextField.password(
+                    controller: _newPassword,
+                    hint: context.tr(LocaleKeys.newPassword),
+                    validator: Validators.strongPassword(context),
+                  ),
+                  context.gapH(14),
+                  AppTextField.password(
+                    controller: _confirm,
+                    hint: context.tr(LocaleKeys.confirmNewPassword),
+                    validator: Validators.confirmPassword(
+                      context,
+                      _newPassword,
                     ),
-                    context.gapH(14),
-                    AppTextField.password(
-                      controller: _newPassword,
-                      hint: context.tr(LocaleKeys.newPassword),
-                      validator: Validators.strongPassword(context),
+                  ),
+                  context.gapH(24),
+                  BlocBuilder<UpdatePasswordCubit, UpdatePasswordState>(
+                    buildWhen: (p, c) => p.status != c.status,
+                    builder: (context, state) => AppButton.filled(
+                      label: context.tr(LocaleKeys.changePassword),
+                      isLoading: state.isSubmitting,
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => _submit(context),
                     ),
-                    context.gapH(14),
-                    AppTextField.password(
-                      controller: _confirm,
-                      hint: context.tr(LocaleKeys.confirmNewPassword),
-                      validator: Validators.confirmPassword(
-                        context,
-                        _newPassword,
-                      ),
-                    ),
-                    context.gapH(24),
-                    BlocBuilder<UpdatePasswordCubit, UpdatePasswordState>(
-                      buildWhen: (p, c) => p.status != c.status,
-                      builder: (context, state) => AppButton.filled(
-                        label: context.tr(LocaleKeys.changePassword),
-                        isLoading: state.isSubmitting,
-                        onPressed: state.isSubmitting
-                            ? null
-                            : () => _submit(context),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
