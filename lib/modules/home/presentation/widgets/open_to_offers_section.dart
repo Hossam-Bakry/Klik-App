@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../domain/entities/home_product.dart';
 import 'offer_product_card.dart';
 import 'section_header.dart';
@@ -33,7 +35,13 @@ class OpenToOffersSection extends StatelessWidget {
           child: Column(
             children: [
               for (var i = 0; i < preview.length; i++) ...[
-                OfferProductCard(product: preview[i]),
+                OfferProductCard(
+                  product: preview[i],
+                  onTap: () => context.push(
+                    AppRoutes.productDetails,
+                    extra: preview[i].id,
+                  ),
+                ),
                 if (i != preview.length - 1) context.gapH(12),
               ],
             ],
