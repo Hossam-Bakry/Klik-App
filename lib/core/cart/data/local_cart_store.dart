@@ -47,6 +47,7 @@ class LocalCartStore {
 
   static Map<String, dynamic> _toJson(CartItem item) => {
     'product_id': item.productId,
+    'shop_id': item.shopId,
     'name': item.name,
     'thumbnail': item.thumbnail,
     'price': item.price,
@@ -59,6 +60,7 @@ class LocalCartStore {
 
   static CartItem _fromJson(Map<String, dynamic> json) => CartItem(
     productId: _toInt(json['product_id']),
+    shopId: _toInt(json['shop_id']),
     name: json['name']?.toString() ?? '',
     thumbnail: json['thumbnail']?.toString() ?? '',
     price: _toDouble(json['price']),

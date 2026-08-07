@@ -17,6 +17,10 @@ import '../../modules/auth/presentation/pages/register_page.dart';
 import '../../modules/main/presentation/pages/main_layout_page.dart';
 import '../../modules/negotiations/presentation/bloc/negotiations_bloc.dart';
 import '../../modules/negotiations/presentation/pages/negotiations_page.dart';
+import '../../modules/checkout/domain/entities/placed_order.dart';
+import '../../modules/checkout/presentation/cubit/checkout_cubit.dart';
+import '../../modules/checkout/presentation/pages/checkout_page.dart';
+import '../../modules/checkout/presentation/pages/order_success_page.dart';
 import '../../modules/orders/presentation/bloc/orders_bloc.dart';
 import '../../modules/orders/presentation/order_details_args.dart';
 import '../../modules/orders/presentation/cubit/order_details_cubit.dart';
@@ -211,6 +215,29 @@ class AppRouter {
               ..add(const NegotiationsStarted()),
             child: const NegotiationsPage(),
           ),
+        ),
+        // Checkout (auth-required — it places an order on the account).
+        // Page-scoped CheckoutCubit walks the three steps.
+        GoRoute(
+          path: AppRoutes.checkout,
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              // Pushed outside the shell, so the shared AddressBloc has to be
+              // handed in here — the same way the address routes do it.
+              BlocProvider.value(value: sl<AddressBloc>()),
+              BlocProvider(create: (_) => sl<CheckoutCubit>()..start()),
+            ],
+            child: const CheckoutPage(),
+          ),
+        ),
+        // Order placed. Takes the [PlacedOrder] as `extra`; without one there's
+        // nothing to confirm, so fall back to the orders list.
+        GoRoute(
+          path: AppRoutes.orderSuccess,
+          redirect: (context, state) =>
+              state.extra is PlacedOrder ? null : AppRoutes.orders,
+          builder: (context, state) =>
+              OrderSuccessPage(order: state.extra as PlacedOrder),
         ),
         // Orders (auth-required). Page-scoped OrdersBloc loads the customer's
         // orders once; the screen's chips/search/date window filter locally.

@@ -33,14 +33,20 @@ class CartDto {
         for (final group in groups.whereType<Map>())
           if (group[_K.products] case final List lines)
             for (final line in lines.whereType<Map>())
-              _itemFromJson(line.cast<String, dynamic>()),
+              _itemFromJson(
+                line.cast<String, dynamic>(),
+                shopId: _toInt(group[_K.shopId]),
+              ),
       ],
     );
   }
 
   /// One cart line. `id` on it is the *product's* id — the cart has no row id
   /// of its own, and every write endpoint keys on `product_id`.
-  static CartItem _itemFromJson(Map<String, dynamic> json) {
+  static CartItem _itemFromJson(
+    Map<String, dynamic> json, {
+    required int shopId,
+  }) {
     final price = _toDouble(json[_K.price]);
     final discount = _toDouble(json[_K.discountPrice]);
     // Same rule as the product screen: a discount counts only when it's a real
@@ -49,6 +55,7 @@ class CartDto {
 
     return CartItem(
       productId: _toInt(json[_K.id]),
+      shopId: shopId,
       name: _str(json[_K.name]),
       thumbnail: _str(json[_K.thumbnail]),
       price: discounted ? discount : price,
@@ -87,6 +94,7 @@ class CartDto {
 
 class _K {
   static const products = 'products';
+  static const shopId = 'shop_id';
   static const id = 'id';
   static const name = 'name';
   static const thumbnail = 'thumbnail';

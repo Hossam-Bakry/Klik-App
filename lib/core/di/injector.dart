@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../modules/address/di/address_injector.dart';
 import '../../modules/auth/di/auth_injector.dart';
 import '../../modules/catalog/di/catalog_injector.dart';
+import '../../modules/checkout/di/checkout_injector.dart';
 import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/negotiations/di/negotiations_injector.dart';
@@ -56,6 +57,7 @@ Future<void> configureDependencies() async {
   registerOnboardingModule(sl);
   registerCatalogModule(sl);
   registerCategoriesModule(sl);
+  registerCheckoutModule(sl);
   registerHomeModule(sl);
   registerAddressModule(sl);
   registerNegotiationsModule(sl);

@@ -11,6 +11,7 @@ class CartItem extends Equatable {
     required this.name,
     required this.thumbnail,
     required this.price,
+    this.shopId = 0,
     this.originalPrice = 0,
     this.quantity = 1,
     this.sizeId,
@@ -22,6 +23,11 @@ class CartItem extends Equatable {
   /// device store keys on it, and every cart endpoint takes `product_id` — the
   /// backend exposes no cart-row id.
   final int productId;
+  /// Which shop sells it. The server's cart is grouped by shop, and both
+  /// checkout (`shop_ids`) and the coupon endpoint need it; `0` on a guest
+  /// line, which has no group to sit in.
+  final int shopId;
+
   final String name;
   final String thumbnail;
 
@@ -56,6 +62,7 @@ class CartItem extends Equatable {
 
   CartItem copyWith({int? quantity}) => CartItem(
     productId: productId,
+    shopId: shopId,
     name: name,
     thumbnail: thumbnail,
     price: price,
@@ -69,6 +76,7 @@ class CartItem extends Equatable {
   @override
   List<Object?> get props => [
     productId,
+    shopId,
     name,
     thumbnail,
     price,

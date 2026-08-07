@@ -17,6 +17,11 @@ class Cart extends Equatable {
   int get itemCount =>
       items.fold(0, (sum, item) => sum + item.quantity);
 
+  /// Every shop the cart spans — `POST /api/place-order` takes `shop_ids` and
+  /// raises one order per shop.
+  List<int> get shopIds =>
+      items.map((item) => item.shopId).where((id) => id != 0).toSet().toList();
+
   /// Summed from the lines on both sides. The cart payload's `total` is a
   /// *count* of lines, not money, so there's no server figure to prefer.
   double get total =>

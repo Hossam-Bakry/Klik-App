@@ -336,6 +336,44 @@ abstract class LocaleKeys {
   static const reviewSubmitted = 'review_submitted';
   static const whichProductToReview = 'which_product_to_review';
 
+  // Checkout
+  static const stepAddress = 'step_address';
+  static const stepPayment = 'step_payment';
+  static const stepReview = 'step_review';
+  // static const change = 'change';
+  static const paymentMethod = 'payment_method';
+  static const debitCreditCard = 'debit_credit_card';
+  static const applePay = 'apple_pay';
+  static const googlePay = 'google_pay';
+  static const knet = 'knet';
+  static const tabby = 'tabby';
+  static const tabbyInstallments = 'tabby_installments';
+  static const cashOnDelivery = 'cash_on_delivery';
+  static const paymentComingSoon = 'payment_coming_soon';
+  static const haveACouponCode = 'have_a_coupon_code';
+  static const enterCouponCode = 'enter_coupon_code';
+  static const apply = 'apply';
+  static const couponApplied = 'coupon_applied';
+  static const payNow = 'pay_now';
+  static const placeOrder = 'place_order';
+  static const payWithCashNote = 'pay_with_cash_note';
+  static const paymentPendingNote = 'payment_pending_note';
+  static const paymentDetails = 'payment_details';
+  static const cardNumber = 'card_number';
+  static const expireDate = 'expire_date';
+  static const cvv = 'cvv';
+  static const invalidCardNumber = 'invalid_card_number';
+  static const invalidExpiry = 'invalid_expiry';
+  static const invalidCvv = 'invalid_cvv';
+
+  // Order placed
+  static const orderPlacedSuccessfully = 'order_placed_successfully';
+  static const orderConfirmationEmail = 'order_confirmation_email';
+  static const orderNumber = 'order_number';
+  static const dateAndTime = 'date_and_time';
+  static const totalPaid = 'total_paid';
+  static const continueShopping = 'continue_shopping';
+
   // Returns / help
   static const returnPolicy = 'return_policy';
   static const whichItemsCanBeReturned = 'which_items_can_be_returned';
