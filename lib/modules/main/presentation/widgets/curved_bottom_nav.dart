@@ -13,10 +13,22 @@ import '../../../../core/theme/app_colors.dart';
 /// the selected icon riding inside the circle. Switching tabs animates the
 /// circle (and valley) across to the new slot.
 class CurvedBottomNav extends StatelessWidget {
-  const CurvedBottomNav({super.key, required this.currentIndex, required this.onTap});
+  const CurvedBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    this.cartCount = 0,
+  });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+
+  /// Units in the cart, badged onto the cart destination. Shown even at zero,
+  /// as the design does.
+  final int cartCount;
+
+  /// Index of the cart destination in [_icons].
+  static const int _cartIndex = 3;
 
   // Design-px geometry (scaled responsively at paint time).
   static const double _barHeight = 55;
@@ -94,6 +106,7 @@ class CurvedBottomNav extends StatelessWidget {
                           _NavIcon(
                             icon: _icons[i],
                             opacity: (position - i).abs().clamp(0.0, 1.0),
+                            badge: i == _cartIndex ? cartCount : null,
                             onTap: () => onTap(i),
                           ),
                       ],
@@ -107,6 +120,7 @@ class CurvedBottomNav extends StatelessWidget {
                     child: _CenterButton(
                       radius: circleR,
                       icon: _icons[currentIndex],
+                      badge: currentIndex == _cartIndex ? cartCount : null,
                       onTap: () => onTap(currentIndex),
                     ),
                   ),
@@ -121,11 +135,17 @@ class CurvedBottomNav extends StatelessWidget {
 }
 
 class _NavIcon extends StatelessWidget {
-  const _NavIcon({required this.icon, required this.opacity, required this.onTap});
+  const _NavIcon({
+    required this.icon,
+    required this.opacity,
+    required this.onTap,
+    this.badge,
+  });
 
   final SvgGenImage icon;
   final double opacity;
   final VoidCallback onTap;
+  final int? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -136,10 +156,13 @@ class _NavIcon extends StatelessWidget {
         child: Center(
           child: Opacity(
             opacity: opacity,
-            child: icon.svg(
-              width: context.r(30),
-              height: context.r(30),
-              colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+            child: _Badged(
+              count: badge,
+              child: icon.svg(
+                width: context.r(30),
+                height: context.r(30),
+                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              ),
             ),
           ),
         ),
@@ -148,12 +171,60 @@ class _NavIcon extends StatelessWidget {
   }
 }
 
+/// Wraps [child] with a small count bubble on its top-trailing corner. A null
+/// [count] renders the child untouched.
+class _Badged extends StatelessWidget {
+  const _Badged({required this.child, this.count});
+
+  final Widget child;
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) {
+    if (count == null) return child;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        PositionedDirectional(
+          top: -context.r(4),
+          end: -context.r(6),
+          child: Container(
+            constraints: BoxConstraints(minWidth: context.r(16)),
+            padding: context.edgeSymmetric(horizontal: 4, vertical: 1),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.secondary,
+            ),
+            child: Text(
+              // Keep the bubble a fixed size past three digits.
+              count! > 99 ? '99+' : '${count!}',
+              style: TextStyle(
+                fontSize: context.sp(9),
+                fontWeight: FontWeight.w700,
+                color: AppColors.surface,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _CenterButton extends StatelessWidget {
-  const _CenterButton({required this.radius, required this.icon, required this.onTap});
+  const _CenterButton({
+    required this.radius,
+    required this.icon,
+    required this.onTap,
+    this.badge,
+  });
 
   final double radius;
   final SvgGenImage icon;
   final VoidCallback onTap;
+  final int? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +245,13 @@ class _CenterButton extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: icon.svg(
-            width: context.r(30),
-            height: context.r(30),
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          child: _Badged(
+            count: badge,
+            child: icon.svg(
+              width: context.r(30),
+              height: context.r(30),
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
           ),
         ),
       ),

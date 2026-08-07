@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/di/injector.dart';
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/localization/locale_keys.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
+import '../../../../core/cart/presentation/cart_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../categories/presentation/bloc/categories_bloc.dart';
 import '../../../categories/presentation/pages/categories_page.dart';
 import '../../../home/domain/entities/category_item.dart';
@@ -31,8 +29,9 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   int _index = 0;
 
   /// Tabs that need a real session. A guest tapping these gets the sign-in
-  /// prompt instead of switching (negotiation = 2, cart = 3).
-  static const Set<int> _authRequiredTabs = {2, 3};
+  /// prompt instead of switching. Cart (3) is deliberately absent — a guest
+  /// builds a cart on the device and only signs in at checkout.
+  static const Set<int> _authRequiredTabs = {2};
 
   // Singleton: shared with the home header, bottom sheet, and add/edit routes.
   // For a signed-in user we load saved addresses; a guest only gets the GPS
@@ -84,7 +83,9 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
       // Negotiation destination: the full bidable listing (is_bidable=1), with
       // its own search + filter. Where Home's "Open to offers" see-all lands.
       const OpenToOffersPage(),
-      _PlaceholderTab(icon: Assets.icons.cartIcn),
+      // Cart — open to guests; their lines live on the device until sign-in
+      // merges them into the account.
+      CartPage(onBack: () => _onTabTapped(0)),
       const ProfilePage(),
     ];
 
@@ -110,43 +111,14 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         child: Scaffold(
           extendBody: true,
           body: IndexedStack(index: _index, children: pages),
-          bottomNavigationBar: CurvedBottomNav(
-            currentIndex: _index,
-            onTap: _onTabTapped,
+          bottomNavigationBar: BlocBuilder<CartCubit, CartState>(
+            buildWhen: (p, c) => p.itemCount != c.itemCount,
+            builder: (context, cart) => CurvedBottomNav(
+              currentIndex: _index,
+              onTap: _onTabTapped,
+              cartCount: cart.itemCount,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Temporary content for destinations whose screens aren't built yet.
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab({required this.icon});
-
-  final SvgGenImage icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            icon.svg(
-              width: context.r(56),
-              height: context.r(56),
-              colorFilter: ColorFilter.mode(
-                AppColors.primary.withValues(alpha: 0.4),
-                BlendMode.srcIn,
-              ),
-            ),
-            context.gapH(16),
-            Text(
-              context.tr(LocaleKeys.comingSoon),
-              style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(15)),
-            ),
-          ],
         ),
       ),
     );

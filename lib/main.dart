@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/cart/presentation/cart_count_cubit.dart';
+import 'core/cart/presentation/cart_cubit.dart';
 import 'core/di/injector.dart';
 import 'core/favorites/presentation/favorites_cubit.dart';
 import 'core/localization/app_localizations.dart';
@@ -41,7 +41,7 @@ class _KlikAppState extends State<KlikApp> {
   final LocaleCubit _localeCubit = sl<LocaleCubit>();
   final ConnectivityCubit _connectivityCubit = sl<ConnectivityCubit>();
   final FavoritesCubit _favoritesCubit = sl<FavoritesCubit>();
-  final CartCountCubit _cartCountCubit = sl<CartCountCubit>();
+  final CartCubit _cartCubit = sl<CartCubit>();
   final CurrentUserCubit _currentUserCubit = sl<CurrentUserCubit>();
   late final _router = AppRouter.create(_authBloc, _onboardingCubit);
 
@@ -69,23 +69,23 @@ class _KlikAppState extends State<KlikApp> {
         BlocProvider.value(value: _localeCubit),
         BlocProvider.value(value: _connectivityCubit),
         BlocProvider.value(value: _favoritesCubit),
-        BlocProvider.value(value: _cartCountCubit),
+        BlocProvider.value(value: _cartCubit),
         BlocProvider.value(value: _currentUserCubit),
       ],
-      // React to session transitions: on sign-in, fold any guest cart into the
-      // account, refresh the badge and load the user's profile; on sign-out,
-      // drop locally-known favorites, the profile, and reset the badge so the
-      // next session starts clean.
+      // React to session transitions: on sign-in, merge any device-held guest
+      // cart into the account and load the user's profile; on sign-out, drop
+      // locally-known favorites, the profile and the account's cart so the next
+      // session starts clean.
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
           switch (state.status) {
             case AuthStatus.authenticated:
-              _cartCountCubit.onSignedIn();
+              _cartCubit.onSignedIn();
               _currentUserCubit.load();
             case AuthStatus.unauthenticated:
               _favoritesCubit.clear();
-              _cartCountCubit.clear();
+              _cartCubit.onSignedOut();
               _currentUserCubit.clear();
             case AuthStatus.unknown:
               break;

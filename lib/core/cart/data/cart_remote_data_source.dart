@@ -1,22 +1,24 @@
 import '../../network/api_endpoints.dart';
 import '../../network/api_interface.dart';
 import '../../network/api_result.dart';
-import '../domain/cart_merge_strategy.dart';
+import '../domain/cart.dart';
+import '../domain/cart_item.dart';
+import 'cart_dto.dart';
 
-/// Talks to the cart endpoints needed for the guest-cart merge flow.
-///
-/// PROVISIONAL: the merge endpoint + payload and the `/carts` count shape were
-/// not pinned down against the backend when this was written (cart endpoints
-/// are all 🔒 in the Postman collection). [_countFrom] parses defensively so a
-/// shape change degrades to a 0/absent count rather than a crash. Reconcile
-/// once the backend contract is confirmed.
+/// The authenticated cart endpoints. Only reached once the user is signed in —
+/// a guest's cart never leaves the device.
 abstract interface class CartRemoteDataSource {
-  Future<ApiResult<int?>> mergeGuestCart({
-    required String guestToken,
-    required CartMergeStrategy strategy,
-  });
+  Future<ApiResult<Cart>> fetchCart();
 
-  Future<ApiResult<int>> fetchCartCount();
+  Future<ApiResult<Cart>> store(CartItem item);
+
+  Future<ApiResult<Cart>> increment(CartItem item);
+
+  Future<ApiResult<Cart>> decrement(CartItem item);
+
+  Future<ApiResult<Cart>> delete(CartItem item);
+
+  Future<ApiResult<Cart>> merge(List<CartItem> items);
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -25,35 +27,64 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   final ApiInterface _api;
 
   @override
-  Future<ApiResult<int?>> mergeGuestCart({
-    required String guestToken,
-    required CartMergeStrategy strategy,
-  }) =>
-      _api.post(
-        ApiEndpoints.cartMerge,
-        body: {'guest_token': guestToken, 'strategy': strategy.apiValue},
-        decoder: _countFrom,
-      );
+  Future<ApiResult<Cart>> fetchCart() =>
+      _api.get(ApiEndpoints.carts, decoder: CartDto.fromJson);
 
   @override
-  Future<ApiResult<int>> fetchCartCount() => _api.get(
-        ApiEndpoints.carts,
-        decoder: (data) => _countFrom(data) ?? 0,
-      );
+  Future<ApiResult<Cart>> store(CartItem item) => _api.post(
+    ApiEndpoints.cartStore,
+    body: _lineBody(item),
+    decoder: CartDto.fromJson,
+  );
 
-  /// Best-effort item count from a variety of plausible payload shapes:
-  /// a bare list of items, `{ count | cart_count | total_quantity: n }`, or a
-  /// `{ items: [...] }` wrapper. Returns null when none match.
-  static int? _countFrom(dynamic data) {
-    if (data is List) return data.length;
-    if (data is Map) {
-      for (final key in ['count', 'cart_count', 'total_quantity', 'quantity']) {
-        final value = data[key];
-        if (value is num) return value.toInt();
-      }
-      final items = data['items'] ?? data['carts'] ?? data['data'];
-      if (items is List) return items.length;
-    }
-    return null;
-  }
+  @override
+  Future<ApiResult<Cart>> increment(CartItem item) => _api.post(
+    ApiEndpoints.cartIncrement,
+    body: _rowBody(item),
+    decoder: CartDto.fromJson,
+  );
+
+  @override
+  Future<ApiResult<Cart>> decrement(CartItem item) => _api.post(
+    ApiEndpoints.cartDecrement,
+    body: _rowBody(item),
+    decoder: CartDto.fromJson,
+  );
+
+  @override
+  Future<ApiResult<Cart>> delete(CartItem item) => _api.post(
+    ApiEndpoints.cartDelete,
+    body: _rowBody(item),
+    decoder: CartDto.fromJson,
+  );
+
+  /// `POST /api/cart/merge` — body is `{ items: [ { product_id, quantity,
+  /// size, color, unit } ] }`, exactly the guest lines held on the device.
+  @override
+  Future<ApiResult<Cart>> merge(List<CartItem> items) => _api.post(
+    ApiEndpoints.cartMerge,
+    body: {'items': items.map(_lineBody).toList()},
+    decoder: CartDto.fromJson,
+  );
+
+  /// A cart line as the store/merge payloads describe it. Null-aware entries
+  /// keep `size`/`color` out of the body on products without variants.
+  static Map<String, dynamic> _lineBody(CartItem item) => {
+    'product_id': item.productId,
+    'quantity': item.quantity,
+    'size': ?item.sizeId,
+    'color': ?item.colorId,
+    if (item.unit.isNotEmpty) 'unit': item.unit,
+  };
+
+  /// Identifies an existing line for increment/decrement/delete. All three
+  /// resolve it by `product_id` (they reject a body without one); the variant
+  /// rides along so the backend can pick the exact line on a product that has
+  /// several. Decrementing the last unit removes the line server-side, same as
+  /// the local store does.
+  static Map<String, dynamic> _rowBody(CartItem item) => {
+    'product_id': item.productId,
+    'size': ?item.sizeId,
+    'color': ?item.colorId,
+  };
 }

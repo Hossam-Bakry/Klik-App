@@ -5,6 +5,8 @@ import 'package:klik_app/gen/assets.gen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/cart/domain/cart_item.dart';
+import '../../../../core/cart/presentation/cart_cubit.dart';
 import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
@@ -150,7 +152,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           // Out of stock: swap the CTAs for a disabled "Out Of Stock" banner.
           if (product.isOutOfStock) return const _OutOfStockBar();
           return ProductBottomBar(
-            onAddToCart: () => _comingSoon(context),
+            onAddToCart: () => _addToCart(context, product),
             onBuyNow: () => _comingSoon(context),
           );
         },
@@ -208,6 +210,28 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       case NegotiateCheckout():
         _comingSoon(context);
     }
+  }
+
+  /// Adds the selected variant to the cart. Open to guests — their cart lives
+  /// on the device until they sign in, so no auth gate here.
+  ///
+  /// The line carries the product's own display data (name, thumbnail, price)
+  /// because a guest cart has no product lookup to render from.
+  Future<void> _addToCart(BuildContext context, ProductDetails product) async {
+    final cart = context.read<CartCubit>();
+    final added = await cart.add(
+      CartItem(
+        productId: product.id,
+        name: product.name,
+        thumbnail: product.images.isEmpty ? '' : product.images.first,
+        price: product.effectivePrice,
+        originalPrice: product.price,
+        sizeId: _optionId(product.sizes, _sizeIndex, (s) => s.id),
+        colorId: _optionId(product.colors, _colorIndex, (c) => c.id),
+      ),
+    );
+    if (!context.mounted || !added) return;
+    AppToast.success(context, context.tr(LocaleKeys.addedToCart));
   }
 
   void _comingSoon(BuildContext context) {

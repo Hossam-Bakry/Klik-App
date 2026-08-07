@@ -39,6 +39,11 @@ extension ApiResultX<T> on ApiResult<T> {
         ApiFailure<T>() => null,
       };
 
+  Failure? get failureOrNull => switch (this) {
+        ApiSuccess<T>() => null,
+        ApiFailure<T>(:final failure) => failure,
+      };
+
   /// Transforms the success payload, preserving failures — handy in
   /// repositories for mapping a DTO to a domain entity.
   ApiResult<R> mapData<R>(R Function(T data) transform) => switch (this) {

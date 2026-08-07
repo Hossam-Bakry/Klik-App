@@ -18,11 +18,12 @@ import '../../modules/shops/di/shops_injector.dart';
 import '../../modules/support/di/support_injector.dart';
 import '../../modules/update_password/di/update_password_injector.dart';
 import '../../modules/wishlist/di/wishlist_injector.dart';
+import '../../modules/auth/presentation/bloc/auth_bloc.dart';
 import '../cart/data/cart_remote_data_source.dart';
 import '../cart/data/cart_repository_impl.dart';
-import '../cart/data/guest_cart_store.dart';
+import '../cart/data/local_cart_store.dart';
 import '../cart/domain/cart_repository.dart';
-import '../cart/presentation/cart_count_cubit.dart';
+import '../cart/presentation/cart_cubit.dart';
 import '../favorites/data/favorites_remote_data_source.dart';
 import '../favorites/data/favorites_repository_impl.dart';
 import '../favorites/domain/favorites_repository.dart';
@@ -77,12 +78,7 @@ Future<void> _registerCore() async {
       () => DioClient(
         sl<TokenProvider>(),
         languageProvider: () => sl<LocaleCubit>().state.languageCode,
-        guestTokenProvider: sl<GuestTokenProvider>(),
       ),
-    )
-    // Supplies the guest cart token (synchronously) to GuestTokenInterceptor.
-    ..registerLazySingleton<GuestTokenProvider>(
-      () => () => sl<GuestCartStore>().token,
     )
     // Data sources depend on ApiInterface, not Dio directly.
     ..registerLazySingleton<ApiInterface>(
@@ -121,19 +117,21 @@ Future<void> _registerCore() async {
     ..registerLazySingleton<OtpCooldownStore>(
       () => OtpCooldownStore(sl<SharedPreferences>()),
     )
-    // Guest cart: only the token + item count are cached locally; the cart
-    // itself lives on the server. The count cubit feeds the bottom-nav badge
-    // and folds the guest cart into the account on sign-in.
-    ..registerLazySingleton<GuestCartStore>(
-      () => GuestCartStore(sl<SharedPreferences>()),
+    // Cart: a guest's cart is held entirely on the device (no cart API calls
+    // at all), a signed-in user's is the server's. The repository routes each
+    // call by session; CartCubit merges the guest lines in once on sign-in.
+    ..registerLazySingleton<LocalCartStore>(
+      () => LocalCartStore(sl<SharedPreferences>()),
     )
     ..registerLazySingleton<CartRemoteDataSource>(
       () => CartRemoteDataSourceImpl(sl<ApiInterface>()),
     )
     ..registerLazySingleton<CartRepository>(
-      () => CartRepositoryImpl(sl<CartRemoteDataSource>()),
+      () => CartRepositoryImpl(
+        sl<CartRemoteDataSource>(),
+        sl<LocalCartStore>(),
+        () => sl<AuthBloc>().state.isAuthenticated,
+      ),
     )
-    ..registerLazySingleton<CartCountCubit>(
-      () => CartCountCubit(sl<CartRepository>(), sl<GuestCartStore>()),
-    );
+    ..registerLazySingleton<CartCubit>(() => CartCubit(sl<CartRepository>()));
 }

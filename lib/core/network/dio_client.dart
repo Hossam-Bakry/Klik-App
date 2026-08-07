@@ -3,26 +3,22 @@ import 'package:dio/dio.dart';
 import 'api_constants.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/common_headers_interceptor.dart';
-import 'interceptors/guest_token_interceptor.dart';
 import 'token_provider.dart';
 
 /// Builds the app-wide [Dio] instance with the shared base options and the
-/// common-headers + auth + guest-token interceptors (order matters: headers
-/// first, then auth, then guest token — which skips itself when authenticated —
+/// common-headers + auth interceptors (order matters: headers first, then auth,
 /// then logging).
 class DioClient {
   DioClient(
     TokenProvider tokenProvider, {
     String Function()? languageProvider,
-    GuestTokenProvider? guestTokenProvider,
-  }) : dio = _build(tokenProvider, languageProvider, guestTokenProvider);
+  }) : dio = _build(tokenProvider, languageProvider);
 
   final Dio dio;
 
   static Dio _build(
     TokenProvider tokenProvider,
     String Function()? languageProvider,
-    GuestTokenProvider? guestTokenProvider,
   ) {
     final dio = Dio(
       BaseOptions(
@@ -36,8 +32,6 @@ class DioClient {
     dio.interceptors.addAll([
       CommonHeadersInterceptor(languageProvider: languageProvider),
       AuthInterceptor(tokenProvider),
-      if (guestTokenProvider != null)
-        GuestTokenInterceptor(guestTokenProvider),
       LogInterceptor(
         requestHeader: true,
         requestBody: true,

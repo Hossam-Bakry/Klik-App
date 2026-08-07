@@ -72,6 +72,13 @@ abstract class LocaleKeys {
   static const noReviewsYet = 'no_reviews_yet';
   static const similarProducts = 'similar_products';
   static const addToCart = 'add_to_cart';
+
+  // Cart
+  static const cart = 'cart';
+  static const cartEmpty = 'cart_empty';
+  static const total = 'total';
+  static const checkOut = 'check_out';
+  static const addedToCart = 'added_to_cart';
   static const buyNow = 'buy_now';
   static const outOfStock = 'out_of_stock';
 

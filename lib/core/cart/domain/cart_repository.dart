@@ -1,18 +1,35 @@
 import '../../network/api_result.dart';
-import 'cart_merge_strategy.dart';
+import 'cart.dart';
+import 'cart_item.dart';
 
-/// Server-side cart operations the app-wide [CartCountCubit] needs. The full
-/// cart module (line items, checkout) will layer on top of this later; for now
-/// it covers the guest-cart merge and reading the authenticated cart's count.
+/// Cart operations, independent of where the cart lives.
+///
+/// The implementation routes each call by session: a guest's cart is kept on
+/// the device and never hits the network, while a signed-in user's cart is the
+/// server's (`/api/carts`, `/api/cart/store`, …). [mergeGuestCart] is the one
+/// bridge between the two, run once at sign-in.
 abstract interface class CartRepository {
-  /// Hands the backend the guest [guestToken] so it can fold that cart into the
-  /// now-authenticated user's cart, per [strategy]. Returns the resulting item
-  /// count when the backend reports one, otherwise null.
-  Future<ApiResult<int?>> mergeGuestCart({
-    required String guestToken,
-    required CartMergeStrategy strategy,
-  });
+  /// The current cart — local for a guest, `GET /api/carts` once signed in.
+  Future<ApiResult<Cart>> fetchCart();
 
-  /// Total item count in the authenticated user's cart (for the badge).
-  Future<ApiResult<int>> fetchCartCount();
+  /// Adds [item], or bumps its quantity when the same product+variant is
+  /// already in the cart. Returns the resulting cart.
+  Future<ApiResult<Cart>> addItem(CartItem item);
+
+  Future<ApiResult<Cart>> increment(CartItem item);
+
+  Future<ApiResult<Cart>> decrement(CartItem item);
+
+  Future<ApiResult<Cart>> removeItem(CartItem item);
+
+  /// `POST /api/cart/merge` — hands the locally-held guest lines to the backend
+  /// right after sign-in. Returns the account's resulting cart.
+  Future<ApiResult<Cart>> mergeGuestCart(List<CartItem> items);
+
+  /// The guest lines currently on the device (empty once merged, or while
+  /// signed in).
+  List<CartItem> get localItems;
+
+  /// Wipes the device-side cart. Called once the server has taken ownership.
+  Future<void> clearLocal();
 }
