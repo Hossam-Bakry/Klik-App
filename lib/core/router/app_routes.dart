@@ -17,6 +17,9 @@ class AppRoutes {
   static const String shops = '/shops';
   static const String wishlist = '/wishlist';
   static const String negotiations = '/negotiations';
+  static const String orders = '/orders';
+  static const String orderDetails = '/orders/details';
+  static const String writeReview = '/orders/review';
   static const String support = '/support';
   static const String security = '/security';
   static const String updatePassword = '/update-password';
@@ -45,6 +48,9 @@ class AppRoutes {
     addressEdit,
     wishlist,
     negotiations,
+    orders,
+    orderDetails,
+    writeReview,
     security,
     updatePassword,
     editProfile,

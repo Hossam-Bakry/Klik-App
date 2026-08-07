@@ -281,4 +281,68 @@ abstract class LocaleKeys {
   static const profileUpdatedSuccessfully = 'profile_updated_successfully';
   static const takePhoto = 'take_photo';
   static const chooseFromGallery = 'choose_from_gallery';
+
+  // Orders
+  static const orderDetails = 'order_details';
+  static const findItems = 'find_items';
+  static const ordersEmpty = 'orders_empty';
+  static const noOrdersMatch = 'no_orders_match';
+  static const viewAllDetails = 'view_all_details';
+  static const item = 'item';
+  static const items = 'items';
+  static const rate = 'rate';
+  static const deliveryAddress = 'delivery_address';
+  static const noAddressOnOrder = 'no_address_on_order';
+  static const orderSummary = 'order_summary';
+  static const status = 'status';
+  static const subtotal = 'subtotal';
+  static const shipping = 'shipping';
+  static const tax = 'tax';
+  static const discount = 'discount';
+  static const getHelp = 'get_help';
+  static const review = 'review';
+  static const cancelOrder = 'cancel_order';
+  static const cancelOrderConfirm = 'cancel_order_confirm';
+  static const orderCancelledMessage = 'order_cancelled_message';
+  static const expected = 'expected';
+  static const complete = 'complete';
+  static const inProgress = 'in_progress';
+
+  // Order statuses
+  static const orderPending = 'order_pending';
+  static const orderConfirmed = 'order_confirmed';
+  static const orderProcessing = 'order_processing';
+  static const orderPickup = 'order_pickup';
+  static const orderOnDelivery = 'order_on_delivery';
+  static const orderDelivered = 'order_delivered';
+  static const orderCancelled = 'order_cancelled';
+
+  // Order date windows
+  static const today = 'today';
+  static const lastWeek = 'last_week';
+  static const last3Weeks = 'last_3_weeks';
+  static const lastMonth = 'last_month';
+  static const allTime = 'all_time';
+
+  // Order review
+  static const writeAReview = 'write_a_review';
+  static const writeAReviewHint = 'write_a_review_hint';
+  static const yourReview = 'your_review';
+  static const addPhotos = 'add_photos';
+  static const optional = 'optional';
+  static const pickARating = 'pick_a_rating';
+  static const reviewRequired = 'review_required';
+  static const submitReview = 'submit_review';
+  static const reviewSubmitted = 'review_submitted';
+  static const whichProductToReview = 'which_product_to_review';
+
+  // Returns / help
+  static const returnPolicy = 'return_policy';
+  static const whichItemsCanBeReturned = 'which_items_can_be_returned';
+  static const returnRuleUnopened = 'return_rule_unopened';
+  static const returnRuleDamaged = 'return_rule_damaged';
+  static const returnRuleWithin14Days = 'return_rule_within_14_days';
+  static const returnRuleUsed = 'return_rule_used';
+  static const returnRuleDigital = 'return_rule_digital';
+  static const learnMoreReturnPolicy = 'learn_more_return_policy';
 }

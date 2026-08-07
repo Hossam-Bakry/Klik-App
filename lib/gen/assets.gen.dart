@@ -99,6 +99,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/order_icn.svg
   SvgGenImage get orderIcn => const SvgGenImage('assets/icons/order_icn.svg');
 
+  /// File path: assets/icons/oreder_cancel_icn.svg
+  SvgGenImage get orederCancelIcn =>
+      const SvgGenImage('assets/icons/oreder_cancel_icn.svg');
+
+  /// File path: assets/icons/oreder_delivery_icn.svg
+  SvgGenImage get orederDeliveryIcn =>
+      const SvgGenImage('assets/icons/oreder_delivery_icn.svg');
+
   /// File path: assets/icons/pending_icn.svg
   SvgGenImage get pendingIcn =>
       const SvgGenImage('assets/icons/pending_icn.svg');
@@ -178,6 +186,8 @@ class $AssetsIconsGen {
     negotiationIcn,
     notificationIcn,
     orderIcn,
+    orederCancelIcn,
+    orederDeliveryIcn,
     pendingIcn,
     policyIcn,
     profileIcn,

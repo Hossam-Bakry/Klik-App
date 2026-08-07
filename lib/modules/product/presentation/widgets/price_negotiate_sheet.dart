@@ -576,7 +576,7 @@ class _StatusBanner extends StatelessWidget {
         context.tr(LocaleKeys.bidApproved),
       ),
       BidStatus.expired => (
-        AppColors.textSecondary,
+        AppColors.expiredStatusColor,
         Icons.access_time_rounded,
         AppColors.textSecondary,
         context.tr(LocaleKeys.bidExpired),
@@ -588,6 +588,13 @@ class _StatusBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: statusColor,
         borderRadius: BorderRadius.circular(context.r(12)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

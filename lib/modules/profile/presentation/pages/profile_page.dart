@@ -79,7 +79,8 @@ class ProfilePage extends StatelessWidget {
                   ProfileSectionCard(
                     padding: context.edgeSymmetric(horizontal: 12, vertical: 16),
                     child: ProfileQuickActions(
-                      onOrders: () => gated(() {}),
+                      onOrders: () =>
+                          gated(() => context.push(AppRoutes.orders)),
                       onNegotiation: () =>
                           gated(() => context.push(AppRoutes.negotiations)),
                       onWishlist: () =>

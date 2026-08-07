@@ -17,6 +17,14 @@ import '../../modules/auth/presentation/pages/register_page.dart';
 import '../../modules/main/presentation/pages/main_layout_page.dart';
 import '../../modules/negotiations/presentation/bloc/negotiations_bloc.dart';
 import '../../modules/negotiations/presentation/pages/negotiations_page.dart';
+import '../../modules/orders/presentation/bloc/orders_bloc.dart';
+import '../../modules/orders/presentation/order_details_args.dart';
+import '../../modules/orders/presentation/cubit/order_details_cubit.dart';
+import '../../modules/orders/presentation/cubit/write_review_cubit.dart';
+import '../../modules/orders/presentation/pages/order_details_page.dart';
+import '../../modules/orders/presentation/pages/orders_page.dart';
+import '../../modules/orders/presentation/pages/write_review_page.dart';
+import '../../modules/orders/presentation/write_review_args.dart';
 import '../../modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../modules/onboarding/presentation/pages/onboarding_page.dart';
 import '../../modules/product/presentation/bloc/product_bloc.dart';
@@ -203,6 +211,48 @@ class AppRouter {
               ..add(const NegotiationsStarted()),
             child: const NegotiationsPage(),
           ),
+        ),
+        // Orders (auth-required). Page-scoped OrdersBloc loads the customer's
+        // orders once; the screen's chips/search/date window filter locally.
+        GoRoute(
+          path: AppRoutes.orders,
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<OrdersBloc>()..add(const OrdersStarted()),
+            child: const OrdersPage(),
+          ),
+        ),
+        // One order. Takes an [OrderDetailsArgs] as `extra` — without it there's
+        // no order to show, so fall back to the list rather than a blank page.
+        GoRoute(
+          path: AppRoutes.orderDetails,
+          redirect: (context, state) =>
+              state.extra is OrderDetailsArgs ? null : AppRoutes.orders,
+          builder: (context, state) {
+            final args = state.extra as OrderDetailsArgs;
+            return BlocProvider(
+              create: (_) =>
+                  sl<OrderDetailsCubit>(param1: args.orderId)..load(),
+              child: const OrderDetailsPage(),
+            );
+          },
+        ),
+        // Write a review for one product of an order. Takes a
+        // [WriteReviewArgs]; pops `true` once the review posts.
+        GoRoute(
+          path: AppRoutes.writeReview,
+          redirect: (context, state) =>
+              state.extra is WriteReviewArgs ? null : AppRoutes.orders,
+          builder: (context, state) {
+            final args = state.extra as WriteReviewArgs;
+            return BlocProvider(
+              create: (_) => sl<WriteReviewCubit>(),
+              child: WriteReviewPage(
+                orderId: args.orderId,
+                product: args.product,
+                initialRating: args.initialRating,
+              ),
+            );
+          },
         ),
         // Wishlist (auth-required — favorites are per-user). Page-scoped
         // WishlistBloc loads the favorite products.

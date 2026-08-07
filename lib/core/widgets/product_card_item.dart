@@ -19,6 +19,9 @@ class ProductCardItem extends StatelessWidget {
   final HomeProduct product;
   final VoidCallback? onTap;
 
+  /// How far the cart button drops below the image, in design px.
+  static const double _addButtonOverhang = 14;
+
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(context.r(8));
@@ -42,41 +45,49 @@ class ProductCardItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
-              clipBehavior: Clip.none,
               children: [
-                Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    AppNetworkImage(
-                      url: product.thumbnail,
-                      height: context.r(135),
-                      width: double.infinity,
-                    ),
-                    if (product.isOutOfStock)
-                      Container(
-                        alignment: Alignment.center,
+                // The cart button straddles the image's bottom edge, so the
+                // stack reserves that overhang as padding under the image
+                // rather than letting the button hang outside its box: a child
+                // painted outside its parent doesn't get hit-tested, and the
+                // half below the edge was falling through to the card's own tap
+                // (opening the product instead of adding it).
+                Padding(
+                  padding: context.edge(bottom: _addButtonOverhang),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      AppNetworkImage(
+                        url: product.thumbnail,
+                        height: context.r(135),
                         width: double.infinity,
-                        height: context.r(25),
-                        color: AppColors.textSecondary.withValues(alpha: 0.08),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Assets.icons.lockIcn.svg(
-                              width: context.r(16),
-                              height: context.r(16),
-                            ),
-                            context.gapW(4),
-                            Text(
-                              context.tr(LocaleKeys.outOfStock),
-                              style: context.labelMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimaryGold,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                  ],
+                      if (product.isOutOfStock)
+                        Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          height: context.r(25),
+                          color: AppColors.textSecondary.withValues(alpha: 0.08),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Assets.icons.lockIcn.svg(
+                                width: context.r(16),
+                                height: context.r(16),
+                              ),
+                              context.gapW(4),
+                              Text(
+                                context.tr(LocaleKeys.outOfStock),
+                                style: context.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimaryGold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 if (product.isBidable)
                   Positioned(
@@ -90,7 +101,7 @@ class ProductCardItem extends StatelessWidget {
                   child: ProductFavoriteButton(productId: product.id),
                 ),
                 Positioned(
-                  bottom: context.r(-14),
+                  bottom: 0,
                   right: context.r(6),
                   child: ProductAddToCartButton(product: product),
                 ),
