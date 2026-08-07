@@ -9,7 +9,6 @@ import '../../../../core/favorites/presentation/favorites_cubit.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/connectivity_retry_listener.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
@@ -89,7 +88,6 @@ class WishlistPage extends StatelessWidget {
                     AppRoutes.productDetails,
                     extra: visible[i].id,
                   ),
-                  onAdd: () => _comingSoon(context),
                 ),
               ),
             );
@@ -99,9 +97,6 @@ class WishlistPage extends StatelessWidget {
     );
   }
 
-  void _comingSoon(BuildContext context) {
-    AppToast.info(context, context.tr(LocaleKeys.comingSoon));
-  }
 }
 
 /// Placeholder rows shown under a [Skeletonizer] while favorites load.

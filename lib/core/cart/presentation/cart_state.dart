@@ -7,16 +7,21 @@ class CartState extends Equatable {
     this.status = CartStatus.initial,
     this.cart = Cart.empty,
     this.errorMessage,
-    this.isMutating = false,
+    this.pendingProductIds = const {},
   });
 
   final CartStatus status;
   final Cart cart;
   final String? errorMessage;
 
-  /// A quantity change / removal is in flight. The list stays on screen; only
-  /// the steppers lock so a double-tap can't race itself.
-  final bool isMutating;
+  /// Products with a change in flight. Tracked per product rather than as one
+  /// flag so locking a row's stepper against a double-tap doesn't freeze every
+  /// other row (or every product card on screen) along with it.
+  final Set<int> pendingProductIds;
+
+  /// Whether this product is mid-change — the caller's stepper dims until its
+  /// own new quantity lands.
+  bool isPending(int productId) => pendingProductIds.contains(productId);
 
   /// A fetch is in flight with nothing to show yet — the screen renders its
   /// skeleton.
@@ -34,16 +39,16 @@ class CartState extends Equatable {
     Cart? cart,
     String? errorMessage,
     bool clearError = false,
-    bool? isMutating,
+    Set<int>? pendingProductIds,
   }) {
     return CartState(
       status: status ?? this.status,
       cart: cart ?? this.cart,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      isMutating: isMutating ?? this.isMutating,
+      pendingProductIds: pendingProductIds ?? this.pendingProductIds,
     );
   }
 
   @override
-  List<Object?> get props => [status, cart, errorMessage, isMutating];
+  List<Object?> get props => [status, cart, errorMessage, pendingProductIds];
 }

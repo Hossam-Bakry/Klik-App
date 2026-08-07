@@ -7,22 +7,17 @@ import '../extensions/context_extensions.dart';
 import '../localization/locale_keys.dart';
 import '../theme/app_colors.dart';
 import 'app_network_image.dart';
+import 'product_cart_controls.dart';
 import 'product_favorite_button.dart';
 
 /// Compact product card shared across the app — the "Best deals for you"
 /// carousel/see-all grid, the Categories product grid, and the product
 /// details "Similar products" rail all render the same card.
 class ProductCardItem extends StatelessWidget {
-  const ProductCardItem({
-    super.key,
-    required this.product,
-    this.onTap,
-    this.onAdd,
-  });
+  const ProductCardItem({super.key, required this.product, this.onTap});
 
   final HomeProduct product;
   final VoidCallback? onTap;
-  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +92,7 @@ class ProductCardItem extends StatelessWidget {
                 Positioned(
                   bottom: context.r(-14),
                   right: context.r(6),
-                  child: _AddButton(onTap: onAdd),
+                  child: ProductAddToCartButton(product: product),
                 ),
               ],
             ),
@@ -132,28 +127,6 @@ class ProductCardItem extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AddButton extends StatelessWidget {
-  const _AddButton({this.onTap});
-
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: context.r(28),
-        height: context.r(28),
-        decoration: const BoxDecoration(
-          color: AppColors.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.add, size: context.r(18), color: Colors.white),
       ),
     );
   }

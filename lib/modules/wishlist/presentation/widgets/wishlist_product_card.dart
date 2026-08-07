@@ -4,22 +4,17 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_network_image.dart';
+import '../../../../core/widgets/product_cart_controls.dart';
 import '../../../../core/widgets/product_favorite_button.dart';
 import '../../../home/domain/entities/home_product.dart';
 
 /// Horizontal wishlist row: thumbnail, details, and a favorite + add-to-cart
 /// column — the card used by the Wishlist page.
 class WishlistProductCard extends StatelessWidget {
-  const WishlistProductCard({
-    super.key,
-    required this.product,
-    this.onTap,
-    this.onAdd,
-  });
+  const WishlistProductCard({super.key, required this.product, this.onTap});
 
   final HomeProduct product;
   final VoidCallback? onTap;
-  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -108,35 +103,13 @@ class WishlistProductCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ProductFavoriteButton(productId: product.id),
-                    _AddButton(onTap: onAdd),
+                    ProductAddToCartButton(product: product),
                   ],
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _AddButton extends StatelessWidget {
-  const _AddButton({this.onTap});
-
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: context.r(26),
-        height: context.r(26),
-        decoration: const BoxDecoration(
-          color: AppColors.primaryBronze,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.add, size: context.r(17), color: Colors.white),
       ),
     );
   }

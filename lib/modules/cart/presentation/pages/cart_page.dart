@@ -104,8 +104,6 @@ class _CartPageState extends State<CartPage> {
   Widget _list(BuildContext context, CartState state) {
     final cubit = context.read<CartCubit>();
     final items = state.cart.items;
-    // Lock the steppers while a change is in flight so taps can't race.
-    final busy = state.isMutating;
 
     return RefreshIndicator(
       onRefresh: cubit.load,
@@ -114,12 +112,19 @@ class _CartPageState extends State<CartPage> {
         padding: context.edge(left: 16, right: 16, top: 8, bottom: 24),
         itemCount: items.length,
         separatorBuilder: (_, _) => context.gapH(12),
-        itemBuilder: (context, i) => CartItemCard(
-          item: items[i],
-          onIncrement: busy ? null : () => cubit.increment(items[i]),
-          onDecrement: busy ? null : () => cubit.decrement(items[i]),
-          onRemove: busy ? null : () => cubit.remove(items[i]),
-        ),
+        itemBuilder: (context, i) {
+          final item = items[i];
+          // Only the row being changed locks — its own stepper dims until the
+          // new quantity comes back, while the other rows stay tappable.
+          final busy = state.isPending(item.productId);
+
+          return CartItemCard(
+            item: item,
+            onIncrement: busy ? null : () => cubit.increment(item),
+            onDecrement: busy ? null : () => cubit.decrement(item),
+            onRemove: busy ? null : () => cubit.remove(item),
+          );
+        },
       ),
     );
   }

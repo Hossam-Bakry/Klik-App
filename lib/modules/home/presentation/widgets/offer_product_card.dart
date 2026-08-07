@@ -5,6 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_network_image.dart';
+import '../../../../core/widgets/product_cart_controls.dart';
 import '../../../../core/widgets/product_favorite_button.dart';
 import '../../domain/entities/home_product.dart';
 import 'product_price.dart';
@@ -12,18 +13,10 @@ import 'product_price.dart';
 /// Wide "Open to offers" row: image + details + quantity stepper, with a
 /// negotiate call-to-action footer. Matches the home "Open to offers" list.
 class OfferProductCard extends StatelessWidget {
-  const OfferProductCard({
-    super.key,
-    required this.product,
-    this.onTap,
-    this.onIncrement,
-    this.onDecrement,
-  });
+  const OfferProductCard({super.key, required this.product, this.onTap});
 
   final HomeProduct product;
   final VoidCallback? onTap;
-  final VoidCallback? onIncrement;
-  final VoidCallback? onDecrement;
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +132,9 @@ class OfferProductCard extends StatelessWidget {
               if (product.estimatedDeliveryTime.isNotEmpty)
                 _deliveryBadge(context),
               const Spacer(),
-              _QuantityStepper(
-                quantity: product.quantity,
-                onIncrement: onIncrement,
-                onDecrement: onDecrement,
-              ),
+              // Steps the product's cart quantity — the row's own stock lives
+              // in `product.quantity` and is only used for the sold-out state.
+              ProductCartStepper(product: product),
             ],
           ),
         ],
@@ -209,72 +200,6 @@ class OfferProductCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _QuantityStepper extends StatelessWidget {
-  const _QuantityStepper({
-    required this.quantity,
-    this.onIncrement,
-    this.onDecrement,
-  });
-
-  final int quantity;
-  final VoidCallback? onIncrement;
-  final VoidCallback? onDecrement;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _StepButton(icon: Icons.remove, filled: false, onTap: onDecrement),
-        Padding(
-          padding: context.edgeSymmetric(horizontal: 10),
-          child: Text(
-            '$quantity',
-            style: TextStyle(
-              fontSize: context.sp(14),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        _StepButton(icon: Icons.add, filled: true, onTap: onIncrement),
-      ],
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.filled, this.onTap});
-
-  final IconData icon;
-  final bool filled;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: context.r(18),
-        height: context.r(18),
-        decoration: BoxDecoration(
-          color: filled ? AppColors.primaryBronze : Colors.transparent,
-          shape: BoxShape.circle,
-          border: filled
-              ? null
-              : Border.all(
-                  color: AppColors.primaryBronze.withValues(alpha: 0.4),
-                ),
-        ),
-        child: Icon(
-          icon,
-          size: context.r(12),
-          color: filled ? Colors.white : AppColors.primaryBronze,
-        ),
       ),
     );
   }

@@ -31,15 +31,47 @@ class CartCubit extends Cubit<CartState> {
 
   /// Adds a line. Returns true when it landed, so the caller can toast the
   /// outcome.
-  Future<bool> add(CartItem item) => _mutate(_repository.addItem(item));
+  Future<bool> add(CartItem item) =>
+      _mutate(item.productId, () => _repository.addItem(item));
 
   Future<bool> increment(CartItem item) =>
-      _mutate(_repository.increment(item));
+      _mutate(item.productId, () => _repository.increment(item));
 
   Future<bool> decrement(CartItem item) =>
-      _mutate(_repository.decrement(item));
+      _mutate(item.productId, () => _repository.decrement(item));
 
-  Future<bool> remove(CartItem item) => _mutate(_repository.removeItem(item));
+  Future<bool> remove(CartItem item) =>
+      _mutate(item.productId, () => _repository.removeItem(item));
+
+  /// Units of a product in the cart, counting every variant of it — what a
+  /// product card's stepper shows.
+  int quantityOf(int productId) => state.cart.items
+      .where((item) => item.productId == productId)
+      .fold(0, (sum, item) => sum + item.quantity);
+
+  /// A product card's "+". Cards carry no variant picker, so this tops up
+  /// whichever line the product is already in and only starts a fresh
+  /// (variant-less) line when it isn't in the cart at all — otherwise adding
+  /// from a card would miss a line that went in with a size or colour.
+  Future<bool> addOne(CartItem item) {
+    final line = _lineFor(item.productId);
+    return line == null ? add(item) : increment(line);
+  }
+
+  /// A product card's "−". Steps the product's line down, which drops it at
+  /// zero. No-op when the product isn't in the cart.
+  Future<bool> removeOne(int productId) {
+    final line = _lineFor(productId);
+    return line == null ? Future.value(false) : decrement(line);
+  }
+
+  /// The cart line holding [productId], whatever variant it went in as.
+  CartItem? _lineFor(int productId) {
+    for (final item in state.cart.items) {
+      if (item.productId == productId) return item;
+    }
+    return null;
+  }
 
   /// Runs when a session becomes authenticated. Any cart built as a guest is
   /// handed to the account via `POST /api/cart/merge` and dropped from the
@@ -79,10 +111,21 @@ class CartCubit extends Cubit<CartState> {
 
   /// Mutations keep the current cart on screen and surface failure through
   /// [CartState.errorMessage] rather than blanking the list.
-  Future<bool> _mutate(Future<ApiResult<Cart>> action) async {
-    emit(state.copyWith(isMutating: true, clearError: true));
-    final ok = await _run(action);
-    emit(state.copyWith(isMutating: false));
+  ///
+  /// The product is marked pending for the duration so only its own stepper
+  /// locks; a change to another product can run alongside it.
+  Future<bool> _mutate(
+    int productId,
+    Future<ApiResult<Cart>> Function() action,
+  ) async {
+    emit(state.copyWith(
+      pendingProductIds: {...state.pendingProductIds, productId},
+      clearError: true,
+    ));
+    final ok = await _run(action());
+    emit(state.copyWith(
+      pendingProductIds: {...state.pendingProductIds}..remove(productId),
+    ));
     return ok;
   }
 
