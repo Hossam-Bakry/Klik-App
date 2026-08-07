@@ -23,9 +23,9 @@ import 'app_toast.dart';
 
 /// The round "+" on a grid card. Adds one unit and toasts the outcome.
 ///
-/// Once the product is in the cart the glyph turns into the cart icon, so a
-/// card tells you at a glance what's already been added; tapping again adds
-/// another unit.
+/// Once the product is in the cart the glyph turns into the cart icon carrying
+/// how many units are in there, so a card tells you at a glance what's already
+/// been added; tapping again adds another one.
 class ProductAddToCartButton extends StatelessWidget {
   const ProductAddToCartButton({super.key, required this.product});
 
@@ -33,8 +33,8 @@ class ProductAddToCartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inCart = context.select<CartCubit, bool>(
-      (cubit) => cubit.quantityOf(product.id) > 0,
+    final quantity = context.select<CartCubit, int>(
+      (cubit) => cubit.quantityOf(product.id),
     );
     final pending = context.select<CartCubit, bool>(
       (cubit) => cubit.state.isPending(product.id),
@@ -42,15 +42,26 @@ class ProductAddToCartButton extends StatelessWidget {
     // Nothing to add for a sold-out product, or for the dummy products the
     // skeleton renders while a feed loads.
     final enabled = !pending && !product.isOutOfStock && product.id != 0;
+    final inCart = quantity > 0;
 
-    return _RoundButton(
-      icon: Icons.add,
-
-      glyph: inCart ? Assets.icons.cartIcn : null,
-      filled: inCart ? false : true,
-      size: 28,
-      iconSize: 18,
-      onTap: enabled ? () => _add(context) : null,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _RoundButton(
+          icon: Icons.add,
+          glyph: inCart ? Assets.icons.cartIcn : null,
+          filled: !inCart,
+          size: 28,
+          iconSize: 18,
+          onTap: enabled ? () => _add(context) : null,
+        ),
+        if (inCart)
+          PositionedDirectional(
+            top: -context.r(4),
+            end: -context.r(4),
+            child: _CountBubble(count: quantity),
+          ),
+      ],
     );
   }
 
@@ -168,6 +179,36 @@ class _RoundButton extends StatelessWidget {
                   height: context.r(iconSize),
                   colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
                 ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Units in the cart, badged on the card's cart glyph — same bubble the nav
+/// bar's cart destination wears.
+class _CountBubble extends StatelessWidget {
+  const _CountBubble({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(minWidth: context.r(16)),
+      padding: context.edgeSymmetric(horizontal: 4, vertical: 1),
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.secondary,
+      ),
+      child: Text(
+        // Keep the bubble a fixed size past two digits.
+        count > 99 ? '99+' : '$count',
+        style: TextStyle(
+          fontSize: context.sp(9),
+          fontWeight: FontWeight.w700,
+          color: AppColors.surface,
         ),
       ),
     );
