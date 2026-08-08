@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +7,9 @@ import '../../../../core/constants/countries.dart';
 import '../../../../core/constants/validators.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/constants/app_links.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/services/link_launcher.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -209,12 +212,17 @@ class _AgreeTerms extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(text: '${context.tr(LocaleKeys.agreePrefix)} '),
-                  TextSpan(
-                    text: context.tr(LocaleKeys.termsPrivacy),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  // Two documents, two links — each opens the published page.
+                  _legalLink(
+                    context,
+                    label: context.tr(LocaleKeys.termsConditions),
+                    url: AppLinks.termsAndConditions,
+                  ),
+                  TextSpan(text: ' ${context.tr(LocaleKeys.andConjunction)} '),
+                  _legalLink(
+                    context,
+                    label: context.tr(LocaleKeys.privacyPolicy),
+                    url: AppLinks.privacyPolicy,
                   ),
                 ],
               ),
@@ -222,6 +230,23 @@ class _AgreeTerms extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// A bronze, tappable span for one of the legal documents.
+  TextSpan _legalLink(
+    BuildContext context, {
+    required String label,
+    required String url,
+  }) {
+    return TextSpan(
+      text: label,
+      style: const TextStyle(
+        color: AppColors.primary,
+        fontWeight: FontWeight.w700,
+      ),
+      recognizer: TapGestureRecognizer()
+        ..onTap = () => openLink(context, url),
     );
   }
 }

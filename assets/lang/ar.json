@@ -117,7 +117,6 @@
   "create_account": "إنشاء حساب",
   "register_subtitle": "انضم إلينا واختبر التسوّق الذكي",
   "agree_prefix": "أوافق على",
-  "terms_privacy": "الشروط والأحكام وسياسة الخصوصية",
   "have_account": "لديك حساب بالفعل؟",
   "forget_password_title": "نسيت كلمة المرور",
   "forget_password_subtitle": "أدخل رقمك وسنرسل لك رمز التحقق",
@@ -315,5 +314,10 @@
   "order_number": "رقم الطلب",
   "date_and_time": "التاريخ والوقت",
   "total_paid": "الإجمالي المدفوع",
-  "continue_shopping": "متابعة التسوق"
+  "continue_shopping": "متابعة التسوق",
+  "could_not_open_link": "تعذّر فتح الرابط.",
+  "terms_conditions": "الشروط والأحكام",
+  "and_conjunction": "و",
+  "no_notifications_yet": "لا توجد إشعارات بعد",
+  "share_app_message": "تسوّق الإلكترونيات على كليك — تصفّح، فاوض على السعر، واستلم طلبك أينما كنت."
 }

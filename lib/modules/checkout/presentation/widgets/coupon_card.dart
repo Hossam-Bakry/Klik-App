@@ -29,6 +29,13 @@ class CouponCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(context.r(10)),
         border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: context.r(14),
+            offset: Offset(0, context.r(2)),
+          ),
+        ]
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +64,7 @@ class CouponCard extends StatelessWidget {
                         height: context.r(44),
                         child: TextField(
                           controller: controller,
-                          textCapitalization: TextCapitalization.characters,
+                          // textCapitalization: TextCapitalization.characters,
                           style: context.bodySmall,
                           decoration: InputDecoration(
                             isDense: true,
@@ -67,9 +74,10 @@ class CouponCard extends StatelessWidget {
                             hintStyle: context.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
-                            contentPadding: context.edgeSymmetric(
-                              horizontal: 12,
-                            ),
+                            // contentPadding: context.edgeSymmetric(
+                            //   horizontal: 12,
+                            //   vertical: 24
+                            // ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(context.r(8)),
                               borderSide: BorderSide(color: AppColors.border),

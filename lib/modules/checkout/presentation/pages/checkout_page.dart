@@ -155,7 +155,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   _payNote(context, state),
                   context.gapH(12),
                 ],
-                _primaryAction(context, state, address),
+                _primaryAction(context, state, address, totals.total),
               ],
             ],
           ),
@@ -290,6 +290,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     BuildContext context,
     CheckoutState state,
     Address? address,
+    double paidTotal,
   ) {
     final isReview = state.step == CheckoutStep.review;
 
@@ -300,7 +301,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       onPressed: state.isPlacing
           ? null
           : () => isReview
-                ? _placeOrder(context, address)
+                ? _placeOrder(context, address, paidTotal)
                 : _advance(context, address),
     );
   }
@@ -316,15 +317,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
     context.read<CheckoutCubit>().next();
   }
 
-  Future<void> _placeOrder(BuildContext context, Address? address) async {
+  Future<void> _placeOrder(
+    BuildContext context,
+    Address? address,
+    double paidTotal,
+  ) async {
     final addressId = address?.id;
     if (addressId == null) {
       AppToast.error(context, context.tr(LocaleKeys.selectAddress));
       return;
     }
 
+    // The total on screen travels with the call: it's what the customer agreed
+    // to, and the confirmation shows it when the server names no figure.
     final order = await context.read<CheckoutCubit>().placeOrder(
       addressId: addressId,
+      paidTotal: paidTotal,
     );
     if (order == null || !context.mounted) return;
 

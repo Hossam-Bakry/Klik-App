@@ -54,6 +54,23 @@ class CheckoutDto {
     );
   }
 
+  /// The newest row of `GET /api/orders` — how the confirmation learns what it
+  /// just raised, since `place-order` doesn't say. Same payload the orders
+  /// screen parses, so the shape here is confirmed.
+  static PlacedOrder latestOrderFromJson(Object? data) {
+    final orders = data is Map ? data['orders'] : null;
+    final newest = orders is List ? orders.whereType<Map>().firstOrNull : null;
+    if (newest == null) return const PlacedOrder();
+
+    final row = newest.cast<String, dynamic>();
+    return PlacedOrder(
+      number: _str(row['order_code']),
+      placedLabel: _str(row['placed_at']),
+      paymentMethodLabel: _str(row['payment_method']),
+      total: _double(row['amount']),
+    );
+  }
+
   /// The order may arrive bare, wrapped in `order`, or — since one cart can
   /// raise an order per shop — as the first of a list.
   static Map<String, dynamic> _orderMap(Object? data) {

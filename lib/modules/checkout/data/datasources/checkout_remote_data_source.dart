@@ -18,6 +18,8 @@ abstract interface class CheckoutRemoteDataSource {
     required List<int> shopIds,
     required int addressId,
   });
+
+  Future<ApiResult<PlacedOrder>> fetchLatestOrder();
 }
 
 class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
@@ -64,5 +66,14 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
     ApiEndpoints.placeOrder,
     body: {'shop_ids': shopIds, 'address_id': addressId},
     decoder: CheckoutDto.placedOrderFromJson,
+  );
+
+  /// The newest order on the account — read straight after placing, because
+  /// `place-order` answers without naming what it raised.
+  @override
+  Future<ApiResult<PlacedOrder>> fetchLatestOrder() => _api.get(
+    ApiEndpoints.orders,
+    query: const {'page': 1, 'per_page': 1},
+    decoder: CheckoutDto.latestOrderFromJson,
   );
 }

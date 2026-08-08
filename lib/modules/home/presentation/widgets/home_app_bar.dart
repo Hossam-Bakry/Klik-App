@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/widgets/auth_prompt.dart';
+import '../../../notifications/presentation/cubit/notifications_cubit.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../address/presentation/widgets/choose_address_sheet.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
@@ -58,7 +62,16 @@ class HomeAppBar extends StatelessWidget {
             ),
           ),
         ),
-        _NotificationButton(hasNew: true, onTap: () {}),
+        // The dot tracks the app-wide unread tally; a guest has none, and the
+        // route is auth-gated anyway.
+        _NotificationButton(
+          hasNew: context.select<NotificationsCubit, bool>(
+            (cubit) => cubit.state.hasUnread,
+          ),
+          onTap: () => context.requireAuth(
+            () => context.push(AppRoutes.notifications),
+          ),
+        ),
       ],
     );
   }

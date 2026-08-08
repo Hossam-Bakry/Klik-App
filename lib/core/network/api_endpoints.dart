@@ -136,6 +136,15 @@ class ApiEndpoints {
       '/api/order-payment/$order/$method';
 
   // ---------------------------------------------------------------------------
+  // Notifications 🔒
+  // ---------------------------------------------------------------------------
+  /// GET — ?page=&per_page=&is_read=0 (the only filters it honours).
+  static const String notifications = '/api/notifications';
+
+  /// POST — marks one read. DELETE on the same path removes it (untested).
+  static String notification(Object id) => '/api/notifications/$id';
+
+  // ---------------------------------------------------------------------------
   // Coupons & vouchers 🔒
   // ---------------------------------------------------------------------------
   static const String applyVoucher = '/api/apply-voucher';

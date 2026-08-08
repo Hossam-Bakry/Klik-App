@@ -21,6 +21,7 @@ import '../../modules/checkout/domain/entities/placed_order.dart';
 import '../../modules/checkout/presentation/cubit/checkout_cubit.dart';
 import '../../modules/checkout/presentation/pages/checkout_page.dart';
 import '../../modules/checkout/presentation/pages/order_success_page.dart';
+import '../../modules/notifications/presentation/pages/notifications_page.dart';
 import '../../modules/orders/presentation/bloc/orders_bloc.dart';
 import '../../modules/orders/presentation/order_details_args.dart';
 import '../../modules/orders/presentation/cubit/order_details_cubit.dart';
@@ -238,6 +239,13 @@ class AppRouter {
               state.extra is PlacedOrder ? null : AppRoutes.orders,
           builder: (context, state) =>
               OrderSuccessPage(order: state.extra as PlacedOrder),
+        ),
+        // Notifications (auth-required — they belong to an account). The
+        // app-wide NotificationsCubit comes from main.dart, so the route is
+        // just the page.
+        GoRoute(
+          path: AppRoutes.notifications,
+          builder: (context, state) => const NotificationsPage(),
         ),
         // Orders (auth-required). Page-scoped OrdersBloc loads the customer's
         // orders once; the screen's chips/search/date window filter locally.

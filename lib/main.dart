@@ -14,6 +14,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/no_network_view.dart';
 import 'modules/auth/presentation/bloc/auth_bloc.dart';
+import 'modules/notifications/presentation/cubit/notifications_cubit.dart';
 import 'modules/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'modules/profile/presentation/cubit/current_user_cubit.dart';
 
@@ -43,6 +44,7 @@ class _KlikAppState extends State<KlikApp> {
   final FavoritesCubit _favoritesCubit = sl<FavoritesCubit>();
   final CartCubit _cartCubit = sl<CartCubit>();
   final CurrentUserCubit _currentUserCubit = sl<CurrentUserCubit>();
+  final NotificationsCubit _notificationsCubit = sl<NotificationsCubit>();
   late final _router = AppRouter.create(_authBloc, _onboardingCubit);
 
   /// Minimum time the branded splash stays on screen before resolving where to
@@ -71,6 +73,7 @@ class _KlikAppState extends State<KlikApp> {
         BlocProvider.value(value: _favoritesCubit),
         BlocProvider.value(value: _cartCubit),
         BlocProvider.value(value: _currentUserCubit),
+        BlocProvider.value(value: _notificationsCubit),
       ],
       // React to session transitions: on sign-in, merge any device-held guest
       // cart into the account and load the user's profile; on sign-out, drop
@@ -83,10 +86,12 @@ class _KlikAppState extends State<KlikApp> {
             case AuthStatus.authenticated:
               _cartCubit.onSignedIn();
               _currentUserCubit.load();
+              _notificationsCubit.load();
             case AuthStatus.unauthenticated:
               _favoritesCubit.clear();
               _cartCubit.onSignedOut();
               _currentUserCubit.clear();
+              _notificationsCubit.clear();
             case AuthStatus.unknown:
               break;
           }

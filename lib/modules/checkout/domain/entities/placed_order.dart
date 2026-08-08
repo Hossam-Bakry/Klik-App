@@ -22,6 +22,20 @@ class PlacedOrder extends Equatable {
   final String paymentMethodLabel;
   final double total;
 
+  bool get isEmpty => number.isEmpty && placedLabel.isEmpty && total <= 0;
+
+  PlacedOrder copyWith({
+    String? number,
+    String? placedLabel,
+    String? paymentMethodLabel,
+    double? total,
+  }) => PlacedOrder(
+    number: number ?? this.number,
+    placedLabel: placedLabel ?? this.placedLabel,
+    paymentMethodLabel: paymentMethodLabel ?? this.paymentMethodLabel,
+    total: total ?? this.total,
+  );
+
   @override
   List<Object?> get props => [number, placedLabel, paymentMethodLabel, total];
 }

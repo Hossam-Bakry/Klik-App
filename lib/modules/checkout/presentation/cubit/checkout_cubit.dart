@@ -90,7 +90,14 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   /// Places the cart. Returns the order on success so the screen can show the
   /// confirmation; null when it failed (the message is on the state).
-  Future<PlacedOrder?> placeOrder({required int addressId}) async {
+  ///
+  /// [paidTotal] is the total the customer was just shown — the confirmation
+  /// falls back to it, because nothing in the order call is guaranteed to come
+  /// back with a figure and "0.00" would be a lie.
+  Future<PlacedOrder?> placeOrder({
+    required int addressId,
+    required double paidTotal,
+  }) async {
     final shopIds = _cart.state.cart.shopIds;
     if (shopIds.isEmpty) return null;
 
@@ -101,10 +108,11 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       addressId: addressId,
     )) {
       case ApiSuccess(:final data):
+        final order = await _confirmationFor(data, paidTotal: paidTotal);
         emit(state.copyWith(status: CheckoutStatus.placed));
         // The lines are the shop's problem now.
         await _cart.load();
-        return data;
+        return order;
       case ApiFailure(:final failure):
         emit(state.copyWith(
           status: CheckoutStatus.ready,
@@ -112,6 +120,39 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         ));
         return null;
     }
+  }
+
+  /// What the confirmation screen shows.
+  ///
+  /// `POST /api/place-order` answers without describing the order it raised, so
+  /// when it comes back empty the newest row of `GET /api/orders` — the order
+  /// that was just created — fills in the number, the stamp and the payment
+  /// method. Whatever is still missing falls back to what the checkout knew.
+  ///
+  /// A cart spanning several shops raises an order per shop; the newest is the
+  /// one shown, as the design has room for one.
+  Future<PlacedOrder> _confirmationFor(
+    PlacedOrder placed, {
+    required double paidTotal,
+  }) async {
+    var order = placed;
+
+    if (order.isEmpty || order.number.isEmpty) {
+      if (await _repository.fetchLatestOrder() case ApiSuccess(data: final latest)) {
+        order = PlacedOrder(
+          number: order.number.isEmpty ? latest.number : order.number,
+          placedLabel: order.placedLabel.isEmpty
+              ? latest.placedLabel
+              : order.placedLabel,
+          paymentMethodLabel: order.paymentMethodLabel.isEmpty
+              ? latest.paymentMethodLabel
+              : order.paymentMethodLabel,
+          total: order.total > 0 ? order.total : latest.total,
+        );
+      }
+    }
+
+    return order.total > 0 ? order : order.copyWith(total: paidTotal);
   }
 
   Future<void> _loadSummary() async {

@@ -25,6 +25,7 @@ abstract class LocaleKeys {
   static const signInRequiredMessage = 'sign_in_required_message';
   static const somethingWentWrong = 'something_went_wrong';
   static const comingSoon = 'coming_soon';
+  static const couldNotOpenLink = 'could_not_open_link';
   static const noInternetConnection = 'no_internet_connection';
   static const checkConnectionRetry = 'check_connection_retry';
 
@@ -33,6 +34,7 @@ abstract class LocaleKeys {
   static const myNegotiation = 'my_negotiation';
   static const wishlist = 'wishlist';
   static const notification = 'notification';
+  static const noNotificationsYet = 'no_notifications_yet';
   static const manageAddress = 'manage_address';
   static const language = 'language';
   static const country = 'country';
@@ -42,6 +44,7 @@ abstract class LocaleKeys {
   static const logout = 'logout';
   static const logoutConfirm = 'logout_confirm';
   static const sellWithUs = 'sell_with_us';
+  static const shareAppMessage = 'share_app_message';
   static const appVersion = 'app_version';
   static const allRightsReserved = 'all_rights_reserved';
 
@@ -145,7 +148,8 @@ abstract class LocaleKeys {
   static const createAccount = 'create_account';
   static const registerSubtitle = 'register_subtitle';
   static const agreePrefix = 'agree_prefix';
-  static const termsPrivacy = 'terms_privacy';
+  static const termsConditions = 'terms_conditions';
+  static const andConjunction = 'and_conjunction';
   static const haveAccount = 'have_account';
 
   // Forgot password

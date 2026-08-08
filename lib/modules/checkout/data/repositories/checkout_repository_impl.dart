@@ -25,4 +25,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     required List<int> shopIds,
     required int addressId,
   }) => _remote.placeOrder(shopIds: shopIds, addressId: addressId);
+
+  @override
+  Future<ApiResult<PlacedOrder>> fetchLatestOrder() => _remote.fetchLatestOrder();
 }

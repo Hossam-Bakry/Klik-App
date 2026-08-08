@@ -117,7 +117,6 @@
   "create_account": "Create Account",
   "register_subtitle": "Join us and experience smart Shopping",
   "agree_prefix": "I agree with",
-  "terms_privacy": "Terms & Condition and Privacy Policy",
   "have_account": "Already have an account?",
   "forget_password_title": "Forget Password",
   "forget_password_subtitle": "Enter your number and We Will send you OTP",
@@ -315,5 +314,10 @@
   "order_number": "Order Number",
   "date_and_time": "Date and time",
   "total_paid": "Total Paid",
-  "continue_shopping": "Continue Shopping"
+  "continue_shopping": "Continue Shopping",
+  "could_not_open_link": "Couldn't open the link.",
+  "terms_conditions": "Terms & Conditions",
+  "and_conjunction": "and",
+  "no_notifications_yet": "No notifications yet",
+  "share_app_message": "Shop electronics on Klik — browse, negotiate the price, and get it delivered."
 }

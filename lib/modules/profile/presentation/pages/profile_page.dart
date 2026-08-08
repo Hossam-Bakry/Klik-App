@@ -5,7 +5,10 @@ import 'package:klik_app/gen/assets.gen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/di/injector.dart';
+import '../../../../core/constants/app_links.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/services/app_share.dart';
+import '../../../../core/services/link_launcher.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_routes.dart';
@@ -97,7 +100,8 @@ class ProfilePage extends StatelessWidget {
                           icon: Assets.icons.notificationIcn,
                           title: context.tr(LocaleKeys.notification),
                           trailing: const ProfileTileChevron(),
-                          onTap: () => gated(() {}),
+                          onTap: () =>
+                              gated(() => context.push(AppRoutes.notifications)),
                         ),
                         ProfileMenuTile(
                           icon: Assets.icons.locationIcn,
@@ -140,13 +144,14 @@ class ProfilePage extends StatelessWidget {
                           icon: Assets.icons.termsIcn,
                           title: context.tr(LocaleKeys.termsServices),
                           trailing: const ProfileTileChevron(),
-                          onTap: () {},
+                          onTap: () =>
+                              openLink(context, AppLinks.termsAndConditions),
                         ),
                         ProfileMenuTile(
                           icon: Assets.icons.policyIcn,
                           title: context.tr(LocaleKeys.privacyPolicy),
                           trailing: const ProfileTileChevron(),
-                          onTap: () {},
+                          onTap: () => openLink(context, AppLinks.privacyPolicy),
                         ),
                         ProfileMenuTile(
                           icon: Assets.icons.logoutIcn,
@@ -176,7 +181,8 @@ class ProfilePage extends StatelessWidget {
                 ],
 
                 ProfileFooter(
-                  onSellWithUs: () {},
+                  // Hands the app on through the OS share sheet.
+                  onSellWithUs: () => shareApp(context),
                   onTikTok: () {},
                   onInstagram: () {},
                   onFacebook: () {},
@@ -199,13 +205,13 @@ class ProfilePage extends StatelessWidget {
             icon: Assets.icons.termsIcn,
             title: context.tr(LocaleKeys.termsServices),
             trailing: const ProfileTileChevron(),
-            onTap: () {},
+            onTap: () => openLink(context, AppLinks.termsAndConditions),
           ),
           ProfileMenuTile(
             icon: Assets.icons.policyIcn,
             title: context.tr(LocaleKeys.privacyPolicy),
             trailing: const ProfileTileChevron(),
-            onTap: () {},
+            onTap: () => openLink(context, AppLinks.privacyPolicy),
           ),
         ],
       ),

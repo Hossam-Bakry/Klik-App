@@ -10,6 +10,7 @@ import '../../modules/checkout/di/checkout_injector.dart';
 import '../../modules/categories/di/categories_injector.dart';
 import '../../modules/home/di/home_injector.dart';
 import '../../modules/negotiations/di/negotiations_injector.dart';
+import '../../modules/notifications/di/notifications_injector.dart';
 import '../../modules/onboarding/di/onboarding_injector.dart';
 import '../../modules/orders/di/orders_injector.dart';
 import '../../modules/product/di/product_injector.dart';
@@ -61,6 +62,7 @@ Future<void> configureDependencies() async {
   registerHomeModule(sl);
   registerAddressModule(sl);
   registerNegotiationsModule(sl);
+  registerNotificationsModule(sl);
   registerOrdersModule(sl);
   registerProductModule(sl);
   registerProductsModule(sl);

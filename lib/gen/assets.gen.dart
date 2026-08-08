@@ -38,6 +38,18 @@ class $AssetsIconsGen {
   SvgGenImage get changePasswordIcn =>
       const SvgGenImage('assets/icons/change_password_icn.svg');
 
+  /// File path: assets/icons/checkout_location_icn.svg
+  SvgGenImage get checkoutLocationIcn =>
+      const SvgGenImage('assets/icons/checkout_location_icn.svg');
+
+  /// File path: assets/icons/checkout_payment_icn.svg
+  SvgGenImage get checkoutPaymentIcn =>
+      const SvgGenImage('assets/icons/checkout_payment_icn.svg');
+
+  /// File path: assets/icons/checkout_preview_icn.svg
+  SvgGenImage get checkoutPreviewIcn =>
+      const SvgGenImage('assets/icons/checkout_preview_icn.svg');
+
   /// File path: assets/icons/country_icn.svg
   SvgGenImage get countryIcn =>
       const SvgGenImage('assets/icons/country_icn.svg');
@@ -169,6 +181,9 @@ class $AssetsIconsGen {
     cartIcn,
     categoryIcn,
     changePasswordIcn,
+    checkoutLocationIcn,
+    checkoutPaymentIcn,
+    checkoutPreviewIcn,
     countryIcn,
     deliveryIcn,
     editIcn,

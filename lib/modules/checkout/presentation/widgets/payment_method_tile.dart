@@ -41,6 +41,13 @@ class PaymentMethodTile extends StatelessWidget {
             color: selected ? AppColors.primaryBronze : AppColors.border,
             width: selected ? context.r(1.4) : 1,
           ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: context.r(14),
+                offset: Offset(0, context.r(2)),
+              ),
+            ]
         ),
         child: Row(
           children: [

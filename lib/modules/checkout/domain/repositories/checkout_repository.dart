@@ -21,4 +21,8 @@ abstract interface class CheckoutRepository {
     required List<int> shopIds,
     required int addressId,
   });
+
+  /// The newest order on the account (`GET /api/orders`), used to fill in the
+  /// confirmation that `place-order` leaves blank.
+  Future<ApiResult<PlacedOrder>> fetchLatestOrder();
 }
