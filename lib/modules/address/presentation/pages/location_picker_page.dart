@@ -11,9 +11,10 @@ import '../../../../core/widgets/app_toast.dart';
 
 /// Full-screen map for browsing and picking any location.
 ///
-/// The map moves under a fixed centre pin (Google/Uber style). When the camera
-/// settles, the centre point is reverse-geocoded and shown in the bottom card;
-/// "Confirm location" pops with the [ResolvedPlace] so the caller can auto-fill.
+/// The pin is a real marker: tap anywhere on the map to move it there, or drag
+/// the pin itself. Every move reverse-geocodes the new point and shows it in the
+/// bottom card; "Confirm location" pops with the [ResolvedPlace] so the caller
+/// can auto-fill.
 class LocationPickerPage extends StatefulWidget {
   const LocationPickerPage({super.key, this.initialLat, this.initialLng});
 
@@ -48,8 +49,15 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
 
   GoogleMapController? _controller;
   late LatLng _target;
+
+  /// The address resolved for the *current* [_target]. Cleared the moment the
+  /// pin moves, so Confirm can never hand back parts from the previous point.
   ResolvedPlace? _place;
   bool _busy = false;
+
+  /// Guards against out-of-order geocoder replies: only the newest lookup is
+  /// allowed to write [_place].
+  int _lookup = 0;
 
   @override
   void initState() {
@@ -70,11 +78,22 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     super.dispose();
   }
 
+  /// Moves the pin — from a tap on the map or from dragging the marker — and
+  /// refreshes the card underneath it.
+  void _movePin(LatLng pos) {
+    setState(() => _target = pos);
+    _resolve(pos);
+  }
+
   /// Reverse-geocode the given point and show it in the bottom card.
   Future<void> _resolve(LatLng pos) async {
-    setState(() => _busy = true);
+    final lookup = ++_lookup;
+    setState(() {
+      _busy = true;
+      _place = null;
+    });
     final place = await _location.reverseGeocode(pos.latitude, pos.longitude);
-    if (!mounted) return;
+    if (!mounted || lookup != _lookup) return;
     setState(() {
       _place = place;
       _busy = false;
@@ -89,6 +108,9 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     switch (result) {
       case LocationSuccess(:final place):
         final target = LatLng(place.lat, place.lng);
+        // Claim the newest lookup so a pending reverse-geocode for the old pin
+        // can't land on top of this one.
+        _lookup++;
         setState(() {
           _target = target;
           _place = place;
@@ -102,10 +124,21 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   }
 
   void _confirm() {
-    // Always hand back the centre coordinates; the resolved address parts are
-    // best-effort and may be empty if geocoding failed.
+    // Always hand back the pin's coordinates; the resolved address parts are
+    // best-effort and may be missing if geocoding failed or is still running.
     final place = _place ?? ResolvedPlace(lat: _target.latitude, lng: _target.longitude);
     Navigator.of(context).pop(place);
+  }
+
+  /// What the card shows for the current pin: the geocoded address, or the raw
+  /// coordinates when the geocoder had nothing (offline, unnamed spot). Null
+  /// while a lookup is in flight, so the card falls back to its hint.
+  String? get _pinLabel {
+    final place = _place;
+    if (place == null) return null;
+    return place.label.isNotEmpty
+        ? place.label
+        : '${place.lat.toStringAsFixed(5)}, ${place.lng.toStringAsFixed(5)}';
   }
 
   void _showError(LocationError error) {
@@ -125,25 +158,22 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(target: _target, zoom: 16),
-            onMapCreated: (c) => _controller = c,
-            onCameraMove: (pos) => _target = pos.target,
-            onCameraIdle: () => _resolve(_target),
+            onMapCreated: (c) {
+              _controller = c;
+              c.moveCamera(CameraUpdate.newLatLngZoom(_target, 16));
+            },
+            onTap: _movePin,
+            markers: {
+              Marker(
+                markerId: const MarkerId('picked'),
+                position: _target,
+                draggable: true,
+                onDragEnd: _movePin,
+              ),
+            },
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-          ),
-          // Fixed centre pin — nudged up so its tip sits on the map centre.
-          IgnorePointer(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: context.r(36)),
-                child: Icon(
-                  Icons.location_on,
-                  color: AppColors.primary,
-                  size: context.r(44),
-                ),
-              ),
-            ),
           ),
           if (_busy)
             Positioned(
@@ -165,7 +195,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
           Align(
             alignment: Alignment.bottomCenter,
             child: _PickedCard(
-              label: _place?.label,
+              label: _pinLabel,
               onConfirm: _confirm,
             ),
           ),

@@ -39,7 +39,9 @@ class AddressDto {
     );
   }
 
-  /// Request body for create/update. Null-valued optional fields are omitted.
+  /// Request body for create/update. Every key is mandatory server-side, so all
+  /// of them are always sent — the add/edit form validates them before we get
+  /// here.
   static Map<String, dynamic> toJson(Address a) {
     return {
       _K.type: a.type.apiValue,
@@ -49,12 +51,12 @@ class AddressDto {
       _K.countryIso: a.countryIso,
       _K.city: a.city,
       _K.area: a.area,
-      if (a.flatNumber != null) _K.flatNumber: a.flatNumber,
-      if (a.postCode != null) _K.postCode: a.postCode,
+      _K.flatNumber: a.flatNumber ?? '',
+      _K.postCode: a.postCode ?? '',
       _K.line1: a.line1,
-      if (a.line2 != null) _K.line2: a.line2,
-      if (a.lat != null) _K.lat: a.lat,
-      if (a.lng != null) _K.lng: a.lng,
+      _K.line2: a.line2 ?? '',
+      _K.lat: a.lat,
+      _K.lng: a.lng,
       _K.isDefault: a.isDefault ? 1 : 0,
     };
   }
@@ -83,7 +85,7 @@ class _K {
   static const flatNumber = 'flat_no';
   static const postCode = 'post_code';
   static const line1 = 'address_line';
-  static const line2 = 'address_line_2';
+  static const line2 = 'address_line2';
   static const lat = 'latitude';
   static const lng = 'longitude';
   static const isDefault = 'is_default';

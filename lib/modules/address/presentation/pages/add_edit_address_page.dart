@@ -41,6 +41,11 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
   late final TextEditingController _line1;
   late final TextEditingController _line2;
 
+  /// Every text field, in one list — used for disposal and to drive the Save
+  /// button's enabled state as the user types.
+  late final List<TextEditingController> _fields;
+  late final Listenable _anyFieldChanged;
+
   late Country _country;
   late AddressType _type;
   late bool _isDefault;
@@ -59,6 +64,8 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
     _postCode = TextEditingController(text: a?.postCode);
     _line1 = TextEditingController(text: a?.line1);
     _line2 = TextEditingController(text: a?.line2);
+    _fields = [_fullName, _phone, _city, _area, _flatNumber, _postCode, _line1, _line2];
+    _anyFieldChanged = Listenable.merge(_fields);
     _type = a?.type ?? AddressType.home;
     _isDefault = a?.isDefault ?? false;
     _lat = a?.lat;
@@ -76,7 +83,7 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
 
   @override
   void dispose() {
-    for (final c in [_fullName, _phone, _city, _area, _flatNumber, _postCode, _line1, _line2]) {
+    for (final c in _fields) {
       c.dispose();
     }
     super.dispose();
@@ -101,8 +108,20 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
     });
   }
 
+  /// Whether every mandatory input has *something* in it. Drives the dimmed
+  /// Save button; format rules (name/phone) are still reported on submit, so
+  /// this only checks for presence.
+  bool get _isComplete =>
+      _lat != null && _lng != null && _fields.every((c) => c.text.trim().isNotEmpty);
+
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    // Coordinates are mandatory too, and the map picker has no form field of
+    // its own — so they're checked here.
+    if (_lat == null || _lng == null) {
+      AppToast.warning(context, context.tr(LocaleKeys.locationRequired));
+      return;
+    }
     final address = Address(
       id: widget.address?.id,
       type: _type,
@@ -112,10 +131,10 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
       countryIso: _country.isoCode,
       city: _city.text.trim(),
       area: _area.text.trim(),
-      flatNumber: _flatNumber.text.trim().isEmpty ? null : _flatNumber.text.trim(),
-      postCode: _postCode.text.trim().isEmpty ? null : _postCode.text.trim(),
+      flatNumber: _flatNumber.text.trim(),
+      postCode: _postCode.text.trim(),
       line1: _line1.text.trim(),
-      line2: _line2.text.trim().isEmpty ? null : _line2.text.trim(),
+      line2: _line2.text.trim(),
       lat: _lat,
       lng: _lng,
       isDefault: _isDefault,
@@ -191,6 +210,7 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
                       child: AppTextField.text(
                         controller: _flatNumber,
                         hint: context.tr(LocaleKeys.flatNumber),
+                        validator: Validators.required(context),
                       ),
                     ),
                     context.gapW(12),
@@ -199,6 +219,7 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
                         controller: _postCode,
                         hint: context.tr(LocaleKeys.postCode),
                         keyboardType: TextInputType.number,
+                        validator: Validators.required(context),
                       ),
                     ),
                   ],
@@ -213,6 +234,7 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
                 AppTextField.text(
                   controller: _line2,
                   hint: context.tr(LocaleKeys.addressLine2),
+                  validator: Validators.required(context),
                 ),
                 context.gapH(12),
                 _DefaultSwitch(
@@ -222,10 +244,13 @@ class _AddEditAddressPageState extends State<AddEditAddressPage> {
                 context.gapH(20),
                 BlocBuilder<AddressBloc, AddressState>(
                   buildWhen: (p, c) => p.action != c.action,
-                  builder: (context, state) => AppButton.filled(
-                    label: context.tr(saveKey),
-                    isLoading: state.action == AddressAction.submitting,
-                    onPressed: _save,
+                  builder: (context, state) => ListenableBuilder(
+                    listenable: _anyFieldChanged,
+                    builder: (context, _) => AppButton.filled(
+                      label: context.tr(saveKey),
+                      isLoading: state.action == AddressAction.submitting,
+                      onPressed: _isComplete ? _save : null,
+                    ),
                   ),
                 ),
               ],

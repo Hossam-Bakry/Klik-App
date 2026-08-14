@@ -219,6 +219,7 @@ abstract class LocaleKeys {
   static const selectLocation = 'select_location';
   static const confirmLocation = 'confirm_location';
   static const moveMapToSelect = 'move_map_to_select';
+  static const locationRequired = 'location_required';
   static const typeHome = 'type_home';
   static const typeWork = 'type_work';
   static const typeOther = 'type_other';

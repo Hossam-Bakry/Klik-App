@@ -11,9 +11,11 @@ import '../pages/location_picker_page.dart';
 
 /// Map header for the add/edit address screen.
 ///
-/// Shows a Google Map with a single marker. Tapping the map, or the "use
-/// current location" row beneath it, resolves a [ResolvedPlace] (reverse
-/// geocoded) and hands it back via [onPlacePicked] so the form can auto-fill.
+/// The map is a read-only preview of the picked point: it lives inside the
+/// form's [ListView], which would swallow its pan gestures, so instead of
+/// half-working map controls a tap anywhere on it (or on "change") opens the
+/// full-screen [LocationPickerPage]. The confirmed [ResolvedPlace] comes back
+/// through [onPlacePicked] so the form can auto-fill.
 class AddressMapPicker extends StatefulWidget {
   const AddressMapPicker({
     super.key,
@@ -88,26 +90,20 @@ class _AddressMapPickerState extends State<AddressMapPicker> {
     if (place != null && mounted) _applyPlace(place);
   }
 
-  Future<void> _onMapTapped(LatLng pos) async {
-    setState(() {
-      _marker = pos;
-      _busy = true;
-    });
-    final place = await _location.reverseGeocode(pos.latitude, pos.longitude);
-    if (!mounted) return;
-    setState(() => _busy = false);
-    _applyPlace(place);
-  }
-
   void _applyPlace(ResolvedPlace place) {
     final target = LatLng(place.lat, place.lng);
     setState(() {
       _marker = target;
-      _label = place.label;
+      // Geocoding is best-effort; show the coordinates rather than falling back
+      // to the empty-state hint, which would read as "nothing picked".
+      _label = place.label.isNotEmpty ? place.label : _coordinates(place);
     });
     _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 16));
     widget.onPlacePicked(place);
   }
+
+  String _coordinates(ResolvedPlace p) =>
+      '${p.lat.toStringAsFixed(5)}, ${p.lng.toStringAsFixed(5)}';
 
   void _showError(LocationError error) {
     final key = switch (error) {
@@ -127,33 +123,47 @@ class _AddressMapPickerState extends State<AddressMapPicker> {
           borderRadius: BorderRadius.circular(context.r(14)),
           child: SizedBox(
             height: context.r(150),
-            child: Stack(
-              children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(target: _center, zoom: 14),
-                  onMapCreated: (c) {
-                    _controller = c;
-                    if (_marker != null) {
-                      c.animateCamera(CameraUpdate.newLatLngZoom(_marker!, 16));
-                    }
-                  },
-                  onTap: _onMapTapped,
-                  markers: {
-                    if (_marker != null)
-                      Marker(markerId: const MarkerId('picked'), position: _marker!),
-                  },
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  liteModeEnabled: false,
-                ),
-                if (_busy)
-                  const Positioned.fill(
-                    child: ColoredBox(
-                      color: Color(0x22000000),
-                      child: Center(child: CircularProgressIndicator()),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _openFullScreenPicker,
+              child: Stack(
+                children: [
+                  // AbsorbPointer keeps every touch in Flutter's hands, so the
+                  // tap always opens the picker instead of being eaten by the
+                  // map's platform view.
+                  AbsorbPointer(
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(target: _center, zoom: 14),
+                      onMapCreated: (c) {
+                        _controller = c;
+                        if (_marker != null) {
+                          c.animateCamera(CameraUpdate.newLatLngZoom(_marker!, 16));
+                        }
+                      },
+                      markers: {
+                        if (_marker != null)
+                          Marker(markerId: const MarkerId('picked'), position: _marker!),
+                      },
+                      scrollGesturesEnabled: false,
+                      zoomGesturesEnabled: false,
+                      rotateGesturesEnabled: false,
+                      tiltGesturesEnabled: false,
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: false,
+                      liteModeEnabled: false,
                     ),
                   ),
-              ],
+                  if (_busy)
+                    const Positioned.fill(
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          color: Color(0x22000000),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

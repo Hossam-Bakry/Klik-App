@@ -20,7 +20,7 @@ import '../widgets/auth_header.dart';
 import '../widgets/auth_illustration.dart';
 import '../widgets/auth_scaffold.dart';
 
-const int _otpLength = 4;
+const int _otpLength = 6;
 
 /// Post-registration step: the user enters the OTP sent to their phone to
 /// activate the account. Drives the app-level [AuthBloc] (which holds the
@@ -151,8 +151,8 @@ class _OtpInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final defaultTheme = PinTheme(
-      width: context.r(64),
-      height: context.r(72),
+      width: context.r(50),
+      height: context.r(70),
       textStyle:
           TextStyle(fontSize: context.sp(24), fontWeight: FontWeight.w600),
       decoration: BoxDecoration(
