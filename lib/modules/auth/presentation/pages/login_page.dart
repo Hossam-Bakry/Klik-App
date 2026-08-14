@@ -75,15 +75,26 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       bloc: sl<AuthBloc>(),
+      // React when a submit settles (isSubmitting falls) as well as on status
+      // changes, so a repeated login with the same unverified number re-opens
+      // verify-phone even though pendingVerification is unchanged.
       listenWhen: (p, c) =>
-          p.status != c.status || p.errorMessage != c.errorMessage,
+          p.status != c.status ||
+          (p.isSubmitting && !c.isSubmitting) ||
+          p.errorMessage != c.errorMessage,
       listener: (context, state) {
-        if (state.isAuthenticated) {
+        if (state.isSubmitting) return;
+        if (state.errorMessage != null) {
+          AppToast.error(context, state.errorMessage!);
+        } else if (state.isAuthenticated) {
           // Reached via push from a guest screen; `go` replaces the stack so we
           // land on Home rather than leaving the login page on top.
           context.go(AppRoutes.home);
-        } else if (state.errorMessage != null) {
-          AppToast.error(context, state.errorMessage!);
+        } else if (state.pendingVerification != null) {
+          // Credentials were right, but the account's phone was never verified
+          // — activate it before letting the user in.
+          AppToast.warning(context, context.tr(LocaleKeys.verifyPhoneFirst));
+          context.push(AppRoutes.verifyPhone);
         }
       },
       child: AuthScaffold(

@@ -12,7 +12,7 @@ class SecurityRemoteDataSourceImpl implements SecurityRemoteDataSource {
   final ApiInterface _api;
 
   @override
-  Future<ApiResult<Unit>> deleteAccount() => _api.post(
+  Future<ApiResult<Unit>> deleteAccount() => _api.delete(
     ApiEndpoints.deleteAccount,
     decoder: (_) => unit,
   );

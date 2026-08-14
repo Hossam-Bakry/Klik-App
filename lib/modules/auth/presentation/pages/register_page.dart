@@ -101,8 +101,11 @@ class _RegisterPageState extends State<RegisterPage> {
         } else if (state.isAuthenticated) {
           context.go(AppRoutes.home);
         } else if (state.pendingVerification != null) {
-          // Account created — go verify the phone to activate it.
-          context.push(AppRoutes.verifyPhone);
+          // Account created — go verify the phone to activate it. Replace rather
+          // than push: the account already exists, so backing up into a filled
+          // register form would only re-submit a number the API now rejects.
+          // Back from the OTP screen lands on login instead.
+          context.pushReplacement(AppRoutes.verifyPhone);
         }
       },
       child: AuthScaffold(

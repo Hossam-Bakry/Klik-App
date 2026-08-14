@@ -59,20 +59,29 @@ class AuthState extends Equatable {
       [status, session, isSubmitting, errorMessage, pendingVerification];
 }
 
-/// The phone captured at registration that must be OTP-verified to activate
-/// the account. The resend cooldown lives in the persistent [OtpCooldownStore]
-/// (keyed by phone), not here, so it survives leaving/reopening the screen.
+/// The phone awaiting OTP activation — captured at registration, or at a login
+/// that turned out to be an unverified account. The resend cooldown lives in
+/// the persistent [OtpCooldownStore] (keyed by phone), not here, so it survives
+/// leaving/reopening the screen.
 class PendingPhoneVerification extends Equatable {
   const PendingPhoneVerification({
     required this.phone,
     required this.countryIso,
     required this.countryCode,
+    required this.password,
   });
 
   final String phone;
   final String countryIso;
   final String countryCode;
 
+  /// The password the user just typed. `verify-phone-otp` activates the account
+  /// but issues no token, so the bloc signs in with this the moment the OTP is
+  /// accepted. Held in memory for the length of the flow only — never persisted.
+  final String password;
+
+  /// Deliberately excludes [password]: the phone already identifies the flow,
+  /// and props are what a BlocObserver prints in debug builds.
   @override
   List<Object?> get props => [phone, countryIso, countryCode];
 }

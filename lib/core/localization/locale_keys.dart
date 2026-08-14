@@ -166,6 +166,7 @@ abstract class LocaleKeys {
   // Phone verification (post-registration)
   static const verifyPhoneTitle = 'verify_phone_title';
   static const phoneOtpSentTo = 'phone_otp_sent_to';
+  static const verifyPhoneFirst = 'verify_phone_first';
 
   // Change password
   static const changePasswordTitle = 'change_password_title';

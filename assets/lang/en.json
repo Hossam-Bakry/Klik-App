@@ -127,6 +127,7 @@
   "verify_otp": "verify OTP",
   "verify_phone_title": "verify your phone",
   "phone_otp_sent_to": "we have sent a 4-digit OTP to",
+  "verify_phone_first": "Verify your phone number to continue",
   "change_password_title": "Reset new password",
   "change_password_subtitle": "Create a strong password to secure your account",
   "current_password": "Current Password",

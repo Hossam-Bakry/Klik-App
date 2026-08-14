@@ -127,6 +127,7 @@
   "verify_otp": "تأكيد الرمز",
   "verify_phone_title": "تأكيد رقم هاتفك",
   "phone_otp_sent_to": "لقد أرسلنا رمزًا من ٤ أرقام إلى",
+  "verify_phone_first": "فعّل رقم هاتفك للمتابعة",
   "change_password_title": "تغيير كلمة المرور",
   "change_password_subtitle": "أدخل كلمة المرور الجديدة أدناه",
   "current_password": "كلمة المرور الحالية",

@@ -1,14 +1,18 @@
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_interface.dart';
 import '../../../../core/network/api_result.dart';
+import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/social_account.dart';
+import '../models/auth_response_dto.dart';
 
-/// Talks to the Klik auth endpoints via [ApiInterface]. Returns raw values
-/// (access/reset tokens) wrapped in [ApiResult]; the access token lives at
-/// `data.access.token`.
+/// Talks to the Klik auth endpoints via [ApiInterface]. Token-issuing calls
+/// decode to an [AuthSession] (see [AuthResponseDto]); the rest return raw
+/// values wrapped in [ApiResult].
 abstract class AuthRemoteDataSource {
-  /// POST /api/login → access token.
-  Future<ApiResult<String>> login({
+  /// POST /api/login → session. Note the API issues a token even when the
+  /// account's phone was never verified — [AuthSession.needsPhoneVerification]
+  /// flags that case so the caller can route to the OTP screen instead.
+  Future<ApiResult<AuthSession>> login({
     required String phone,
     required String password,
     required String countryIso,
@@ -36,9 +40,9 @@ abstract class AuthRemoteDataSource {
     required String countryIso,
   });
 
-  /// POST /api/verify-phone-otp → access token. Confirms the phone after
-  /// registration and activates the account, returning the session token.
-  Future<ApiResult<String>> verifyPhoneOtp({
+  /// POST /api/verify-phone-otp → session. Confirms the phone after
+  /// registration and activates the account.
+  Future<ApiResult<AuthSession>> verifyPhoneOtp({
     required String phone,
     required String otp,
     required String countryIso,
@@ -67,8 +71,8 @@ abstract class AuthRemoteDataSource {
     required String passwordConfirmation,
   });
 
-  /// POST /api/social-auth → access token (Google / Apple sign-in).
-  Future<ApiResult<String>> socialAuth(SocialAccount account);
+  /// POST /api/social-auth → session (Google / Apple sign-in).
+  Future<ApiResult<AuthSession>> socialAuth(SocialAccount account);
 
   /// POST /api/logout — invalidates the current session server-side. The auth
   /// token is attached by the common-headers interceptor.
@@ -81,7 +85,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiInterface _api;
 
   @override
-  Future<ApiResult<String>> login({
+  Future<ApiResult<AuthSession>> login({
     required String phone,
     required String password,
     required String countryIso,
@@ -95,7 +99,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'country_iso': countryIso,
           'country_code': countryCode,
         },
-        decoder: _accessToken,
+        decoder: AuthResponseDto.fromJson,
       );
 
   @override
@@ -161,7 +165,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
   @override
-  Future<ApiResult<String>> verifyPhoneOtp({
+  Future<ApiResult<AuthSession>> verifyPhoneOtp({
     required String phone,
     required String otp,
     required String countryIso,
@@ -175,7 +179,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'country_iso': countryIso,
           'country_code': countryCode,
         },
-        decoder: _accessToken,
+        decoder: AuthResponseDto.fromJson,
       );
 
   @override
@@ -211,10 +215,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
   @override
-  Future<ApiResult<String>> socialAuth(SocialAccount account) => _api.post(
+  Future<ApiResult<AuthSession>> socialAuth(SocialAccount account) => _api.post(
         ApiEndpoints.socialAuth,
         body: account.toJson(),
-        decoder: _accessToken,
+        decoder: AuthResponseDto.fromJson,
       );
 
   @override
@@ -222,9 +226,4 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ApiEndpoints.logout,
         decoder: (_) => unit,
       );
-
-  /// Extracts `data.access.token`. Throws if missing — DioApiClient turns that
-  /// into a ParsingFailure.
-  static String _accessToken(dynamic data) =>
-      (data as Map<String, dynamic>)['access']['token'] as String;
 }

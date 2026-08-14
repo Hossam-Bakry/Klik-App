@@ -90,6 +90,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       countryIso: event.countryIso,
       countryCode: event.countryCode,
     );
+    // Right credentials, but an account that never passed the activation OTP
+    // (`phone_verified: false`) — registration can be abandoned at the OTP
+    // screen, and that half-made account must not reach the app. Hand the flow
+    // to verify-phone instead of authenticating; the repository has already
+    // withheld the token.
+    if (result case ApiSuccess(:final data) when data.needsPhoneVerification) {
+      final account = data.account!;
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          pendingVerification: PendingPhoneVerification(
+            phone: account.phone,
+            countryIso: account.countryIso,
+            countryCode: account.countryCode,
+            password: event.password,
+          ),
+        ),
+      );
+      return;
+    }
     _emitAuthResult(result, emit);
   }
 
@@ -123,6 +143,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               phone: event.phone,
               countryIso: event.countryIso,
               countryCode: event.countryCode,
+              password: event.password,
             ),
           ),
         );
@@ -149,7 +170,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       countryCode: pending.countryCode,
     );
     switch (result) {
-      case ApiSuccess(:final data):
+      case ApiSuccess(:final data) when data.hasToken:
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -158,6 +179,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             clearPendingVerification: true,
           ),
         );
+      case ApiSuccess():
+        // The account is now active, but `verify-phone-otp` hands back only the
+        // verified user — no token. Sign in with the credentials captured when
+        // the flow started to turn the activation into a real session, so the
+        // user lands on Home instead of being sent back to the login screen.
+        final session = await _login(
+          phone: pending.phone,
+          password: pending.password,
+          countryIso: pending.countryIso,
+          countryCode: pending.countryCode,
+        );
+        _emitAuthResult(session, emit);
       case ApiFailure(:final failure):
         emit(
           state.copyWith(isSubmitting: false, errorMessage: failure.message),
@@ -205,15 +238,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _emitAuthResult(result, emit);
   }
 
-  /// Shared success/failure handling for login, register & social sign-in.
+  /// Shared success/failure handling for login & social sign-in.
   void _emitAuthResult(ApiResult<AuthSession> result, Emitter<AuthState> emit) {
     switch (result) {
+      // Only a stored token authenticates: the Authorization header is read
+      // back from storage, so going "authenticated" on a session the repository
+      // withheld (unverified phone) or that carried no token would leave every
+      // request unauthorized. Stop the spinner and stay put instead.
+      case ApiSuccess(:final data) when !data.hasToken || data.needsPhoneVerification:
+        emit(state.copyWith(isSubmitting: false));
       case ApiSuccess(:final data):
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
             session: data,
             isSubmitting: false,
+            clearPendingVerification: true,
           ),
         );
       case ApiFailure(:final failure):
