@@ -93,6 +93,7 @@ abstract class LocaleKeys {
 
   // Price-negotiate sheet
   static const priceNegotiate = 'price_negotiate';
+  static const selectedItem = 'selected_item';
   static const dailyBidLimit = 'daily_bid_limit';
   static const expireIn = 'expire_in';
   static const realPrice = 'real_price';

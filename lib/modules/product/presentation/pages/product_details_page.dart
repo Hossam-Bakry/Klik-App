@@ -196,6 +196,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       listedPrice: bid?.listedPrice ??
           (product.hasDiscount ? product.discountPrice : product.price),
       currency: context.tr(LocaleKeys.currencyKwd),
+      // Show what's on the table: the product and the variant just resolved.
+      productName: product.name,
+      productImage: product.images.isEmpty ? '' : product.images.first,
+      sizeLabel: _optionAt(product.sizes, _sizeIndex)?.label,
+      color: _optionAt(product.colors, _colorIndex),
     );
     if (!context.mounted || result == null) return;
     switch (result) {
@@ -241,8 +246,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
 /// Id of the option at [index], or null when the list is empty / the index is
 /// out of range / the option carries no id.
-int? _optionId<T>(List<T> options, int index, int? Function(T) id) =>
-    index >= 0 && index < options.length ? id(options[index]) : null;
+int? _optionId<T>(List<T> options, int index, int? Function(T) id) {
+  final option = _optionAt(options, index);
+  return option == null ? null : id(option);
+}
+
+/// The option at [index], or null when the list is empty / the index is out of
+/// range.
+T? _optionAt<T>(List<T> options, int index) =>
+    index >= 0 && index < options.length ? options[index] : null;
 
 /// Footer shown when the product has no stock — a full-width, height-50
 /// "Out Of Stock" pill that replaces the Add-to-Cart / Buy-Now actions.

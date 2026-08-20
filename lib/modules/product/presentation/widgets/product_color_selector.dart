@@ -25,7 +25,7 @@ class ProductColorSelector extends StatelessWidget {
       children: [
         for (var i = 0; i < colors.length; i++)
           _Swatch(
-            color: _parseHex(colors[i].hex),
+            color: parseHex(colors[i].hex),
             selected: i == selectedIndex,
             onTap: () => onSelected(i),
           ),
@@ -35,7 +35,7 @@ class ProductColorSelector extends StatelessWidget {
 
   /// Parses `#RRGGBB` / `RRGGBB` / `#AARRGGBB` into a [Color]; falls back to a
   /// neutral grey when the value is missing or malformed.
-  static Color _parseHex(String hex) {
+  static Color parseHex(String hex) {
     var value = hex.replaceAll('#', '').trim();
     if (value.length == 6) value = 'FF$value';
     final parsed = int.tryParse(value, radix: 16);

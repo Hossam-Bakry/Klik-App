@@ -9,7 +9,10 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/localization/locale_keys.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../domain/entities/product_bid.dart';
+import '../../domain/entities/product_color_option.dart';
+import 'product_color_selector.dart';
 
 /// What the customer did in the [showPriceNegotiateSheet] sheet.
 sealed class NegotiateResult {
@@ -37,6 +40,10 @@ Future<NegotiateResult?> showPriceNegotiateSheet(
   required ProductBid? bid,
   required double listedPrice,
   required String currency,
+  required String productName,
+  String productImage = '',
+  String? sizeLabel,
+  ProductColorOption? color,
 }) {
   return showModalBottomSheet<NegotiateResult>(
     context: context,
@@ -50,6 +57,10 @@ Future<NegotiateResult?> showPriceNegotiateSheet(
       bid: bid ?? const ProductBid(),
       listedPrice: listedPrice,
       currency: currency,
+      productName: productName,
+      productImage: productImage,
+      sizeLabel: sizeLabel,
+      color: color,
     ),
   );
 }
@@ -59,11 +70,24 @@ class _PriceNegotiateSheet extends StatefulWidget {
     required this.bid,
     required this.listedPrice,
     required this.currency,
+    required this.productName,
+    required this.productImage,
+    this.sizeLabel,
+    this.color,
   });
 
   final ProductBid bid;
   final double listedPrice;
   final String currency;
+
+  final String productName;
+  final String productImage;
+
+  /// The size/colour the customer picked on the product page, so the sheet
+  /// shows exactly which variant is being negotiated. Null when the product
+  /// has no such option.
+  final String? sizeLabel;
+  final ProductColorOption? color;
 
   @override
   State<_PriceNegotiateSheet> createState() => _PriceNegotiateSheetState();
@@ -139,6 +163,15 @@ class _PriceNegotiateSheetState extends State<_PriceNegotiateSheet> {
           context.gapH(12),
           _title(context),
           context.gapH(16),
+          _SelectedItemCard(
+            name: widget.productName,
+            image: widget.productImage,
+            listedPrice: widget.listedPrice,
+            currency: widget.currency,
+            sizeLabel: widget.sizeLabel,
+            color: widget.color,
+          ),
+          context.gapH(12),
           _LimitBar(
             bid: _bid,
             listedPrice: widget.listedPrice,
@@ -299,6 +332,157 @@ class _DragHandle extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.textSecondary.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(context.r(4)),
+      ),
+    );
+  }
+}
+
+/// "Selected Item": the product being negotiated — thumbnail, name, the listed
+/// price, and the size/colour the customer picked — so the offer is never made
+/// against a variant they've lost track of.
+class _SelectedItemCard extends StatelessWidget {
+  const _SelectedItemCard({
+    required this.name,
+    required this.image,
+    required this.listedPrice,
+    required this.currency,
+    this.sizeLabel,
+    this.color,
+  });
+
+  final String name;
+  final String image;
+  final double listedPrice;
+  final String currency;
+  final String? sizeLabel;
+  final ProductColorOption? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: context.edgeAll(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.20),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr(LocaleKeys.selectedItem),
+            style: context.labelSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          context.gapH(10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppNetworkImage(
+                url: image,
+                width: context.r(58),
+                height: context.r(58),
+                borderRadius: BorderRadius.circular(context.r(10)),
+              ),
+              context.gapW(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    context.gapH(6),
+                    Text(
+                      _money(listedPrice, currency),
+                      style: context.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryBronze,
+                      ),
+                    ),
+                    ..._variants(context),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The picked variant chips. Nothing is rendered when the product has neither
+  /// a size nor a colour to choose from.
+  List<Widget> _variants(BuildContext context) {
+    final chips = <Widget>[
+      if (sizeLabel != null && sizeLabel!.trim().isNotEmpty)
+        _VariantChip(
+          label: '${context.tr(LocaleKeys.size)}: ${sizeLabel!}',
+        ),
+      if (color != null)
+        _VariantChip(
+          label: color!.name.trim().isEmpty
+              ? context.tr(LocaleKeys.color)
+              : '${context.tr(LocaleKeys.color)}: ${color!.name}',
+          swatch: ProductColorSelector.parseHex(color!.hex),
+        ),
+    ];
+    if (chips.isEmpty) return const [];
+    return [
+      context.gapH(8),
+      Wrap(spacing: context.r(8), runSpacing: context.r(6), children: chips),
+    ];
+  }
+}
+
+/// Grey pill naming one picked variant, with an optional colour dot.
+class _VariantChip extends StatelessWidget {
+  const _VariantChip({required this.label, this.swatch});
+
+  final String label;
+  final Color? swatch;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: context.edgeSymmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.textSecondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(context.r(6)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (swatch != null) ...[
+            Container(
+              width: context.r(12),
+              height: context.r(12),
+              decoration: BoxDecoration(
+                color: swatch,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+            ),
+            context.gapW(6),
+          ],
+          Text(
+            label,
+            style: context.labelSmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
