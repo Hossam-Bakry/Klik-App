@@ -18,9 +18,10 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: context.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold
-        )),
+        Text(
+          title,
+          style: context.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
         if (onSeeAll != null)
           AppButton.text(
             label: context.tr(LocaleKeys.seeAll),

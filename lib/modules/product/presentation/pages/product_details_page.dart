@@ -153,7 +153,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (product.isOutOfStock) return const _OutOfStockBar();
           return ProductBottomBar(
             onAddToCart: () => _addToCart(context, product),
-            onBuyNow: () => _comingSoon(context),
+            onBuyNow: () => context.requireAuth(() => _comingSoon(context)),
           );
         },
       ),

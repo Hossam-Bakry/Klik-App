@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_view.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../auth/presentation/widgets/auth_prompt.dart';
 import '../widgets/cart_item_card.dart';
 
 /// Cart destination (tab index 3). Works for guests too — their cart lives on
@@ -96,7 +97,11 @@ class _CartPageState extends State<CartPage> {
             ? const SizedBox.shrink()
             : _SummaryBar(
                 total: state.cart.total,
-                onCheckout: () => context.push(AppRoutes.checkout),
+                // Checking out needs an account (address, orders), so a
+                // guest gets the sign-in prompt instead of the checkout page.
+                onCheckout: () => context.requireAuth(
+                  () => context.push(AppRoutes.checkout),
+                ),
               ),
       ),
     );
