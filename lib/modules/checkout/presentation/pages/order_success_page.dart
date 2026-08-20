@@ -36,7 +36,7 @@ class OrderSuccessPage extends StatelessWidget {
         padding: context.edge(left: 16, right: 16, top: 16, bottom: 24),
         children: [
           Center(
-            child: Assets.images.emptyCheckOutImg.image(width: context.w(200)),
+            child: Assets.images.successCheckoutImg.image(width: context.w(200)),
           ),
           context.gapH(16),
           Text(
@@ -71,6 +71,16 @@ class OrderSuccessPage extends StatelessWidget {
     );
   }
 
+  /// The method's own name — "Cash on Delivery", not the server's `cod` slug —
+  /// falling back to the server's wording only for a method the app doesn't
+  /// offer.
+  String _paymentLabel(BuildContext context) {
+    final method = order.method;
+    return method == null
+        ? order.paymentMethodLabel
+        : context.tr(method.labelKey);
+  }
+
   /// Order number, when it was placed, how it's being paid and for how much.
   /// Each row is dropped when the response didn't carry it — the shape of
   /// `place-order` isn't documented.
@@ -84,11 +94,11 @@ class OrderSuccessPage extends StatelessWidget {
           context.tr(LocaleKeys.dateAndTime),
           order.placedLabel,
         ),
-      if (order.paymentMethodLabel.isNotEmpty)
+      if (order.hasPaymentMethod)
         (
           Icons.credit_card_rounded,
           context.tr(LocaleKeys.paymentMethod),
-          order.paymentMethodLabel,
+          _paymentLabel(context),
         ),
     ];
 

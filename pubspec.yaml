@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.2+12
+version: 1.0.2+19
 
 environment:
   sdk: ^3.10.4
@@ -72,6 +72,29 @@ dev_dependencies:
   # Generates platform launcher icons from a single source image.
   # Regenerate with:  dart run flutter_launcher_icons
   flutter_launcher_icons: ^0.14.4
+
+  # Generates the native launch screens (Android windowBackground + Android 12
+  # splash API, iOS LaunchScreen.storyboard).
+  # Regenerate with:  dart run flutter_native_splash:create
+  flutter_native_splash: ^2.4.4
+
+# Native splash config (consumed by flutter_native_splash). Shows the same
+# lockup as the Dart [SplashView] so the handover from the OS splash to the
+# first Flutter frame is seamless — the colour is AppColors.splashBackground and
+# the artwork is cropped from assets/images/splash_img.png.
+flutter_native_splash:
+  color: "#FFF8EA"
+  image: assets/splash/splash_logo.png
+  android: true
+  ios: true
+  web: false
+  # Android 12+ ignores the legacy windowBackground and draws its own splash:
+  # a masked, circular icon over a solid colour. The wide lockup can't survive
+  # that mask, so this bucket gets the wordmark alone.
+  android_12:
+    color: "#FFF8EA"
+    image: assets/splash/splash_android12.png
+    icon_background_color: "#FFF8EA"
 
 # Launcher-icon generation config (consumed by flutter_launcher_icons).
 flutter_launcher_icons:

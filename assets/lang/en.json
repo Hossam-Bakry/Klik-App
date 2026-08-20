@@ -92,7 +92,7 @@
   "offer_amount_hint": "0.00 {currency}",
   "proceed_to_checkout": "Proceed to checkout",
   "bid_minimum_offer": "Minimum offer {amount}",
-  "bid_offer_too_small": "Your negotiation offer is too small",
+  "bid_offer_too_small": "Offer amount must be higher",
   "bid_invalid_amount": "Enter an offer lower than the current price",
   "bid_submitted": "Your offer was sent to the seller",
   "my_negotiations": "My Negotiations",

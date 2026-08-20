@@ -144,6 +144,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
           placedLabel: order.placedLabel.isEmpty
               ? latest.placedLabel
               : order.placedLabel,
+          method: order.method ?? latest.method,
           paymentMethodLabel: order.paymentMethodLabel.isEmpty
               ? latest.paymentMethodLabel
               : order.paymentMethodLabel,
@@ -151,6 +152,11 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         );
       }
     }
+
+    // Nothing in `place-order` takes a payment field — the customer's choice
+    // never leaves the app — so when the server names no method, the one they
+    // selected on the payment step is what the confirmation should say.
+    if (order.method == null) order = order.copyWith(method: state.method);
 
     return order.total > 0 ? order : order.copyWith(total: paidTotal);
   }

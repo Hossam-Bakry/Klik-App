@@ -283,6 +283,10 @@ class $AssetsImagesGen {
   AssetGenImage get splashImg =>
       const AssetGenImage('assets/images/splash_img.png');
 
+  /// File path: assets/images/success_checkout_img.png
+  AssetGenImage get successCheckoutImg =>
+      const AssetGenImage('assets/images/success_checkout_img.png');
+
   /// File path: assets/images/support_img.png
   AssetGenImage get supportImg =>
       const AssetGenImage('assets/images/support_img.png');
@@ -304,6 +308,7 @@ class $AssetsImagesGen {
     onBoardingTwoImg,
     otpImg,
     splashImg,
+    successCheckoutImg,
     supportImg,
   ];
 }

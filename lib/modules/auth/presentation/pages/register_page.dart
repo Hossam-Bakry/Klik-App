@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_links.dart';
 import '../../../../core/constants/countries.dart';
 import '../../../../core/constants/validators.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/constants/app_links.dart';
 import '../../../../core/localization/locale_keys.dart';
-import '../../../../core/services/link_launcher.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/link_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -165,8 +165,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 spacing: context.w(8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(context.tr(LocaleKeys.haveAccount),
-                      style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(
+                    context.tr(LocaleKeys.haveAccount),
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
                   AppButton.text(
                     label: context.tr(LocaleKeys.logIn),
                     foregroundColor: AppColors.primary,
@@ -248,8 +250,7 @@ class _AgreeTerms extends StatelessWidget {
         color: AppColors.primary,
         fontWeight: FontWeight.w700,
       ),
-      recognizer: TapGestureRecognizer()
-        ..onTap = () => openLink(context, url),
+      recognizer: TapGestureRecognizer()..onTap = () => openLink(context, url),
     );
   }
 }

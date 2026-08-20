@@ -1,4 +1,5 @@
 import '../../domain/entities/checkout_summary.dart';
+import '../../domain/entities/payment_method.dart';
 import '../../domain/entities/placed_order.dart';
 
 /// Parses the checkout payloads.
@@ -43,11 +44,13 @@ class CheckoutDto {
   /// inventing it.
   static PlacedOrder placedOrderFromJson(Object? data) {
     final order = _orderMap(data);
+    final payment = _str(order['payment_method']);
 
     return PlacedOrder(
       number: _str(order['order_code'] ?? order['code'] ?? order['id']),
       placedLabel: _str(order['placed_at'] ?? order['created_at']),
-      paymentMethodLabel: _str(order['payment_method']),
+      method: PaymentMethod.fromApi(payment),
+      paymentMethodLabel: payment,
       total: _double(
         order['payable_amount'] ?? order['amount'] ?? order['total_amount'],
       ),
@@ -63,10 +66,12 @@ class CheckoutDto {
     if (newest == null) return const PlacedOrder();
 
     final row = newest.cast<String, dynamic>();
+    final payment = _str(row['payment_method']);
     return PlacedOrder(
       number: _str(row['order_code']),
       placedLabel: _str(row['placed_at']),
-      paymentMethodLabel: _str(row['payment_method']),
+      method: PaymentMethod.fromApi(payment),
+      paymentMethodLabel: payment,
       total: _double(row['amount']),
     );
   }
