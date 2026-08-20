@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/localization/locale_keys.dart';
 
-/// Sort options for `GET /api/products` (`sort_by` query param). "Default
+/// Sort options for `GET /api/products` (`sort_type` query param). "Default
 /// sorting" is the absence of a sort (null), so it isn't a member here.
 ///
 /// The `apiValue`s are the full set the backend accepts:

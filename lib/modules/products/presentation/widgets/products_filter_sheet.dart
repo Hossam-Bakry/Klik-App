@@ -66,8 +66,14 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
   late ProductSort? _sort = widget.filter.sort;
   late int? _brandId = widget.filter.brandId;
   late RangeValues _price = RangeValues(
-    (widget.filter.minPrice ?? _priceMin).toDouble().clamp(_priceMin, _priceMax),
-    (widget.filter.maxPrice ?? _priceMax).toDouble().clamp(_priceMin, _priceMax),
+    (widget.filter.minPrice ?? _priceMin).toDouble().clamp(
+      _priceMin,
+      _priceMax,
+    ),
+    (widget.filter.maxPrice ?? _priceMax).toDouble().clamp(
+      _priceMin,
+      _priceMax,
+    ),
   );
   bool _sortExpanded = false;
   bool _brandsExpanded = false;
@@ -175,36 +181,48 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
     final chips = <Widget>[];
 
     if (_categoryId != null) {
-      chips.add(_SelectedChip(
-        label: _categoryName(_categoryId!),
-        onRemove: () => setState(() => _categoryId = null),
-      ));
+      chips.add(
+        _SelectedChip(
+          label: _categoryName(_categoryId!),
+          onRemove: () => setState(() => _categoryId = null),
+        ),
+      );
     }
     if (_brandId != null) {
-      chips.add(_SelectedChip(
-        label: _brandName(_brandId!),
-        onRemove: () => setState(() => _brandId = null),
-      ));
+      chips.add(
+        _SelectedChip(
+          label: _brandName(_brandId!),
+          onRemove: () => setState(() => _brandId = null),
+        ),
+      );
     }
     if (_priceActive) {
-      chips.add(_SelectedChip(
-        label: '${_price.start.round()}-${_price.end.round()} '
-            '${context.tr(LocaleKeys.currencyKwd)}',
-        onRemove: () =>
-            setState(() => _price = const RangeValues(_priceMin, _priceMax)),
-      ));
+      chips.add(
+        _SelectedChip(
+          label:
+              '${_price.start.round()}-${_price.end.round()} '
+              '${context.tr(LocaleKeys.currencyKwd)}',
+          onRemove: () =>
+              setState(() => _price = const RangeValues(_priceMin, _priceMax)),
+        ),
+      );
     }
     if (_rating != null) {
-      chips.add(_SelectedChip(
-        label: '${_rating!.toStringAsFixed(1)} ${context.tr(LocaleKeys.ratingAndUp)}',
-        onRemove: () => setState(() => _rating = null),
-      ));
+      chips.add(
+        _SelectedChip(
+          label:
+              '${_rating!.toStringAsFixed(1)} ${context.tr(LocaleKeys.ratingAndUp)}',
+          onRemove: () => setState(() => _rating = null),
+        ),
+      );
     }
     if (_sort != null) {
-      chips.add(_SelectedChip(
-        label: context.tr(_sort!.labelKey),
-        onRemove: () => setState(() => _sort = null),
-      ));
+      chips.add(
+        _SelectedChip(
+          label: context.tr(_sort!.labelKey),
+          onRemove: () => setState(() => _sort = null),
+        ),
+      );
     }
 
     if (chips.isEmpty) return const SizedBox.shrink();
@@ -219,7 +237,11 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
             style: context.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           context.gapH(10),
-          Wrap(spacing: context.r(8), runSpacing: context.r(8), children: chips),
+          Wrap(
+            spacing: context.r(8),
+            runSpacing: context.r(8),
+            children: chips,
+          ),
           context.gapH(12),
         ],
       ),
@@ -276,9 +298,8 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
                 _RatingChip(
                   value: value,
                   selected: _rating == value,
-                  onTap: () => setState(
-                    () => _rating = _rating == value ? null : value,
-                  ),
+                  onTap: () =>
+                      setState(() => _rating = _rating == value ? null : value),
                 ),
             ],
           ),
@@ -309,7 +330,9 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
               padding: context.edgeSymmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(context.r(10)),
-                border: Border.all(color: AppColors.dark.withValues(alpha: 0.12)),
+                border: Border.all(
+                  color: AppColors.dark.withValues(alpha: 0.12),
+                ),
               ),
               child: Row(
                 children: [
@@ -461,7 +484,6 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
             child: AppButton.filled(
               label: context.tr(LocaleKeys.applyFilters),
               onPressed: () => Navigator.of(context).pop(_build()),
-
             ),
           ),
           context.gapW(45),
@@ -487,10 +509,7 @@ class _ProductsFilterSheetState extends State<_ProductsFilterSheet> {
       .name;
 
   String _brandName(int id) => widget.brands
-      .firstWhere(
-        (b) => b.id == id,
-        orElse: () => const Brand(id: 0, name: ''),
-      )
+      .firstWhere((b) => b.id == id, orElse: () => const Brand(id: 0, name: ''))
       .name;
 }
 
@@ -538,7 +557,9 @@ class _SectionHeader extends StatelessWidget {
             onTap: onSeeAll,
             child: Text(
               context.tr(LocaleKeys.seeAll),
-              style: context.bodySmall?.copyWith(color: AppColors.textSecondary),
+              style: context.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
       ],
@@ -573,7 +594,11 @@ class _SelectedChip extends StatelessWidget {
           context.gapW(6),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(Icons.close, size: context.r(16), color: AppColors.primary),
+            child: Icon(
+              Icons.close,
+              size: context.r(16),
+              color: AppColors.primary,
+            ),
           ),
         ],
       ),
@@ -734,7 +759,11 @@ class _SortOption extends StatelessWidget {
               ),
             ),
             if (selected)
-              Icon(Icons.check_rounded, size: context.r(20), color: AppColors.primary),
+              Icon(
+                Icons.check_rounded,
+                size: context.r(20),
+                color: AppColors.primary,
+              ),
           ],
         ),
       ),
@@ -762,17 +791,19 @@ class _BrandRow extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              selected ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+              selected
+                  ? Icons.check_box_rounded
+                  : Icons.check_box_outline_blank_rounded,
               color: selected ? AppColors.primary : AppColors.textSecondary,
               size: context.r(22),
             ),
             context.gapW(10),
-            Expanded(
-              child: Text(brand.name, style: context.bodyMedium),
-            ),
+            Expanded(child: Text(brand.name, style: context.bodyMedium)),
             Text(
               '(${brand.productsCount})',
-              style: context.bodySmall?.copyWith(color: AppColors.textSecondary),
+              style: context.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),

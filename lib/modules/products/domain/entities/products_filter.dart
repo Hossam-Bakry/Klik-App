@@ -69,7 +69,7 @@ class ProductsFilter extends Equatable {
     if (minPrice != null) 'min_price': minPrice,
     if (maxPrice != null) 'max_price': maxPrice,
     if (rating != null) 'rating': rating,
-    if (sort != null) 'sort_by': sort!.apiValue,
+    if (sort != null) 'sort_type': sort!.apiValue,
     if (isBidable != null) 'is_bidable': isBidable! ? 1 : 0,
   };
 
