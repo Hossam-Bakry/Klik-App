@@ -87,8 +87,16 @@ class ProductListDto {
       isBidable: _toBool(json[_K.isBidable]),
       shopName: _str(shop?[_K.name]),
       estimatedDeliveryTime: _str(shop?[_K.estimatedDeliveryTime]),
+      hasVariants: _hasVariants(json),
     );
   }
+
+  /// A product varies when the payload carries a non-empty `colors`/`sizes`
+  /// array; absent, null or empty means a simple product.
+  static bool _hasVariants(Map<String, dynamic> json) =>
+      _isNonEmptyList(json[_K.colors]) || _isNonEmptyList(json[_K.sizes]);
+
+  static bool _isNonEmptyList(Object? v) => v is List && v.isNotEmpty;
 }
 
 String _str(Object? v) => v?.toString().trim() ?? '';
@@ -119,6 +127,8 @@ class _K {
   static const isBidable = 'is_bidable';
   static const shop = 'shop';
   static const estimatedDeliveryTime = 'estimated_delivery_time';
+  static const colors = 'colors';
+  static const sizes = 'sizes';
 
   static const currentPage = 'current_page';
   static const lastPage = 'last_page';

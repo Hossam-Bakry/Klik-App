@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:klik_app/gen/assets.gen.dart';
 
 import '../../modules/home/domain/entities/home_product.dart';
@@ -7,6 +8,7 @@ import '../cart/domain/cart_item.dart';
 import '../cart/presentation/cart_cubit.dart';
 import '../extensions/context_extensions.dart';
 import '../localization/locale_keys.dart';
+import '../router/app_routes.dart';
 import '../theme/app_colors.dart';
 import 'app_toast.dart';
 
@@ -18,8 +20,11 @@ import 'app_toast.dart';
 /// Open to guests, like the product screen's Add-to-Cart: a guest's cart lives
 /// on the device until they sign in.
 ///
-/// Cards have no size/colour picker, so a line added here carries no variant —
-/// [CartCubit.addOne] tops up whatever line the product is already in.
+/// Cards have no size/colour picker, so only a *simple* product — one whose
+/// payload carried no `colors`/`sizes` — is added straight from here, with no
+/// variant ids on the line. A product that varies opens its own page instead,
+/// where the customer picks; once it's in the cart, [CartCubit.addOne] tops up
+/// the line it went in as, variant and all.
 
 /// The round "+" on a grid card. Adds one unit and toasts the outcome.
 ///
@@ -66,10 +71,26 @@ class ProductAddToCartButton extends StatelessWidget {
   }
 
   Future<void> _add(BuildContext context) async {
-    final added = await context.read<CartCubit>().addOne(product.toCartItem());
+    final cubit = context.read<CartCubit>();
+    if (_pickVariantOnProductPage(context, product, cubit)) return;
+    final added = await cubit.addOne(product.toCartItem());
     if (!context.mounted || !added) return;
     AppToast.success(context, context.tr(LocaleKeys.addedToCart));
   }
+}
+
+/// Sends the customer to the product page when the product varies by
+/// colour/size and isn't in the cart yet — there's no variant to top up and a
+/// card can't ask for one, so adding here would file a line with no size or
+/// colour on it. Returns whether the tap was handled that way.
+bool _pickVariantOnProductPage(
+  BuildContext context,
+  HomeProduct product,
+  CartCubit cubit,
+) {
+  if (!product.hasVariants || cubit.quantityOf(product.id) > 0) return false;
+  context.push(AppRoutes.productDetails, extra: product.id);
+  return true;
 }
 
 /// The "− n +" stepper on a wide product row. Shows how many units of the
@@ -116,7 +137,12 @@ class ProductCartStepper extends StatelessWidget {
           icon: Icons.add,
           filled: true,
           onTap: live && !product.isOutOfStock
-              ? () => cubit.addOne(product.toCartItem())
+              ? () {
+                  if (_pickVariantOnProductPage(context, product, cubit)) {
+                    return;
+                  }
+                  cubit.addOne(product.toCartItem());
+                }
               : null,
         ),
       ],

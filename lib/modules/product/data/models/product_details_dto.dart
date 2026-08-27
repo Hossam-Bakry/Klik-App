@@ -266,10 +266,16 @@ class ProductDetailsDto {
       isBidable: _toBool(json[_K.isBidable]),
       shopName: _str(shop?[_K.name]),
       estimatedDeliveryTime: _str(shop?[_K.estimatedDeliveryTime]),
+      // A related product that varies by colour/size can't be added from its
+      // card — the rail's "+" sends the customer to its own page to pick.
+      hasVariants:
+          _isNonEmptyList(json[_K.colors]) || _isNonEmptyList(json[_K.sizes]),
     );
   }
 
   // --- Coercion helpers --------------------------------------------------------
+
+  static bool _isNonEmptyList(Object? v) => v is List && v.isNotEmpty;
 
   static List<T> _list<T>(Object? raw, T Function(Map<String, dynamic>) map) =>
       (raw as List? ?? const [])

@@ -5,6 +5,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/product_color_option.dart';
 
 /// Row of colour swatches; the selected one is ringed with the brand colour.
+/// [selectedIndex] is null until the customer picks — no swatch is chosen on
+/// their behalf, since the pick is what the cart line carries.
 class ProductColorSelector extends StatelessWidget {
   const ProductColorSelector({
     super.key,
@@ -14,7 +16,7 @@ class ProductColorSelector extends StatelessWidget {
   });
 
   final List<ProductColorOption> colors;
-  final int selectedIndex;
+  final int? selectedIndex;
   final ValueChanged<int> onSelected;
 
   @override

@@ -37,12 +37,19 @@ class ProductDetailsPage extends StatefulWidget {
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
-  int _colorIndex = 0;
-  int _sizeIndex = 0;
+  /// Chosen variant chips, null until the customer picks one. Nothing is
+  /// selected on their behalf: a product that varies by colour/size can't go
+  /// into the cart on an unpicked variant, so the pick has to be theirs.
+  int? _colorIndex;
+  int? _sizeIndex;
 
   /// The product whose selection we've already aligned, so the one-time sync to
   /// the server-selected bid variant doesn't fight the user's later taps.
   int? _syncedProductId;
+
+  /// Set once an Add-to-Cart / Buy-Now tap has been turned away for a missing
+  /// variant, so the inline messages only show up after the customer acts.
+  bool _showVariantErrors = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +71,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             _syncedProductId = product.id;
             _sizeIndex = size;
             _colorIndex = color;
+            _showVariantErrors = false;
           });
         }
         if (state.bidStatus == BidSubmissionStatus.success) {
@@ -83,22 +91,31 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   /// The (size, colour) chip indices that match the server-selected bid variant,
-  /// so the page opens on the variant the offer state belongs to. Defaults to
-  /// the first chips when there's no bid or no matching option.
-  (int, int) _initialSelection(ProductDetails product) {
+  /// so the page opens on the variant the offer state belongs to. Null on both
+  /// axes when there's no bid, and on either axis the bid doesn't pin down —
+  /// an unmatched axis stays unpicked rather than falling back to the first
+  /// chip, which would put a variant the customer never chose into the cart.
+  (int?, int?) _initialSelection(ProductDetails product) {
     final bid = product.bid;
-    if (bid == null) return (0, 0);
+    if (bid == null) return (null, null);
     return (
       _indexOfId(product.sizes, bid.sizeId, (s) => s.id),
       _indexOfId(product.colors, bid.colorId, (c) => c.id),
     );
   }
 
-  int _indexOfId<T>(List<T> options, int? id, int? Function(T) idOf) {
-    if (id == null) return 0;
+  int? _indexOfId<T>(List<T> options, int? id, int? Function(T) idOf) {
+    if (id == null) return null;
     final i = options.indexWhere((o) => idOf(o) == id);
-    return i < 0 ? 0 : i;
+    return i < 0 ? null : i;
   }
+
+  /// Whether the product varies by that axis and the customer hasn't picked yet.
+  bool _colorMissing(ProductDetails product) =>
+      product.colors.isNotEmpty && _colorIndex == null;
+
+  bool _sizeMissing(ProductDetails product) =>
+      product.sizes.isNotEmpty && _sizeIndex == null;
 
   Widget _buildScaffold(BuildContext context) {
     return Scaffold(
@@ -130,8 +147,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             enabled: loading,
             child: _Content(
               product: product,
-              colorIndex: loading ? 0 : _colorIndex,
-              sizeIndex: loading ? 0 : _sizeIndex,
+              colorIndex: loading ? null : _colorIndex,
+              sizeIndex: loading ? null : _sizeIndex,
+              // Picking clears that axis' message on its own, since the flags
+              // are read off the current selection.
+              colorError:
+                  !loading && _showVariantErrors && _colorMissing(product),
+              sizeError:
+                  !loading && _showVariantErrors && _sizeMissing(product),
               onColorSelected: (i) => setState(() => _colorIndex = i),
               onSizeSelected: (i) => setState(() => _sizeIndex = i),
               onOpenNegotiate: () => _openNegotiate(context, product),
@@ -153,7 +176,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (product.isOutOfStock) return const _OutOfStockBar();
           return ProductBottomBar(
             onAddToCart: () => _addToCart(context, product),
-            onBuyNow: () => context.requireAuth(() => _comingSoon(context)),
+            // Same gate as Add-to-Cart: buying is buying a variant, and the
+            // customer picks it before we ask them to sign in.
+            onBuyNow: () {
+              if (!_ensureVariantsPicked(context, product)) return;
+              context.requireAuth(() => _comingSoon(context));
+            },
           );
         },
       ),
@@ -178,6 +206,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     BuildContext context,
     ProductDetails product,
   ) async {
+    // An offer is an offer on one variant, so the pick comes before the sheet —
+    // otherwise the bid would go up with no size or colour on it.
+    if (!_ensureVariantsPicked(context, product)) return;
     if (!context.isAuthenticated) {
       await showAuthRequiredSheet(context);
       return;
@@ -217,12 +248,34 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
   }
 
+  /// Turns away an Add-to-Cart / Buy-Now tap while an axis the product varies
+  /// by is still unpicked — a line with a null size or colour is one the
+  /// warehouse can't fill. Reveals the message under the selector that's
+  /// missing, and says the same thing in a toast because the selectors can sit
+  /// off-screen behind the footer.
+  bool _ensureVariantsPicked(BuildContext context, ProductDetails product) {
+    final needsColor = _colorMissing(product);
+    final needsSize = _sizeMissing(product);
+    if (!needsColor && !needsSize) return true;
+    setState(() => _showVariantErrors = true);
+    AppToast.error(
+      context,
+      context.tr(switch ((needsColor, needsSize)) {
+        (true, true) => LocaleKeys.pleaseSelectColorAndSize,
+        (true, false) => LocaleKeys.pleaseSelectColor,
+        _ => LocaleKeys.pleaseSelectSize,
+      }),
+    );
+    return false;
+  }
+
   /// Adds the selected variant to the cart. Open to guests — their cart lives
   /// on the device until they sign in, so no auth gate here.
   ///
   /// The line carries the product's own display data (name, thumbnail, price)
   /// because a guest cart has no product lookup to render from.
   Future<void> _addToCart(BuildContext context, ProductDetails product) async {
+    if (!_ensureVariantsPicked(context, product)) return;
     final cart = context.read<CartCubit>();
     final added = await cart.add(
       CartItem(
@@ -244,17 +297,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 }
 
-/// Id of the option at [index], or null when the list is empty / the index is
-/// out of range / the option carries no id.
-int? _optionId<T>(List<T> options, int index, int? Function(T) id) {
+/// Id of the option at [index], or null when nothing is picked / the list is
+/// empty / the index is out of range / the option carries no id.
+int? _optionId<T>(List<T> options, int? index, int? Function(T) id) {
   final option = _optionAt(options, index);
   return option == null ? null : id(option);
 }
 
-/// The option at [index], or null when the list is empty / the index is out of
-/// range.
-T? _optionAt<T>(List<T> options, int index) =>
-    index >= 0 && index < options.length ? options[index] : null;
+/// The option at [index], or null when nothing is picked / the list is empty /
+/// the index is out of range.
+T? _optionAt<T>(List<T> options, int? index) =>
+    index != null && index >= 0 && index < options.length
+    ? options[index]
+    : null;
 
 /// Footer shown when the product has no stock — a full-width, height-50
 /// "Out Of Stock" pill that replaces the Add-to-Cart / Buy-Now actions.
@@ -295,14 +350,24 @@ class _Content extends StatelessWidget {
     required this.product,
     required this.colorIndex,
     required this.sizeIndex,
+    required this.colorError,
+    required this.sizeError,
     required this.onColorSelected,
     required this.onSizeSelected,
     required this.onOpenNegotiate,
   });
 
   final ProductDetails product;
-  final int colorIndex;
-  final int sizeIndex;
+
+  /// Picked chips, null while the customer hasn't chosen on that axis.
+  final int? colorIndex;
+  final int? sizeIndex;
+
+  /// Show the "please pick one" message under that selector — set once a CTA
+  /// has been turned away for it.
+  final bool colorError;
+  final bool sizeError;
+
   final ValueChanged<int> onColorSelected;
   final ValueChanged<int> onSizeSelected;
 
@@ -377,6 +442,7 @@ class _Content extends StatelessWidget {
             selectedIndex: colorIndex,
             onSelected: onColorSelected,
           ),
+          if (colorError) _VariantError(context.tr(LocaleKeys.pleaseSelectColor)),
         ],
         if (product.sizes.isNotEmpty) ...[
           context.gapH(20),
@@ -387,6 +453,7 @@ class _Content extends StatelessWidget {
             selectedIndex: sizeIndex,
             onSelected: onSizeSelected,
           ),
+          if (sizeError) _VariantError(context.tr(LocaleKeys.pleaseSelectSize)),
         ],
         context.gapH(20),
         ProductInfoTabs(
@@ -400,6 +467,36 @@ class _Content extends StatelessWidget {
               context.push(AppRoutes.productDetails, extra: p.id),
         ),
       ],
+    );
+  }
+}
+
+/// Inline validation line under a variant selector the customer skipped.
+class _VariantError extends StatelessWidget {
+  const _VariantError(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: context.r(8)),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: context.r(16),
+            color: AppColors.error,
+          ),
+          context.gapW(6),
+          Expanded(
+            child: Text(
+              message,
+              style: context.bodySmall?.copyWith(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

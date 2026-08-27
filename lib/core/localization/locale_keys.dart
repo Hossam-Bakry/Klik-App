@@ -75,6 +75,9 @@ abstract class LocaleKeys {
   static const noReviewsYet = 'no_reviews_yet';
   static const similarProducts = 'similar_products';
   static const addToCart = 'add_to_cart';
+  static const pleaseSelectColor = 'please_select_color';
+  static const pleaseSelectSize = 'please_select_size';
+  static const pleaseSelectColorAndSize = 'please_select_color_and_size';
 
   // Cart
   static const cart = 'cart';

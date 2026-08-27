@@ -71,8 +71,16 @@ class HomeFeedDto {
       isBidable: json['is_bidable'] as bool? ?? false,
       shopName: shop?['name'] as String? ?? '',
       estimatedDeliveryTime: '${shop?['estimated_delivery_time'] ?? ''}',
+      hasVariants: _hasVariants(json),
     );
   }
+
+  /// A product varies when the payload carries a non-empty `colors`/`sizes`
+  /// array; absent, null or empty means a simple product.
+  static bool _hasVariants(Map<String, dynamic> json) =>
+      _isNonEmptyList(json['colors']) || _isNonEmptyList(json['sizes']);
+
+  static bool _isNonEmptyList(Object? v) => v is List && v.isNotEmpty;
 
   static int _toInt(Object? v) => switch (v) {
         num n => n.toInt(),

@@ -5,7 +5,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/product_size_option.dart';
 
 /// Row of variant chips (e.g. storage sizes); the selected one fills with the
-/// brand colour, the rest are outlined.
+/// brand colour, the rest are outlined. [selectedIndex] is null until the
+/// customer picks — no chip is chosen on their behalf, since the pick is what
+/// the cart line carries.
 class ProductSizeSelector extends StatelessWidget {
   const ProductSizeSelector({
     super.key,
@@ -15,7 +17,7 @@ class ProductSizeSelector extends StatelessWidget {
   });
 
   final List<ProductSizeOption> sizes;
-  final int selectedIndex;
+  final int? selectedIndex;
   final ValueChanged<int> onSelected;
 
   @override
