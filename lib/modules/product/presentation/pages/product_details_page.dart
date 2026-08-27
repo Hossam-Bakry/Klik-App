@@ -13,6 +13,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/widgets/auth_prompt.dart';
 import '../../domain/entities/product_details.dart';
 import '../bloc/product_bloc.dart';
@@ -383,9 +384,16 @@ class _Content extends StatelessWidget {
       sizeId: _optionId(product.sizes, sizeIndex, (s) => s.id),
       colorId: _optionId(product.colors, colorIndex, (c) => c.id),
     );
-    final isFavorite = context.select<FavoritesCubit, bool>(
-      (cubit) => cubit.isFavorite(product.id),
+    // Favorites belong to an account, so a guest always sees the heart empty —
+    // same as the cards' [ProductFavoriteButton].
+    final isAuthenticated = context.select<AuthBloc, bool>(
+      (bloc) => bloc.state.isAuthenticated,
     );
+    final isFavorite =
+        isAuthenticated &&
+        context.select<FavoritesCubit, bool>(
+          (cubit) => cubit.isFavorite(product.id),
+        );
 
     return ListView(
       padding: context.edgeAll(16),
@@ -400,8 +408,22 @@ class _Content extends StatelessWidget {
           // below and signalling the price now shown is the agreed one.
           badgeColor: bid?.isApproved == true ? AppColors.success : null,
           isFavorite: isFavorite,
-          onToggleFavorite: () =>
-              context.read<FavoritesCubit>().toggle(product.id),
+          // A guest gets the sign-in sheet instead of a toggle: the favorite
+          // has nowhere to be saved until there's an account behind it.
+          onToggleFavorite: () => context.requireAuth(() {
+            context.read<FavoritesCubit>().toggle(product.id);
+            isFavorite
+                ? AppToast.error(
+                    context,
+                    context.tr(LocaleKeys.itemRemovedFromWishlist),
+                    icon: Icons.delete_outline_rounded,
+                  )
+                : AppToast.success(
+                    context,
+                    context.tr(LocaleKeys.itemAddedToWishlist),
+                    icon: Icons.favorite_rounded,
+                  );
+          }),
         ),
         context.gapH(16),
         Text(
